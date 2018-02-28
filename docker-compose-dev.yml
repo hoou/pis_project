@@ -1,0 +1,16 @@
+version: '3.4'
+
+services:
+
+  api:
+    container_name: api
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile-dev
+    volumes:
+      - './services/api:/usr/src/app'
+    ports:
+      - 5001:5000
+    environment:
+      - FLASK_APP=project/__init__.py
+      - FLASK_DEBUG=1
