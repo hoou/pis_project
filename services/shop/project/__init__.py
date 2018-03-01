@@ -3,49 +3,25 @@ from os import getenv
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
-# init app
-app = Flask(__name__)
-
-# set config
-app_settings = getenv('APP_SETTINGS')
-app.config.from_object(app_settings)
-
 # init db
-db = SQLAlchemy(app)
+db = SQLAlchemy()
 
 
-# model
-class User(db.Model):
-    __tablename__ = "users"
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    email = db.Column(db.String(64), nullable=False)
-    password = db.Column(db.LargeBinary(20), nullable=False)
-    first_name = db.Column(db.String(64))
-    last_name = db.Column(db.String(64))
-    phone = db.Column(db.String(13))
-    street = db.Column(db.String(64))
-    zip = db.Column(db.String(5))
-    city = db.Column(db.String(64))
-    country = db.Column(db.String(64))
-    date_of_birth = db.Column(db.Date())
+def create_app(script_info=None):
+    # init app
+    app = Flask(__name__)
 
-    def __init__(self, email, password, first_name=None, last_name=None, phone=None, street=None, zip=None, city=None,
-                 country=None, date_of_birth=None):
-        self.email = email
-        self.password = password
-        self.first_name = first_name
-        self.last_name = last_name
-        self.phone = phone
-        self.street = street
-        self.zip = zip
-        self.city = city
-        self.country = country
-        self.date_of_birth = date_of_birth
+    # set config
+    app_settings = getenv('APP_SETTINGS')
+    app.config.from_object(app_settings)
 
+    # set up extensions
+    db.init_app(app)
 
-@app.route('/ping')
-def ping_pong():
-    return jsonify({
-        'status': 'success',
-        'message': 'pong!'
-    })
+    # register blueprints
+    from .api.users import users_blueprint
+    app.register_blueprint(users_blueprint)
+
+    # shell context for flask cli
+    app.shell_context_processor({'app': app, 'db': db})
+    return app
