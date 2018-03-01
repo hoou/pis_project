@@ -4,8 +4,8 @@ import unittest
 from project.tests.base import BaseTestCase
 
 
-class TestApiService(BaseTestCase):
-    """Tests for the API Service."""
+class TestShopService(BaseTestCase):
+    """Tests for the Shop Service."""
 
     def test_ping(self):
         """Ensure the /ping route behaves correctly."""
