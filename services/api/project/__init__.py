@@ -2,7 +2,7 @@ from os import getenv
 
 from flask import Flask, jsonify
 
-# instantiate the app
+# init app
 app = Flask(__name__)
 
 # set config
