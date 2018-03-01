@@ -1,0 +1,3 @@
+CREATE DATABASE pis_prod;
+CREATE DATABASE pis_dev;
+CREATE DATABASE pis_test;
