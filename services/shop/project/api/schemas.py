@@ -1,7 +1,6 @@
 from marshmallow_sqlalchemy import ModelSchema
-
-from project.api.models import User
 from project import session
+from project.api.models import User
 
 
 class BaseSchema(ModelSchema):

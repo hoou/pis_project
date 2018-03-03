@@ -1,9 +1,8 @@
 import json
 
 from flask_api import status
-from sqlalchemy.orm import Session
-
 from project.api.models import User
+from sqlalchemy.orm import Session
 
 
 def test_ping(client):

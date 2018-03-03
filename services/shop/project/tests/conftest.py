@@ -1,7 +1,5 @@
+from project import create_app, db
 import pytest
-
-from project import create_app
-from project import db
 
 
 @pytest.fixture
