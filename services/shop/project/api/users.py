@@ -31,7 +31,7 @@ def add_user():
     try:
         db.session.add(User(email=email, password=password))
         db.session.commit()
-    except IntegrityError as e:
+    except IntegrityError:
         db.session.rollback()
         return jsonify(
             {'status': 'fail', 'message': 'Sorry. User with that email already exists.'}), status.HTTP_409_CONFLICT
