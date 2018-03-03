@@ -2,9 +2,14 @@ from os import getenv
 
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import orm
 
 # init db
+
 db = SQLAlchemy()
+
+session = orm.scoped_session(orm.sessionmaker())
+session.configure(bind="engine")
 
 
 def create_app(script_info=None):
@@ -19,7 +24,7 @@ def create_app(script_info=None):
     db.init_app(app)
 
     # register blueprints
-    from .api.users import users_blueprint
+    from project.api.users import users_blueprint
     app.register_blueprint(users_blueprint)
 
     # shell context for flask cli

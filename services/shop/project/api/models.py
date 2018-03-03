@@ -4,8 +4,8 @@ from project import db
 class User(db.Model):
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    email = db.Column(db.String(64), nullable=False)
-    password = db.Column(db.LargeBinary(20), nullable=False)
+    email = db.Column(db.String(64), nullable=False, unique=True)
+    password = db.Column(db.String(64), nullable=False)  # FIXME should be binary
     first_name = db.Column(db.String(64))
     last_name = db.Column(db.String(64))
     phone = db.Column(db.String(13))
@@ -15,8 +15,8 @@ class User(db.Model):
     country = db.Column(db.String(64))
     date_of_birth = db.Column(db.Date())
 
-    def __init__(self, email, password, first_name=None, last_name=None, phone=None, street=None, zip=None, city=None,
-                 country=None, date_of_birth=None):
+    def __init__(self, email, password, first_name=None, last_name=None, phone=None, street=None, zip=None,
+                 city=None, country=None, date_of_birth=None):
         self.email = email
         self.password = password
         self.first_name = first_name
