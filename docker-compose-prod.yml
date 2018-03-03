@@ -6,15 +6,12 @@ services:
     container_name: shop
     build:
       context: services/shop
-      dockerfile: Dockerfile-dev
-    volumes:
-      - './services/shop:/usr/src/app'
-    ports:
-      - 5001:5000
+      dockerfile: Dockerfile-prod
+    expose:
+      - '5000'
     environment:
-      - FLASK_DEBUG=1
-      - APP_SETTINGS=project.config.DevelopmentConfig
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/pis_dev
+      - APP_SETTINGS=project.config.ProductionConfig
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/pis_prod
       - DATABASE_TEST_URL=postgresql://postgres:postgres@db:5432/pis_test
     depends_on:
       - db
