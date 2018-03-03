@@ -17,7 +17,7 @@ before_script:
 
 script:
   - docker-compose -f docker-compose-dev.yml run shop python manage.py test
-  - docker run -ti -v $(pwd):/app --workdir=/app coala/base:latest coala - C
+  - docker run -ti -v $(pwd):/app --workdir=/app coala/base:latest coala -C
 
 after_script:
   - docker-compose -f docker-compose-dev.yml down
