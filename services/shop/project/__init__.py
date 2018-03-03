@@ -12,7 +12,7 @@ session = orm.scoped_session(orm.sessionmaker())
 session.configure(bind="engine")
 
 
-def create_app():
+def create_app(script_info=None):
     # init app
     app = Flask(__name__)
 
