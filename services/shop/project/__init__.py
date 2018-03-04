@@ -2,10 +2,10 @@ from os import getenv
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 from sqlalchemy import orm
 
-# init db
-
+# init extensions
 db = SQLAlchemy()
 
 session = orm.scoped_session(orm.sessionmaker())
@@ -15,6 +15,9 @@ session.configure(bind="engine")
 def create_app(script_info=None):
     # init app
     app = Flask(__name__)
+
+    # enable CORS
+    CORS(app)
 
     # set config
     app_settings = getenv('APP_SETTINGS')
