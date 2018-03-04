@@ -119,4 +119,4 @@ def test_get_all_users(client, db_session: Session):
     assert len(payload['data']) == number_of_users
     for i in range(number_of_users):
         assert f'user{i}@server.eu' in payload['data'][i]['email']
-        assert f'pass{i}' in payload['data'][i]['password']
+        assert payload['data'][i]['password']

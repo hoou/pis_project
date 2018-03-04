@@ -3,10 +3,12 @@ from os import getenv
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from flask_bcrypt import Bcrypt
 from sqlalchemy import orm
 
 # init extensions
 db = SQLAlchemy()
+bcrypt = Bcrypt()
 
 session = orm.scoped_session(orm.sessionmaker())
 session.configure(bind="engine")
@@ -25,6 +27,7 @@ def create_app(script_info=None):
 
     # set up extensions
     db.init_app(app)
+    bcrypt.init_app(app)
 
     # register blueprints
     from project.api.users import users_blueprint
