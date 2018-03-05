@@ -2,6 +2,8 @@ import jwt
 import pytest
 
 from project.store import user_store
+from project.utils.jwt import encode_auth_token
+from project.utils.jwt import decode_auth_token
 
 
 def test_add_user(app):
@@ -30,17 +32,16 @@ def test_passwords_are_random(app):
 def test_encode_auth_token(app):
     user = user_store.add(email='tibor@mikita.eu', password='blah')
 
-    auth_token = user.encode_auth_token()
+    auth_token = encode_auth_token(user.id)
     assert isinstance(auth_token, bytes)
 
 
 def test_decode_auth_token(app):
     user = user_store.add(email='tibor@mikita.eu', password='blah')
 
-    auth_token = user.encode_auth_token()
+    auth_token = encode_auth_token(user.id)
 
-    from project.models.user import User  # FIXME remove this
-    decoded_token = User.decode_auth_token(auth_token)
+    decoded_token = decode_auth_token(auth_token)
 
     assert decoded_token == user.id
 
@@ -48,17 +49,15 @@ def test_decode_auth_token(app):
 def test_decode_expired_auth_token(app):
     user = user_store.add(email='tibor@mikita.eu', password='blah')
 
-    auth_token = user.encode_auth_token()
+    auth_token = encode_auth_token(user.id)
 
     import time
     time.sleep(app.config.get('TOKEN_EXPIRATION_SECONDS') + 1)
 
-    from project.models.user import User  # FIXME remove this
     with pytest.raises(jwt.ExpiredSignatureError):
-        User.decode_auth_token(auth_token)
+        decode_auth_token(auth_token)
 
 
 def test_decode_invalid_auth_token(app):
-    from project.models.user import User  # FIXME remove this
     with pytest.raises(jwt.InvalidTokenError):
-        User.decode_auth_token("blablabla")
+        decode_auth_token("blablabla")

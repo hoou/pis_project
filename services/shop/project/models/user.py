@@ -1,7 +1,5 @@
-import datetime
-
 from flask import current_app
-import jwt
+
 from project import bcrypt, db
 
 
@@ -19,7 +17,7 @@ class User(db.Model):
     country = db.Column(db.String(64))
     date_of_birth = db.Column(db.Date())
 
-    def __init__(self, email, password, first_name=None, last_name=None, phone=None, street=None, zip=None,
+    def __init__(self, email, password, first_name=None, last_name=None, phone=None, street=None, zip_code=None,
                  city=None, country=None, date_of_birth=None):
         self.email = email
         self.password = bcrypt.generate_password_hash(password, current_app.config.get('BCRYPT_LOG_ROUNDS')).decode()
@@ -27,28 +25,7 @@ class User(db.Model):
         self.last_name = last_name
         self.phone = phone
         self.street = street
-        self.zip = zip
+        self.zip = zip_code
         self.city = city
         self.country = country
         self.date_of_birth = date_of_birth
-
-    def encode_auth_token(self):
-        payload = {
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(
-                days=current_app.config.get('TOKEN_EXPIRATION_DAYS'),
-                seconds=current_app.config.get('TOKEN_EXPIRATION_SECONDS')
-            ),
-            'iat': datetime.datetime.utcnow(),
-            'sub': self.id
-        }
-
-        return jwt.encode(
-            payload,
-            current_app.config.get('SECRET_KEY'),
-            algorithm='HS256'
-        )
-
-    @staticmethod
-    def decode_auth_token(token):
-        payload = jwt.decode(token, current_app.config.get('SECRET_KEY'))
-        return payload['sub']
