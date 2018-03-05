@@ -1,8 +1,7 @@
+from project.api.models import User
 import pytest
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-
-from project.api.models import User
 
 
 def test_add_user(app, db_session: Session):
@@ -36,3 +35,45 @@ def test_passwords_are_random(app, db_session: Session):
     db_session.commit()
 
     assert user1.password != user2.password
+
+
+def test_encode_auth_token(app, db_session: Session):
+    user = User('tibor@mikita.eu', 'blah')
+    db_session.add(user)
+    db_session.commit()
+
+    auth_token = user.encode_auth_token()
+    assert isinstance(auth_token, bytes)
+
+
+def test_decode_auth_token(app, db_session: Session):
+    user = User('tibor@mikita.eu', 'blah')
+    db_session.add(user)
+    db_session.commit()
+
+    auth_token = user.encode_auth_token()
+
+    decoded_token = User.decode_auth_token(auth_token)
+
+    assert decoded_token == user.id
+
+
+def test_decode_expired_auth_token(app, db_session: Session):
+    user = User('tibor@mikita.eu', 'blah')
+    db_session.add(user)
+    db_session.commit()
+
+    auth_token = user.encode_auth_token()
+
+    import time
+    time.sleep(app.config.get('TOKEN_EXPIRATION_SECONDS') + 1)
+
+    decoded_token = User.decode_auth_token(auth_token)
+
+    assert decoded_token == 'Signature expired. Please log in again.'
+
+
+def test_decode_invalid_auth_token(app, db_session: Session):
+    decoded_token = User.decode_auth_token("blablabla")
+
+    assert decoded_token == 'Invalid token. Please log in again.'
