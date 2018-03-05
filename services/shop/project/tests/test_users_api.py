@@ -1,8 +1,8 @@
 import json
 
 from flask_api import status
-from project.models.user import User
-from sqlalchemy.orm import Session
+
+from project.store import user_store
 
 
 def test_ping(client):
@@ -75,10 +75,9 @@ def test_add_user_duplicate_email(client):
     assert 'fail' == payload['status']
 
 
-def test_get_single_user(client, db_session: Session):
-    user = User('tibor@mikita.eu', 'halo')
-    db_session.add(user)
-    db_session.commit()
+def test_get_single_user(client):
+    user = user_store.add(email='tibor@mikita.eu', password='halo')
+
     r = client.get(f'/users/{user.id}')
     payload = r.json
     assert r.status_code == status.HTTP_200_OK
@@ -101,15 +100,14 @@ def test_get_single_user_id_not_int(client):
     payload = r.json
     assert r.status_code == status.HTTP_400_BAD_REQUEST
     assert payload['status'] == 'fail'
-    assert payload['message'] == 'Bad request.'
+    assert payload['message'] == 'User id must be int.'
 
 
-def test_get_all_users(client, db_session: Session):
+def test_get_all_users(client):
     number_of_users = 3
 
     for i in range(number_of_users):
-        db_session.add(User(f'user{i}@server.eu', f'pass{i}'))
-    db_session.commit()
+        user_store.add(email=f'user{i}@server.eu', password=f'pass{i}')
 
     r = client.get('/users')
     payload = r.json

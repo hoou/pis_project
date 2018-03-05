@@ -26,8 +26,3 @@ def app_prod():
     app_ = create_app()
     app_.config.from_object('project.config.ProductionConfig')
     return app_
-
-
-@pytest.fixture()
-def db_session():
-    yield db.session

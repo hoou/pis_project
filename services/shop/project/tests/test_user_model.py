@@ -1,79 +1,65 @@
-from project.models.user import User
 import pytest
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
+
+from project.store import user_store
 
 
-def test_add_user(app, db_session: Session):
-    user = User('tibor@mikita.eu', 'halo')
-    db_session.add(user)
-    db_session.commit()
+def test_add_user(app):
+    user = user_store.add(email='tibor@mikita.eu', password='halo')
 
     assert user.id
     assert user.email == 'tibor@mikita.eu'
     assert user.password
 
 
-def test_add_user_duplicate_email(app, db_session: Session):
-    user = User('tibor@mikita.eu', 'halo')
-    user2 = User('tibor@mikita.eu', 'blah')
+def test_add_user_duplicate_email(app):
+    user_store.add(email='tibor@mikita.eu', password='halo')
 
-    db_session.add(user)
-    db_session.commit()
-
-    db_session.add(user2)
-    with pytest.raises(IntegrityError):
-        db_session.commit()
+    from project.store.user_store import DuplicateEmailError
+    with pytest.raises(DuplicateEmailError):
+        user_store.add(email='tibor@mikita.eu', password='blah')
 
 
-def test_passwords_are_random(app, db_session: Session):
-    user1 = User('user1@server.eu', 'blah')
-    user2 = User('user2@server.eu', 'blah')
-
-    db_session.add(user1)
-    db_session.add(user2)
-    db_session.commit()
+def test_passwords_are_random(app):
+    user1 = user_store.add(email='user1@server.eu', password='blah')
+    user2 = user_store.add(email='user2@server.eu', password='blah')
 
     assert user1.password != user2.password
 
 
-def test_encode_auth_token(app, db_session: Session):
-    user = User('tibor@mikita.eu', 'blah')
-    db_session.add(user)
-    db_session.commit()
+def test_encode_auth_token(app):
+    user = user_store.add(email='tibor@mikita.eu', password='blah')
 
     auth_token = user.encode_auth_token()
     assert isinstance(auth_token, bytes)
 
 
-def test_decode_auth_token(app, db_session: Session):
-    user = User('tibor@mikita.eu', 'blah')
-    db_session.add(user)
-    db_session.commit()
+def test_decode_auth_token(app):
+    user = user_store.add(email='tibor@mikita.eu', password='blah')
 
     auth_token = user.encode_auth_token()
 
+    from project.models.user import User  # FIXME remove this
     decoded_token = User.decode_auth_token(auth_token)
 
     assert decoded_token == user.id
 
 
-def test_decode_expired_auth_token(app, db_session: Session):
-    user = User('tibor@mikita.eu', 'blah')
-    db_session.add(user)
-    db_session.commit()
+def test_decode_expired_auth_token(app):
+    user = user_store.add(email='tibor@mikita.eu', password='blah')
 
     auth_token = user.encode_auth_token()
 
     import time
     time.sleep(app.config.get('TOKEN_EXPIRATION_SECONDS') + 1)
 
+    from project.models.user import User  # FIXME remove this
     decoded_token = User.decode_auth_token(auth_token)
 
     assert decoded_token == 'Signature expired. Please log in again.'
 
 
-def test_decode_invalid_auth_token(app, db_session: Session):
+def test_decode_invalid_auth_token(app):
+    from project.models.user import User  # FIXME remove this
     decoded_token = User.decode_auth_token("blablabla")
 
     assert decoded_token == 'Invalid token. Please log in again.'
