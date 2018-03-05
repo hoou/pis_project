@@ -29,5 +29,9 @@ def get(user_id: int):
     return User.query.filter_by(id=user_id).first()
 
 
+def get_by_email(email):
+    return User.query.filter_by(email=email).first()
+
+
 def get_all():
     return User.query.all()
