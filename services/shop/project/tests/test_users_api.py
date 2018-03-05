@@ -1,7 +1,7 @@
 import json
 
 from flask_api import status
-from project.api.models import User
+from project.models.user import User
 from sqlalchemy.orm import Session
 
 

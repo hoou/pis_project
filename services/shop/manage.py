@@ -27,7 +27,7 @@ def recreate_db():
 
 @cli.command()
 def seed_db():
-    from project.api.models import User
+    from project.models.user import User
     db.session.add(User('user1@server.eu', 'blah'))
     db.session.add(User('user2@server.eu', 'blah-blah'))
     db.session.commit()

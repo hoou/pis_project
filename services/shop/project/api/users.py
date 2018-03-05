@@ -1,8 +1,8 @@
 from flask import Blueprint, jsonify, request
 from flask_api import status
 from project import db
-from project.api.models import User
-from project.api.schemas import user_schema
+from project.models.user import User
+from project.models.schemas import user_schema
 from sqlalchemy.exc import DataError, IntegrityError
 
 users_blueprint = Blueprint('users', __name__)

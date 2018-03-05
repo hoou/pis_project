@@ -1,4 +1,4 @@
-from project.api.models import User
+from project.models.user import User
 import pytest
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
