@@ -1,3 +1,4 @@
+import jwt
 import pytest
 
 from project.store import user_store
@@ -53,13 +54,11 @@ def test_decode_expired_auth_token(app):
     time.sleep(app.config.get('TOKEN_EXPIRATION_SECONDS') + 1)
 
     from project.models.user import User  # FIXME remove this
-    decoded_token = User.decode_auth_token(auth_token)
-
-    assert decoded_token == 'Signature expired. Please log in again.'
+    with pytest.raises(jwt.ExpiredSignatureError):
+        User.decode_auth_token(auth_token)
 
 
 def test_decode_invalid_auth_token(app):
     from project.models.user import User  # FIXME remove this
-    decoded_token = User.decode_auth_token("blablabla")
-
-    assert decoded_token == 'Invalid token. Please log in again.'
+    with pytest.raises(jwt.InvalidTokenError):
+        User.decode_auth_token("blablabla")
