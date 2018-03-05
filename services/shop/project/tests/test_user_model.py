@@ -49,10 +49,9 @@ def test_decode_auth_token(app):
 def test_decode_expired_auth_token(app):
     user = user_store.add(email='tibor@mikita.eu', password='blah')
 
-    auth_token = encode_auth_token(user.id)
+    app.config['TOKEN_EXPIRATION_SECONDS'] = -1
 
-    import time
-    time.sleep(app.config.get('TOKEN_EXPIRATION_SECONDS') + 1)
+    auth_token = encode_auth_token(user.id)
 
     with pytest.raises(jwt.ExpiredSignatureError):
         decode_auth_token(auth_token)
