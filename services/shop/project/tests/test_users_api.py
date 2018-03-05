@@ -9,8 +9,8 @@ def test_ping(client):
     r = client.get('/users/ping')
     payload = r.json
     assert r.status_code == status.HTTP_200_OK
-    assert 'pong!' in payload['message']
-    assert 'success' in payload['status']
+    assert payload['message'] == 'pong!'
+    assert payload['status'] == 'success'
 
 
 def test_add_user(client):
@@ -24,8 +24,8 @@ def test_add_user(client):
     )
     payload = r.json
     assert r.status_code == status.HTTP_201_CREATED
-    assert 'success' in payload['status']
-    assert 'User was added.' in payload['message']
+    assert payload['status'] == 'success'
+    assert payload['message'] == 'User was added.'
 
 
 def test_add_user_invalid_json(client):
@@ -37,7 +37,7 @@ def test_add_user_invalid_json(client):
     payload = r.json
     assert r.status_code == status.HTTP_400_BAD_REQUEST
     assert 'Invalid payload.' == payload['message']
-    assert 'fail' in payload['status']
+    assert payload['status'] == 'fail'
 
 
 def test_add_user_invalid_json_keys(client):
@@ -48,8 +48,8 @@ def test_add_user_invalid_json_keys(client):
     )
     payload = r.json
     assert r.status_code == 400
-    assert 'Invalid payload.' in payload['message']
-    assert 'fail' in payload['status']
+    assert payload['message'] == 'Invalid payload.'
+    assert payload['status'] == 'fail'
 
 
 def test_add_user_duplicate_email(client):
@@ -82,8 +82,8 @@ def test_get_single_user(client, db_session: Session):
     r = client.get(f'/users/{user.id}')
     payload = r.json
     assert r.status_code == status.HTTP_200_OK
-    assert 'tibor@mikita.eu' in payload['data']['email']
-    assert 'success' in payload['status']
+    assert payload['data']['email'] == 'tibor@mikita.eu'
+    assert payload['status'] == 'success'
 
 
 def test_get_single_user_not_exist(client):
@@ -91,8 +91,8 @@ def test_get_single_user_not_exist(client):
     r = client.get(f'/users/{non_existing_id}')
     payload = r.json
     assert r.status_code == status.HTTP_404_NOT_FOUND
-    assert 'fail' in payload['status']
-    assert 'User not found.' in payload['message']
+    assert payload['status'] == 'fail'
+    assert payload['message'] == 'User not found.'
 
 
 def test_get_single_user_id_not_int(client):
@@ -100,8 +100,8 @@ def test_get_single_user_id_not_int(client):
     r = client.get(f'/users/{non_int_id}')
     payload = r.json
     assert r.status_code == status.HTTP_400_BAD_REQUEST
-    assert 'fail' in payload['status']
-    assert 'Bad request.' in payload['message']
+    assert payload['status'] == 'fail'
+    assert payload['message'] == 'Bad request.'
 
 
 def test_get_all_users(client, db_session: Session):
@@ -115,8 +115,8 @@ def test_get_all_users(client, db_session: Session):
     payload = r.json
 
     assert r.status_code == status.HTTP_200_OK
-    assert 'success' in payload['status']
+    assert payload['status'] == 'success'
     assert len(payload['data']) == number_of_users
     for i in range(number_of_users):
-        assert f'user{i}@server.eu' in payload['data'][i]['email']
+        assert payload['data'][i]['email'] == f'user{i}@server.eu'
         assert payload['data'][i]['password']
