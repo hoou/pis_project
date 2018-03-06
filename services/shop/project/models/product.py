@@ -7,6 +7,7 @@ class Product(db.Model):
     name = db.Column(db.String(64), nullable=False)
     description = db.Column(db.Text)
     price = db.Column(db.Float, nullable=False)
+    images = db.relationship('ProductImage', backref='product', lazy=True)
 
     def __init__(self, name, price, description=None):
         self.name = name

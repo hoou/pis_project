@@ -1,6 +1,7 @@
 from marshmallow_sqlalchemy import ModelSchema
 from project import session
 from project.models.product import Product
+from project.models.product_image import ProductImage
 from project.models.user import User
 
 
@@ -19,5 +20,11 @@ class ProductSchema(BaseSchema):
         model = Product
 
 
+class ProductImageSchema(BaseSchema):
+    class Meta(BaseSchema.Meta):
+        model = ProductImage
+
+
 user_schema = UserSchema()
 product_schema = ProductSchema()
+product_image_schema = ProductImageSchema()
