@@ -12,6 +12,7 @@ def test_add_user(app):
     assert user.id
     assert user.email == 'tibor@mikita.eu'
     assert user.password
+    assert not user.active
 
 
 def test_add_user_duplicate_email(app):

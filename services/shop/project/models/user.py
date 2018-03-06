@@ -8,6 +8,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.String(64), nullable=False, unique=True)
     password = db.Column(db.String(255), nullable=False)
+    active = db.Column(db.Boolean, default=False, nullable=False)
     first_name = db.Column(db.String(64))
     last_name = db.Column(db.String(64))
     phone = db.Column(db.String(13))
