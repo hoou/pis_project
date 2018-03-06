@@ -17,6 +17,7 @@ services:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/pis_dev
       - DATABASE_TEST_URL=postgresql://postgres:postgres@db:5432/pis_test
       - SECRET_KEY=my_precious
+      - UPLOAD_FOLDER=../public/uploads
     depends_on:
       - db
     links:

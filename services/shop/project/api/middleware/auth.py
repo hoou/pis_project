@@ -15,7 +15,10 @@ def authenticate(f):
         authorization_header = request.headers.get('Authorization')
 
         if authorization_header is None:
-            return jsonify({'status': 'fail', 'message': 'Authorization header missing.'}), status.HTTP_401_UNAUTHORIZED
+            return jsonify({
+                'status': 'fail',
+                'message': 'You do not have permission to do that.'
+            }), status.HTTP_403_FORBIDDEN
 
         import re
         m = re.search('^Bearer (?P<token>.*)', authorization_header)

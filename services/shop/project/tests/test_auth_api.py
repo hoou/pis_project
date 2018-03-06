@@ -243,9 +243,9 @@ def test_user_logout_no_header(client):
     )
     payload = r.json
 
-    assert r.status_code == status.HTTP_401_UNAUTHORIZED
+    assert r.status_code == status.HTTP_403_FORBIDDEN
     assert payload['status'] == 'fail'
-    assert payload['message'] == 'Authorization header missing.'
+    assert payload['message'] == 'You do not have permission to do that.'
 
 
 def test_user_logout_no_token(client):

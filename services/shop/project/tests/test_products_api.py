@@ -2,6 +2,7 @@ import json
 
 from flask_api import status
 
+from project.models.product_image import ProductImage
 from project.models.user import UserRole
 from project.store import product_store, user_store
 from project.utils.jwt import encode_auth_token
@@ -194,9 +195,9 @@ def test_add_product_not_logged_in(client):
 
     payload = r.json
 
-    assert r.status_code == status.HTTP_401_UNAUTHORIZED
+    assert r.status_code == status.HTTP_403_FORBIDDEN
     assert payload['status'] == 'fail'
-    assert payload['message'] == 'Authorization header missing.'
+    assert payload['message'] == 'You do not have permission to do that.'
 
 
 def test_add_product_not_admin_or_worker(client):
@@ -304,3 +305,298 @@ def test_add_product_missing_price(client):
     assert r.status_code == status.HTTP_400_BAD_REQUEST
     assert payload['status'] == 'fail'
     assert payload['message'] == 'Invalid payload.'
+
+
+def test_add_product_image(client):
+    admin = user_store.add(email='tibor@mikita.eu', password='blah')
+    user_store.set_active(admin.id)
+    user_store.set_admin(admin.id)
+
+    product = product_store.add(name='Super Small Product', price=0.99)
+
+    assert product.id
+
+    r = client.post(
+        '/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    auth_token = payload['auth_token']
+
+    with open('tests/test_files/lena.jpg', 'rb') as f:
+        r = client.post(
+            f'/products/{product.id}/images',
+            data={
+                'file': (f, f.name)
+            },
+            headers={'Authorization': f'Bearer {auth_token}'},
+            content_type='multipart/form-data'
+        )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_201_CREATED
+    assert payload['status'] == 'success'
+    assert payload['message'] == 'Image was successfully uploaded.'
+    assert len(product.images) == 1
+    assert isinstance(product.images[0], ProductImage)
+    assert product.images[0].url
+
+
+def test_add_product_image_not_existing_product(client):
+    admin = user_store.add(email='tibor@mikita.eu', password='blah')
+    user_store.set_active(admin.id)
+    user_store.set_admin(admin.id)
+
+    r = client.post(
+        '/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    auth_token = payload['auth_token']
+
+    not_existing_product_id = 99
+
+    with open('tests/test_files/lena.jpg', 'rb') as f:
+        r = client.post(
+            f'/products/{not_existing_product_id}/images',
+            data={
+                'file': (f, f.name)
+            },
+            headers={'Authorization': f'Bearer {auth_token}'},
+            content_type='multipart/form-data'
+        )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_404_NOT_FOUND
+    assert payload['status'] == 'fail'
+    assert payload['message'] == 'Product not found.'
+
+
+def test_add_product_image_no_data(client):
+    admin = user_store.add(email='tibor@mikita.eu', password='blah')
+    user_store.set_active(admin.id)
+    user_store.set_admin(admin.id)
+
+    product = product_store.add(name='Super Small Product', price=0.99)
+
+    assert product.id
+
+    r = client.post(
+        '/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    auth_token = payload['auth_token']
+
+    with open('tests/test_files/lena.jpg', 'rb') as f:
+        r = client.post(
+            f'/products/{product.id}/images',
+            headers={'Authorization': f'Bearer {auth_token}'},
+            content_type='multipart/form-data'
+        )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_400_BAD_REQUEST
+    assert payload['status'] == 'fail'
+    assert payload['message'] == 'Invalid payload.'
+
+
+def test_add_product_image_not_admin_or_worker(client):
+    user = user_store.add(email='tibor@mikita.eu', password='blah')
+    user_store.set_active(user.id)
+
+    product = product_store.add(name='Super Small Product', price=0.99)
+
+    assert product.id
+
+    r = client.post(
+        '/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    auth_token = payload['auth_token']
+
+    assert user.role != UserRole.WORKER and user.role != UserRole.ADMIN
+
+    with open('tests/test_files/lena.jpg', 'rb') as f:
+        r = client.post(
+            f'/products/{product.id}/images',
+            data={
+                'file': (f, f.name)
+            },
+            headers={'Authorization': f'Bearer {auth_token}'},
+            content_type='multipart/form-data'
+        )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_403_FORBIDDEN
+    assert payload['status'] == 'fail'
+    assert payload['message'] == 'You do not have permission to do that.'
+
+
+def test_add_product_image_no_file(client):
+    admin = user_store.add(email='tibor@mikita.eu', password='blah')
+    user_store.set_active(admin.id)
+    user_store.set_admin(admin.id)
+
+    product = product_store.add(name='Super Small Product', price=0.99)
+
+    assert product.id
+
+    r = client.post(
+        '/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    auth_token = payload['auth_token']
+
+    with open('tests/test_files/lena.jpg', 'rb') as f:
+        r = client.post(
+            f'/products/{product.id}/images',
+            data={},
+            headers={'Authorization': f'Bearer {auth_token}'},
+            content_type='multipart/form-data'
+        )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_400_BAD_REQUEST
+    assert payload['status'] == 'fail'
+    assert payload['message'] == 'Invalid payload.'
+
+
+def test_add_product_image_empty_file(client):
+    admin = user_store.add(email='tibor@mikita.eu', password='blah')
+    user_store.set_active(admin.id)
+    user_store.set_admin(admin.id)
+
+    product = product_store.add(name='Super Small Product', price=0.99)
+
+    assert product.id
+
+    r = client.post(
+        '/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    auth_token = payload['auth_token']
+
+    with open('tests/test_files/lena.jpg', 'rb') as f:
+        r = client.post(
+            f'/products/{product.id}/images',
+            data={
+                'file': None
+            },
+            headers={'Authorization': f'Bearer {auth_token}'},
+            content_type='multipart/form-data'
+        )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_400_BAD_REQUEST
+    assert payload['status'] == 'fail'
+    assert payload['message'] == 'Invalid payload.'
+
+
+def test_add_product_image_not_file(client):
+    admin = user_store.add(email='tibor@mikita.eu', password='blah')
+    user_store.set_active(admin.id)
+    user_store.set_admin(admin.id)
+
+    product = product_store.add(name='Super Small Product', price=0.99)
+
+    assert product.id
+
+    r = client.post(
+        '/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    auth_token = payload['auth_token']
+
+    with open('tests/test_files/lena.jpg', 'rb') as f:
+        r = client.post(
+            f'/products/{product.id}/images',
+            data={
+                'file': 'blah'
+            },
+            headers={'Authorization': f'Bearer {auth_token}'},
+            content_type='multipart/form-data'
+        )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_400_BAD_REQUEST
+    assert payload['status'] == 'fail'
+    assert payload['message'] == 'Invalid payload.'
+
+
+def test_add_product_image_not_logged_in(client):
+    admin = user_store.add(email='tibor@mikita.eu', password='blah')
+    user_store.set_active(admin.id)
+    user_store.set_admin(admin.id)
+
+    product = product_store.add(name='Super Small Product', price=0.99)
+
+    assert product.id
+
+    with open('tests/test_files/lena.jpg', 'rb') as f:
+        r = client.post(
+            f'/products/{product.id}/images',
+            data={
+                'file': (f, f.name)
+            },
+            content_type='multipart/form-data'
+        )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_403_FORBIDDEN
+    assert payload['status'] == 'fail'
+    assert payload['message'] == 'You do not have permission to do that.'

@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 
 from project import db
 from project.models.product import Product
+from project.models.product_image import ProductImage
 
 session: Session = db.session
 
@@ -28,3 +29,9 @@ def get_all():
 
 def get(product_id):
     return Product.query.filter_by(id=product_id).first()
+
+
+def add_image(product: Product, **kwargs):
+    image = ProductImage(**kwargs)
+    image.product_id = product.id
+    product.images += [image]
