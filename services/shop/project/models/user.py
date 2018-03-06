@@ -1,6 +1,14 @@
+from enum import IntEnum
+
 from flask import current_app
 
 from project import bcrypt, db
+
+
+class UserRole(IntEnum):
+    ADMIN = 0
+    WORKER = 1
+    CUSTOMER = 2
 
 
 class User(db.Model):
@@ -8,7 +16,8 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.String(64), nullable=False, unique=True)
     password = db.Column(db.String(255), nullable=False)
-    active = db.Column(db.Boolean, default=False, nullable=False)
+    active = db.Column(db.Boolean, nullable=False, default=False)
+    role = db.Column(db.Enum(UserRole), nullable=False, default=UserRole.CUSTOMER)
     first_name = db.Column(db.String(64))
     last_name = db.Column(db.String(64))
     phone = db.Column(db.String(13))

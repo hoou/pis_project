@@ -83,7 +83,9 @@ def test_user_registration_no_email(client):
 
 
 def test_user_login(client):
-    user_store.add(email='tibor@mikita.eu', password='blah')
+    user = user_store.add(email='tibor@mikita.eu', password='blah')
+
+    user_store.set_active(user.id)
 
     r = client.post(
         '/auth/login',
@@ -100,6 +102,27 @@ def test_user_login(client):
     assert payload['status'] == 'success'
     assert payload['message'] == 'User successfully logged in.'
     assert payload['auth_token']
+
+
+def test_user_login_inactive(client):
+    user = user_store.add(email='tibor@mikita.eu', password='blah')
+
+    assert not user.active
+
+    r = client.post(
+        '/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_403_FORBIDDEN
+    assert payload['status'] == 'fail'
+    assert payload['message'] == 'User is not active.'
 
 
 def test_user_login_empty_json(client):
@@ -166,7 +189,9 @@ def test_user_login_not_registered(client):
 
 
 def test_user_login_invalid_password(client):
-    user_store.add(email='tibor@mikita.eu', password='blah')
+    user = user_store.add(email='tibor@mikita.eu', password='blah')
+
+    user_store.set_active(user.id)
 
     r = client.post(
         '/auth/login',
@@ -185,7 +210,10 @@ def test_user_login_invalid_password(client):
 
 
 def test_user_logout(client):
-    user_store.add(email='tibor@mikita.eu', password='blah')
+    user = user_store.add(email='tibor@mikita.eu', password='blah')
+
+    user_store.set_active(user.id)
+
     r = client.post(
         '/auth/login',
         data=json.dumps({
@@ -217,7 +245,7 @@ def test_user_logout_no_header(client):
 
     assert r.status_code == status.HTTP_401_UNAUTHORIZED
     assert payload['status'] == 'fail'
-    assert payload['message'] == 'User is not logged in.'
+    assert payload['message'] == 'Authorization header missing.'
 
 
 def test_user_logout_no_token(client):
@@ -257,7 +285,9 @@ def test_user_logout_invalid_token(client):
 
 
 def test_user_logout_expired_token(app, client):
-    user_store.add(email='tibor@mikita.eu', password='blah')
+    user = user_store.add(email='tibor@mikita.eu', password='blah')
+
+    user_store.set_active(user.id)
 
     app.config['TOKEN_EXPIRATION_SECONDS'] = -1
 

@@ -1,6 +1,7 @@
 import jwt
 import pytest
 
+from project.models.user import UserRole
 from project.store import user_store
 from project.utils.jwt import encode_auth_token
 from project.utils.jwt import decode_auth_token
@@ -13,6 +14,7 @@ def test_add_user(app):
     assert user.email == 'tibor@mikita.eu'
     assert user.password
     assert not user.active
+    assert user.role == UserRole.CUSTOMER
 
 
 def test_add_user_duplicate_email(app):

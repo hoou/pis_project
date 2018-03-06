@@ -2,7 +2,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from project import db
-from project.models.user import User
+from project.models.user import User, UserRole
 
 session: Session = db.session
 
@@ -35,3 +35,11 @@ def get_by_email(email):
 
 def get_all():
     return User.query.all()
+
+
+def set_active(user_id: int):
+    User.query.filter_by(id=user_id).first().active = True
+
+
+def set_admin(user_id: int):
+    User.query.filter_by(id=user_id).first().role = UserRole.ADMIN
