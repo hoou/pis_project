@@ -43,3 +43,7 @@ def set_active(user_id: int):
 
 def set_admin(user_id: int):
     User.query.filter_by(id=user_id).first().role = UserRole.ADMIN
+
+
+def set_worker(user_id: int):
+    User.query.filter_by(id=user_id).first().role = UserRole.WORKER

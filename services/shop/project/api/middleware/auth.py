@@ -45,10 +45,10 @@ def authenticate(f):
     return decorated_function
 
 
-def check_admin(f):
+def check_admin_or_worker(f):
     @wraps(f)
     def decorated_function(user_id, *args, **kwargs):
-        if user_store.get(user_id).role != UserRole.ADMIN:
+        if user_store.get(user_id).role != UserRole.ADMIN and user_store.get(user_id).role != UserRole.WORKER:
             return jsonify({
                 'status': 'fail',
                 'message': 'You do not have permission to do that.'
