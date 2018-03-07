@@ -1,11 +1,17 @@
 import json
 
+import os
 from flask_api import status
 
 from project.models.product_image import ProductImage
 from project.models.user import UserRole
 from project.store import product_store, user_store
 from project.utils.jwt import encode_auth_token
+
+basedir = os.path.abspath(os.path.dirname(__file__))
+product_dir = os.path.join(basedir, )
+testing_image_jpg_path = os.path.join(basedir, 'test_files/lena.jpg')
+testing_image_png_path = os.path.join(basedir, 'test_files/lena.png')
 
 
 def test_get_all_products(client):
@@ -329,7 +335,7 @@ def test_add_product_image(client):
 
     auth_token = payload['auth_token']
 
-    with open('tests/test_files/lena.jpg', 'rb') as f:
+    with open(testing_image_jpg_path, 'rb') as f:
         r = client.post(
             f'/products/{product.id}/images',
             data={
@@ -369,7 +375,7 @@ def test_add_product_image_not_existing_product(client):
 
     not_existing_product_id = 99
 
-    with open('tests/test_files/lena.jpg', 'rb') as f:
+    with open(testing_image_jpg_path, 'rb') as f:
         r = client.post(
             f'/products/{not_existing_product_id}/images',
             data={
@@ -408,7 +414,7 @@ def test_add_product_image_no_data(client):
 
     auth_token = payload['auth_token']
 
-    with open('tests/test_files/lena.jpg', 'rb') as f:
+    with open(testing_image_jpg_path, 'rb') as f:
         r = client.post(
             f'/products/{product.id}/images',
             headers={'Authorization': f'Bearer {auth_token}'},
@@ -445,7 +451,7 @@ def test_add_product_image_not_admin_or_worker(client):
 
     assert user.role != UserRole.WORKER and user.role != UserRole.ADMIN
 
-    with open('tests/test_files/lena.jpg', 'rb') as f:
+    with open(testing_image_jpg_path, 'rb') as f:
         r = client.post(
             f'/products/{product.id}/images',
             data={
@@ -484,7 +490,7 @@ def test_add_product_image_no_file(client):
 
     auth_token = payload['auth_token']
 
-    with open('tests/test_files/lena.jpg', 'rb') as f:
+    with open(testing_image_jpg_path, 'rb') as f:
         r = client.post(
             f'/products/{product.id}/images',
             data={},
@@ -521,7 +527,7 @@ def test_add_product_image_empty_file(client):
 
     auth_token = payload['auth_token']
 
-    with open('tests/test_files/lena.jpg', 'rb') as f:
+    with open(testing_image_jpg_path, 'rb') as f:
         r = client.post(
             f'/products/{product.id}/images',
             data={
@@ -560,7 +566,7 @@ def test_add_product_image_not_file(client):
 
     auth_token = payload['auth_token']
 
-    with open('tests/test_files/lena.jpg', 'rb') as f:
+    with open(testing_image_jpg_path, 'rb') as f:
         r = client.post(
             f'/products/{product.id}/images',
             data={
@@ -586,7 +592,7 @@ def test_add_product_image_not_logged_in(client):
 
     assert product.id
 
-    with open('tests/test_files/lena.jpg', 'rb') as f:
+    with open(testing_image_jpg_path, 'rb') as f:
         r = client.post(
             f'/products/{product.id}/images',
             data={
@@ -600,3 +606,42 @@ def test_add_product_image_not_logged_in(client):
     assert r.status_code == status.HTTP_403_FORBIDDEN
     assert payload['status'] == 'fail'
     assert payload['message'] == 'You do not have permission to do that.'
+
+
+def test_add_product_image_not_allowed_file_ext(client):
+    admin = user_store.add(email='tibor@mikita.eu', password='blah')
+    user_store.set_active(admin.id)
+    user_store.set_admin(admin.id)
+
+    product = product_store.add(name='Super Small Product', price=0.99)
+
+    assert product.id
+
+    r = client.post(
+        '/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    auth_token = payload['auth_token']
+
+    with open(testing_image_png_path, 'rb') as f:
+        r = client.post(
+            f'/products/{product.id}/images',
+            data={
+                'file': (f, f.name)
+            },
+            headers={'Authorization': f'Bearer {auth_token}'},
+            content_type='multipart/form-data'
+        )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_400_BAD_REQUEST
+    assert payload['status'] == 'fail'
+    assert payload['message'] == 'File extension not allowed.'
