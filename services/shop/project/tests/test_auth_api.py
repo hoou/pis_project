@@ -1,6 +1,5 @@
 import json
 
-import time
 from flask_api import status
 
 from project.store import user_store
@@ -84,8 +83,7 @@ def test_user_registration_no_email(client):
 
 def test_user_login(client):
     user = user_store.add(email='tibor@mikita.eu', password='blah')
-
-    user_store.set_active(user.id)
+    user.active = True
 
     r = client.post(
         '/auth/login',
@@ -190,8 +188,7 @@ def test_user_login_not_registered(client):
 
 def test_user_login_invalid_password(client):
     user = user_store.add(email='tibor@mikita.eu', password='blah')
-
-    user_store.set_active(user.id)
+    user.active = True
 
     r = client.post(
         '/auth/login',
@@ -211,8 +208,7 @@ def test_user_login_invalid_password(client):
 
 def test_user_logout(client):
     user = user_store.add(email='tibor@mikita.eu', password='blah')
-
-    user_store.set_active(user.id)
+    user.active = True
 
     r = client.post(
         '/auth/login',
@@ -286,8 +282,7 @@ def test_user_logout_invalid_token(client):
 
 def test_user_logout_expired_token(app, client):
     user = user_store.add(email='tibor@mikita.eu', password='blah')
-
-    user_store.set_active(user.id)
+    user.active = True
 
     app.config['TOKEN_EXPIRATION_SECONDS'] = -1
 

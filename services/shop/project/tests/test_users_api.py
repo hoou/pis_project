@@ -8,9 +8,8 @@ from project.store import user_store
 
 def test_get_single_user_as_admin(client):
     user = user_store.add(email='tibor@mikita.eu', password='halo')
-
-    user_store.set_active(user.id)
-    user_store.set_admin(user.id)
+    user.active = True
+    user.role = UserRole.ADMIN
 
     r = client.post(
         '/auth/login',
@@ -37,9 +36,8 @@ def test_get_single_user_as_admin(client):
 
 def test_get_single_user_as_worker(client):
     user = user_store.add(email='tibor@mikita.eu', password='halo')
-
-    user_store.set_active(user.id)
-    user_store.set_worker(user.id)
+    user.active = True
+    user.role = UserRole.ADMIN
 
     r = client.post(
         '/auth/login',
@@ -66,8 +64,7 @@ def test_get_single_user_as_worker(client):
 
 def test_get_single_user_not_admin_or_worker(client):
     user = user_store.add(email='tibor@mikita.eu', password='halo')
-
-    user_store.set_active(user.id)
+    user.active = True
 
     r = client.post(
         '/auth/login',
@@ -109,9 +106,8 @@ def test_get_single_user_not_logged_in(client):
 
 def test_get_single_user_not_exist(client):
     user = user_store.add(email='tibor@mikita.eu', password='halo')
-
-    user_store.set_active(user.id)
-    user_store.set_admin(user.id)
+    user.active = True
+    user.role = UserRole.ADMIN
 
     r = client.post(
         '/auth/login',
@@ -140,9 +136,8 @@ def test_get_single_user_not_exist(client):
 
 def test_get_single_user_id_not_int(client):
     user = user_store.add(email='tibor@mikita.eu', password='halo')
-
-    user_store.set_active(user.id)
-    user_store.set_admin(user.id)
+    user.active = True
+    user.role = UserRole.ADMIN
 
     r = client.post(
         '/auth/login',
@@ -176,8 +171,8 @@ def test_get_all_users_as_admin(client):
         user_store.add(email=f'user{i}@server.eu', password=f'pass{i}')
 
     user = user_store.get_by_email('user1@server.eu')
-    user_store.set_active(user.id)
-    user_store.set_admin(user.id)
+    user.active = True
+    user.role = UserRole.ADMIN
 
     r = client.post(
         '/auth/login',
@@ -216,8 +211,8 @@ def test_get_all_users_as_worker(client):
         user_store.add(email=f'user{i}@server.eu', password=f'pass{i}')
 
     user = user_store.get_by_email('user1@server.eu')
-    user_store.set_active(user.id)
-    user_store.set_worker(user.id)
+    user.active = True
+    user.role = UserRole.ADMIN
 
     r = client.post(
         '/auth/login',
@@ -256,7 +251,7 @@ def test_get_all_users_not_admin_or_worker(client):
         user_store.add(email=f'user{i}@server.eu', password=f'pass{i}')
 
     user = user_store.get_by_email('user1@server.eu')
-    user_store.set_active(user.id)
+    user.active = True
 
     r = client.post(
         '/auth/login',
