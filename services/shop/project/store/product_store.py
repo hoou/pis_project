@@ -35,3 +35,18 @@ def add_image(product: Product, **kwargs):
     image = ProductImage(**kwargs)
     image.product_id = product.id
     product.images += [image]
+    return image
+
+
+def get_images(product_id):
+    return ProductImage.query.filter_by(product_id=product_id).all()
+
+
+def delete_image(image_id):
+    session.delete(ProductImage.query.filter_by(id=image_id).first())
+
+
+def has_image(product_id, image_id):
+    product_images = get_images(product_id)
+    image = ProductImage.query.filter_by(id=image_id).first()
+    return image in product_images

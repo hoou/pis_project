@@ -8,7 +8,7 @@ from flask_api import status
 from werkzeug.utils import secure_filename
 
 from project.api.middleware.auth import authenticate, check_admin_or_worker
-from project.models.schemas import product_schema
+from project.models.schemas import product_schema, product_image_schema
 from project.store import product_store
 from project.utils.file import is_uploaded_file_allowed
 
@@ -94,3 +94,29 @@ def add_product_image(user_id, product_id):
     product_store.add_image(product, url=file_path)
 
     return jsonify({'status': 'success', 'message': 'Image was successfully uploaded.'}), status.HTTP_201_CREATED
+
+
+@products_blueprint.route('/products/<product_id>/images', methods=['GET'])
+def get_product_images(product_id):
+    images = product_store.get_images(product_id)
+
+    return jsonify({
+        'status': 'success',
+        'data': [product_image_schema.dump(image).data for image in images]
+    })
+
+
+@products_blueprint.route('/products/<product_id>/images/<image_id>', methods=['DELETE'])
+@authenticate
+@check_admin_or_worker
+def delete_product_image(user_id, product_id, image_id):
+    if not product_store.has_image(product_id, image_id):
+        return jsonify({'status': 'fail', 'message': 'Image not found.'}), status.HTTP_404_NOT_FOUND
+
+    product_store.delete_image(image_id)
+
+    return jsonify({
+        'status': 'success',
+        'message': 'Image was successfully deleted.'
+    })
+

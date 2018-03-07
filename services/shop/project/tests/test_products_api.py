@@ -645,3 +645,165 @@ def test_add_product_image_not_allowed_file_ext(client):
     assert r.status_code == status.HTTP_400_BAD_REQUEST
     assert payload['status'] == 'fail'
     assert payload['message'] == 'File extension not allowed.'
+
+
+def test_get_images_of_product(client):
+    product = product_store.add(name='Super Small Product', price=0.99)
+    product_store.add_image(product, url='fake_url.jpg')
+    product_store.add_image(product, url='fake_url2.jpg')
+    product_store.add_image(product, url='fake_url3.jpg')
+
+    r = client.get(f'/products/{product.id}/images')
+    payload = r.json
+
+    assert r.status_code == status.HTTP_200_OK
+    assert payload['status'] == 'success'
+
+    images = payload['data']
+
+    assert len(images) == 3
+
+    for image in images:
+        assert 'fake_url' in image['url']
+
+
+def test_delete_image_of_product(client):
+    product = product_store.add(name='Super Small Product', price=0.99)
+    image = product_store.add_image(product, url='fake_url.jpg')
+
+    admin = user_store.add(email='tibor@mikita.eu', password='blah')
+    user_store.set_active(admin.id)
+    user_store.set_admin(admin.id)
+
+    assert product.id
+
+    r = client.post(
+        '/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+    payload = r.json
+    auth_token = payload['auth_token']
+
+    r = client.delete(f'/products/{product.id}/images/{image.id}', headers={'Authorization': f'Bearer {auth_token}'})
+    payload = r.json
+
+    assert r.status_code == status.HTTP_200_OK
+    assert payload['status'] == 'success'
+    assert payload['message'] == 'Image was successfully deleted.'
+
+
+def test_delete_image_of_different_product(client):
+    product = product_store.add(name='Super Small Product', price=0.99)
+    product_without_image = product_store.add(name='Different Product', price=2.99)
+    image = product_store.add_image(product, url='fake_url.jpg')
+
+    admin = user_store.add(email='tibor@mikita.eu', password='blah')
+    user_store.set_active(admin.id)
+    user_store.set_admin(admin.id)
+
+    assert product.id
+
+    r = client.post(
+        '/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+    payload = r.json
+    auth_token = payload['auth_token']
+
+    r = client.delete(
+        f'/products/{product_without_image.id}/images/{image.id}',
+        headers={'Authorization': f'Bearer {auth_token}'}
+    )
+    payload = r.json
+
+    assert r.status_code == status.HTTP_404_NOT_FOUND
+    assert payload['status'] == 'fail'
+    assert payload['message'] == 'Image not found.'
+
+
+def test_delete_image_not_existing(client):
+    product = product_store.add(name='Super Small Product', price=0.99)
+
+    admin = user_store.add(email='tibor@mikita.eu', password='blah')
+    user_store.set_active(admin.id)
+    user_store.set_admin(admin.id)
+
+    assert product.id
+
+    r = client.post(
+        '/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+    payload = r.json
+    auth_token = payload['auth_token']
+
+    not_existing_image_id = 99
+
+    r = client.delete(
+        f'/products/{product.id}/images/{not_existing_image_id}',
+        headers={'Authorization': f'Bearer {auth_token}'}
+    )
+    payload = r.json
+
+    assert r.status_code == status.HTTP_404_NOT_FOUND
+    assert payload['status'] == 'fail'
+    assert payload['message'] == 'Image not found.'
+
+
+def test_delete_image_of_product_no_admin_or_worker(client):
+    product = product_store.add(name='Super Small Product', price=0.99)
+    image = product_store.add_image(product, url='fake_url.jpg')
+
+    user = user_store.add(email='tibor@mikita.eu', password='blah')
+    user_store.set_active(user.id)
+
+    assert product.id
+    assert user.role != UserRole.ADMIN and user.role != UserRole.WORKER
+
+    r = client.post(
+        '/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+    payload = r.json
+    auth_token = payload['auth_token']
+
+    r = client.delete(f'/products/{product.id}/images/{image.id}', headers={'Authorization': f'Bearer {auth_token}'})
+    payload = r.json
+
+    assert r.status_code == status.HTTP_403_FORBIDDEN
+    assert payload['status'] == 'fail'
+    assert payload['message'] == 'You do not have permission to do that.'
+
+
+def test_delete_image_of_product_not_logged_in(client):
+    product = product_store.add(name='Super Small Product', price=0.99)
+    image = product_store.add_image(product, url='fake_url.jpg')
+
+    user = user_store.add(email='tibor@mikita.eu', password='blah')
+    user_store.set_active(user.id)
+    user_store.set_admin(user.id)
+
+    assert product.id
+
+    r = client.delete(f'/products/{product.id}/images/{image.id}')
+    payload = r.json
+
+    assert r.status_code == status.HTTP_403_FORBIDDEN
+    assert payload['status'] == 'fail'
+    assert payload['message'] == 'You do not have permission to do that.'
