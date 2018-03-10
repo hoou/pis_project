@@ -25,6 +25,8 @@ def create_app(script_info=None):
 
     basedir = os.path.abspath(os.path.dirname(__file__))
     logs_dir = os.path.join(basedir, 'logs')
+    if not os.path.exists(logs_dir):
+        os.makedirs(logs_dir)
     fh = logging.FileHandler(os.path.join(logs_dir, 'app.log'))
     app.logger.addHandler(fh)
 
