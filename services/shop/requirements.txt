@@ -5,9 +5,7 @@ Flask-API==1.0
 flask-restplus==0.10.1
 flask_jwt_extended==3.7.2
 psycopg2-binary==2.7.4
-marshmallow-sqlalchemy==0.13.2
 gunicorn==19.7.1
 coverage==4.5.1
 flask-cors==3.0.3
 flask-bcrypt==0.7.1
-pyjwt==1.6.0
