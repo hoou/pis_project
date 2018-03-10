@@ -20,13 +20,13 @@ def test_get_all_products(client):
     product_store.add(name='Product Three', price=3.99)
     product_store.add(name='Product Four', price=68.99)
 
-    r = client.get('/products')
+    r = client.get('/api/products/')
 
     payload = r.json
-    products = payload['data']
+
+    products = payload
 
     assert r.status_code == status.HTTP_200_OK
-    assert payload['status'] == 'success'
     assert len(products) == 4
 
     sorted_products = sorted(products, key=lambda product: product['id'])
@@ -50,37 +50,36 @@ def test_get_all_products(client):
 def test_get_single_product(client):
     product = product_store.add(name='Super Product', price=99.99)
 
-    r = client.get(f'/products/{product.id}')
+    r = client.get(f'/api/products/{product.id}')
 
     payload = r.json
-    data = payload['data']
 
     assert r.status_code == status.HTTP_200_OK
-    assert payload['status'] == 'success'
-    assert data['name'] == 'Super Product'
-    assert data['price'] == 99.99
-    assert data['description'] is None
+    assert payload['name'] == 'Super Product'
+    assert payload['price'] == 99.99
+    assert payload['description'] is None
 
 
 def test_get_single_product_non_existing(client):
     non_existing_product_id = 999
 
-    r = client.get(f'/products/{non_existing_product_id}')
+    r = client.get(f'/api/products/{non_existing_product_id}')
 
     payload = r.json
 
     assert r.status_code == status.HTTP_404_NOT_FOUND
-    assert payload['status'] == 'fail'
-    assert payload['message'] == 'Product not found.'
+    assert 'Product not found.' in payload['message']
 
 
-def test_add_product(client):
+def test_add_product(app, client):
     user = user_store.add(email='tibor@mikita.eu', password='blah')
     user.active = True
     user.role = UserRole.ADMIN
 
+    app.config['TOKEN_EXPIRATION_SECONDS'] = 60
+
     r = client.post(
-        '/auth/login',
+        '/api/auth/login',
         data=json.dumps({
             'email': 'tibor@mikita.eu',
             'password': 'blah'
@@ -93,10 +92,10 @@ def test_add_product(client):
     auth_token = payload['auth_token']
 
     r = client.post(
-        '/products',
+        '/api/products/',
         data=json.dumps({
             'name': 'New Super Product',
-            'price': 213.212,
+            'price': 213.99,
             'description': 'blah blah blah'
         }),
         headers={'Authorization': f'Bearer {auth_token}'},
@@ -106,7 +105,6 @@ def test_add_product(client):
     payload = r.json
 
     assert r.status_code == status.HTTP_201_CREATED
-    assert payload['status'] == 'success'
     assert payload['message'] == 'Product was successfully added.'
 
 
@@ -116,7 +114,7 @@ def test_add_product_empty_json(client):
     user.role = UserRole.ADMIN
 
     r = client.post(
-        '/auth/login',
+        '/api/auth/login',
         data=json.dumps({
             'email': 'tibor@mikita.eu',
             'password': 'blah'
@@ -129,7 +127,7 @@ def test_add_product_empty_json(client):
     auth_token = payload['auth_token']
 
     r = client.post(
-        '/products',
+        '/api/products/',
         data=json.dumps({}),
         headers={'Authorization': f'Bearer {auth_token}'},
         content_type='application/json'
@@ -138,7 +136,6 @@ def test_add_product_empty_json(client):
     payload = r.json
 
     assert r.status_code == status.HTTP_400_BAD_REQUEST
-    assert payload['status'] == 'fail'
     assert payload['message'] == 'Invalid payload.'
 
 
@@ -147,7 +144,7 @@ def test_add_product_not_existing_user(client):
     auth_token = encode_auth_token(not_existing_user_id).decode()
 
     r = client.post(
-        '/products',
+        '/api/products/',
         data=json.dumps({
             'name': 'New Super Product',
             'price': 213.212,
@@ -160,8 +157,7 @@ def test_add_product_not_existing_user(client):
     payload = r.json
 
     assert r.status_code == status.HTTP_401_UNAUTHORIZED
-    assert payload['status'] == 'fail'
-    assert payload['message'] == 'Invalid user id.'
+    assert payload['message'] == 'Incorrect authentication credentials.'
 
 
 def test_add_product_not_active_user(client):
@@ -171,7 +167,7 @@ def test_add_product_not_active_user(client):
     auth_token = encode_auth_token(user.id).decode()
 
     r = client.post(
-        '/products',
+        '/api/products/',
         data=json.dumps({
             'name': 'New Super Product',
             'price': 213.212,
@@ -184,13 +180,12 @@ def test_add_product_not_active_user(client):
     payload = r.json
 
     assert r.status_code == status.HTTP_403_FORBIDDEN
-    assert payload['status'] == 'fail'
-    assert payload['message'] == 'User is not active.'
+    assert payload['message'] == 'You do not have permission to perform this action.'
 
 
 def test_add_product_not_logged_in(client):
     r = client.post(
-        '/products',
+        '/api/products/',
         data=json.dumps({
             'name': 'New Super Product',
             'price': 213.212,
@@ -202,8 +197,7 @@ def test_add_product_not_logged_in(client):
     payload = r.json
 
     assert r.status_code == status.HTTP_403_FORBIDDEN
-    assert payload['status'] == 'fail'
-    assert payload['message'] == 'You do not have permission to do that.'
+    assert payload['message'] == 'You do not have permission to perform this action.'
 
 
 def test_add_product_not_admin_or_worker(client):
@@ -211,7 +205,7 @@ def test_add_product_not_admin_or_worker(client):
     user.active = True
 
     r = client.post(
-        '/auth/login',
+        '/api/auth/login',
         data=json.dumps({
             'email': 'tibor@mikita.eu',
             'password': 'blah'
@@ -226,7 +220,7 @@ def test_add_product_not_admin_or_worker(client):
     assert user.role != UserRole.ADMIN and user.role != UserRole.WORKER
 
     r = client.post(
-        '/products',
+        '/api/products/',
         data=json.dumps({
             'name': 'New Super Product',
             'price': 213.212,
@@ -239,8 +233,7 @@ def test_add_product_not_admin_or_worker(client):
     payload = r.json
 
     assert r.status_code == status.HTTP_403_FORBIDDEN
-    assert payload['status'] == 'fail'
-    assert payload['message'] == 'You do not have permission to do that.'
+    assert payload['message'] == 'You do not have permission to perform this action.'
 
 
 def test_add_product_missing_name(client):
@@ -249,7 +242,7 @@ def test_add_product_missing_name(client):
     user.role = UserRole.ADMIN
 
     r = client.post(
-        '/auth/login',
+        '/api/auth/login',
         data=json.dumps({
             'email': 'tibor@mikita.eu',
             'password': 'blah'
@@ -262,7 +255,7 @@ def test_add_product_missing_name(client):
     auth_token = payload['auth_token']
 
     r = client.post(
-        '/products',
+        '/api/products/',
         data=json.dumps({
             'price': 213.212,
             'description': 'blah blah blah'
@@ -274,7 +267,6 @@ def test_add_product_missing_name(client):
     payload = r.json
 
     assert r.status_code == status.HTTP_400_BAD_REQUEST
-    assert payload['status'] == 'fail'
     assert payload['message'] == 'Invalid payload.'
 
 
@@ -284,7 +276,7 @@ def test_add_product_missing_price(client):
     user.role = UserRole.ADMIN
 
     r = client.post(
-        '/auth/login',
+        '/api/auth/login',
         data=json.dumps({
             'email': 'tibor@mikita.eu',
             'password': 'blah'
@@ -297,7 +289,7 @@ def test_add_product_missing_price(client):
     auth_token = payload['auth_token']
 
     r = client.post(
-        '/products',
+        '/api/products/',
         data=json.dumps({
             'name': 'Super Perfect Product Numero Uno',
             'description': 'blah blah blah'
@@ -309,7 +301,6 @@ def test_add_product_missing_price(client):
     payload = r.json
 
     assert r.status_code == status.HTTP_400_BAD_REQUEST
-    assert payload['status'] == 'fail'
     assert payload['message'] == 'Invalid payload.'
 
 
@@ -323,7 +314,7 @@ def test_add_product_image(client):
     assert product.id
 
     r = client.post(
-        '/auth/login',
+        '/api/auth/login',
         data=json.dumps({
             'email': 'tibor@mikita.eu',
             'password': 'blah'
@@ -337,7 +328,7 @@ def test_add_product_image(client):
 
     with open(testing_image_jpg_path, 'rb') as f:
         r = client.post(
-            f'/products/{product.id}/images',
+            f'/api/products/{product.id}/images',
             data={
                 'file': (f, f.name)
             },
@@ -348,7 +339,6 @@ def test_add_product_image(client):
     payload = r.json
 
     assert r.status_code == status.HTTP_201_CREATED
-    assert payload['status'] == 'success'
     assert payload['message'] == 'Image was successfully uploaded.'
     assert len(product.images) == 1
     assert isinstance(product.images[0], ProductImage)
@@ -361,7 +351,7 @@ def test_add_product_image_not_existing_product(client):
     user.role = UserRole.ADMIN
 
     r = client.post(
-        '/auth/login',
+        '/api/auth/login',
         data=json.dumps({
             'email': 'tibor@mikita.eu',
             'password': 'blah'
@@ -377,7 +367,7 @@ def test_add_product_image_not_existing_product(client):
 
     with open(testing_image_jpg_path, 'rb') as f:
         r = client.post(
-            f'/products/{not_existing_product_id}/images',
+            f'/api/products/{not_existing_product_id}/images',
             data={
                 'file': (f, f.name)
             },
@@ -388,7 +378,6 @@ def test_add_product_image_not_existing_product(client):
     payload = r.json
 
     assert r.status_code == status.HTTP_404_NOT_FOUND
-    assert payload['status'] == 'fail'
     assert payload['message'] == 'Product not found.'
 
 
@@ -402,7 +391,7 @@ def test_add_product_image_no_data(client):
     assert product.id
 
     r = client.post(
-        '/auth/login',
+        '/api/auth/login',
         data=json.dumps({
             'email': 'tibor@mikita.eu',
             'password': 'blah'
@@ -416,7 +405,7 @@ def test_add_product_image_no_data(client):
 
     with open(testing_image_jpg_path, 'rb') as f:
         r = client.post(
-            f'/products/{product.id}/images',
+            f'/api/products/{product.id}/images',
             headers={'Authorization': f'Bearer {auth_token}'},
             content_type='multipart/form-data'
         )
@@ -424,7 +413,6 @@ def test_add_product_image_no_data(client):
     payload = r.json
 
     assert r.status_code == status.HTTP_400_BAD_REQUEST
-    assert payload['status'] == 'fail'
     assert payload['message'] == 'Invalid payload.'
 
 
@@ -437,7 +425,7 @@ def test_add_product_image_not_admin_or_worker(client):
     assert product.id
 
     r = client.post(
-        '/auth/login',
+        '/api/auth/login',
         data=json.dumps({
             'email': 'tibor@mikita.eu',
             'password': 'blah'
@@ -453,7 +441,7 @@ def test_add_product_image_not_admin_or_worker(client):
 
     with open(testing_image_jpg_path, 'rb') as f:
         r = client.post(
-            f'/products/{product.id}/images',
+            f'/api/products/{product.id}/images',
             data={
                 'file': (f, f.name)
             },
@@ -464,8 +452,7 @@ def test_add_product_image_not_admin_or_worker(client):
     payload = r.json
 
     assert r.status_code == status.HTTP_403_FORBIDDEN
-    assert payload['status'] == 'fail'
-    assert payload['message'] == 'You do not have permission to do that.'
+    assert payload['message'] == 'You do not have permission to perform this action.'
 
 
 def test_add_product_image_no_file(client):
@@ -478,7 +465,7 @@ def test_add_product_image_no_file(client):
     assert product.id
 
     r = client.post(
-        '/auth/login',
+        '/api/auth/login',
         data=json.dumps({
             'email': 'tibor@mikita.eu',
             'password': 'blah'
@@ -492,7 +479,7 @@ def test_add_product_image_no_file(client):
 
     with open(testing_image_jpg_path, 'rb') as f:
         r = client.post(
-            f'/products/{product.id}/images',
+            f'/api/products/{product.id}/images',
             data={},
             headers={'Authorization': f'Bearer {auth_token}'},
             content_type='multipart/form-data'
@@ -501,7 +488,6 @@ def test_add_product_image_no_file(client):
     payload = r.json
 
     assert r.status_code == status.HTTP_400_BAD_REQUEST
-    assert payload['status'] == 'fail'
     assert payload['message'] == 'Invalid payload.'
 
 
@@ -515,7 +501,7 @@ def test_add_product_image_empty_file(client):
     assert product.id
 
     r = client.post(
-        '/auth/login',
+        '/api/auth/login',
         data=json.dumps({
             'email': 'tibor@mikita.eu',
             'password': 'blah'
@@ -529,7 +515,7 @@ def test_add_product_image_empty_file(client):
 
     with open(testing_image_jpg_path, 'rb') as f:
         r = client.post(
-            f'/products/{product.id}/images',
+            f'/api/products/{product.id}/images',
             data={
                 'file': None
             },
@@ -540,7 +526,6 @@ def test_add_product_image_empty_file(client):
     payload = r.json
 
     assert r.status_code == status.HTTP_400_BAD_REQUEST
-    assert payload['status'] == 'fail'
     assert payload['message'] == 'Invalid payload.'
 
 
@@ -554,7 +539,7 @@ def test_add_product_image_not_file(client):
     assert product.id
 
     r = client.post(
-        '/auth/login',
+        '/api/auth/login',
         data=json.dumps({
             'email': 'tibor@mikita.eu',
             'password': 'blah'
@@ -568,7 +553,7 @@ def test_add_product_image_not_file(client):
 
     with open(testing_image_jpg_path, 'rb') as f:
         r = client.post(
-            f'/products/{product.id}/images',
+            f'/api/products/{product.id}/images',
             data={
                 'file': 'blah'
             },
@@ -579,7 +564,6 @@ def test_add_product_image_not_file(client):
     payload = r.json
 
     assert r.status_code == status.HTTP_400_BAD_REQUEST
-    assert payload['status'] == 'fail'
     assert payload['message'] == 'Invalid payload.'
 
 
@@ -594,7 +578,7 @@ def test_add_product_image_not_logged_in(client):
 
     with open(testing_image_jpg_path, 'rb') as f:
         r = client.post(
-            f'/products/{product.id}/images',
+            f'/api/products/{product.id}/images',
             data={
                 'file': (f, f.name)
             },
@@ -604,8 +588,7 @@ def test_add_product_image_not_logged_in(client):
     payload = r.json
 
     assert r.status_code == status.HTTP_403_FORBIDDEN
-    assert payload['status'] == 'fail'
-    assert payload['message'] == 'You do not have permission to do that.'
+    assert payload['message'] == 'You do not have permission to perform this action.'
 
 
 def test_add_product_image_not_allowed_file_ext(client):
@@ -618,7 +601,7 @@ def test_add_product_image_not_allowed_file_ext(client):
     assert product.id
 
     r = client.post(
-        '/auth/login',
+        '/api/auth/login',
         data=json.dumps({
             'email': 'tibor@mikita.eu',
             'password': 'blah'
@@ -632,7 +615,7 @@ def test_add_product_image_not_allowed_file_ext(client):
 
     with open(testing_image_png_path, 'rb') as f:
         r = client.post(
-            f'/products/{product.id}/images',
+            f'/api/products/{product.id}/images',
             data={
                 'file': (f, f.name)
             },
@@ -643,7 +626,6 @@ def test_add_product_image_not_allowed_file_ext(client):
     payload = r.json
 
     assert r.status_code == status.HTTP_400_BAD_REQUEST
-    assert payload['status'] == 'fail'
     assert payload['message'] == 'File extension not allowed.'
 
 
@@ -653,13 +635,12 @@ def test_get_images_of_product(client):
     product_store.add_image(product, url='fake_url2.jpg')
     product_store.add_image(product, url='fake_url3.jpg')
 
-    r = client.get(f'/products/{product.id}/images')
+    r = client.get(f'/api/products/{product.id}/images')
     payload = r.json
 
     assert r.status_code == status.HTTP_200_OK
-    assert payload['status'] == 'success'
 
-    images = payload['data']
+    images = payload
 
     assert len(images) == 3
 
@@ -678,7 +659,7 @@ def test_delete_image_of_product(client):
     assert product.id
 
     r = client.post(
-        '/auth/login',
+        '/api/auth/login',
         data=json.dumps({
             'email': 'tibor@mikita.eu',
             'password': 'blah'
@@ -688,11 +669,11 @@ def test_delete_image_of_product(client):
     payload = r.json
     auth_token = payload['auth_token']
 
-    r = client.delete(f'/products/{product.id}/images/{image.id}', headers={'Authorization': f'Bearer {auth_token}'})
+    r = client.delete(f'/api/products/{product.id}/images/{image.id}',
+                      headers={'Authorization': f'Bearer {auth_token}'})
     payload = r.json
 
     assert r.status_code == status.HTTP_200_OK
-    assert payload['status'] == 'success'
     assert payload['message'] == 'Image was successfully deleted.'
 
 
@@ -708,7 +689,7 @@ def test_delete_image_of_different_product(client):
     assert product.id
 
     r = client.post(
-        '/auth/login',
+        '/api/auth/login',
         data=json.dumps({
             'email': 'tibor@mikita.eu',
             'password': 'blah'
@@ -719,13 +700,12 @@ def test_delete_image_of_different_product(client):
     auth_token = payload['auth_token']
 
     r = client.delete(
-        f'/products/{product_without_image.id}/images/{image.id}',
+        f'/api/products/{product_without_image.id}/images/{image.id}',
         headers={'Authorization': f'Bearer {auth_token}'}
     )
     payload = r.json
 
     assert r.status_code == status.HTTP_404_NOT_FOUND
-    assert payload['status'] == 'fail'
     assert payload['message'] == 'Image not found.'
 
 
@@ -739,7 +719,7 @@ def test_delete_image_not_existing(client):
     assert product.id
 
     r = client.post(
-        '/auth/login',
+        '/api/auth/login',
         data=json.dumps({
             'email': 'tibor@mikita.eu',
             'password': 'blah'
@@ -752,13 +732,12 @@ def test_delete_image_not_existing(client):
     not_existing_image_id = 99
 
     r = client.delete(
-        f'/products/{product.id}/images/{not_existing_image_id}',
+        f'/api/products/{product.id}/images/{not_existing_image_id}',
         headers={'Authorization': f'Bearer {auth_token}'}
     )
     payload = r.json
 
     assert r.status_code == status.HTTP_404_NOT_FOUND
-    assert payload['status'] == 'fail'
     assert payload['message'] == 'Image not found.'
 
 
@@ -773,7 +752,7 @@ def test_delete_image_of_product_no_admin_or_worker(client):
     assert user.role != UserRole.ADMIN and user.role != UserRole.WORKER
 
     r = client.post(
-        '/auth/login',
+        '/api/auth/login',
         data=json.dumps({
             'email': 'tibor@mikita.eu',
             'password': 'blah'
@@ -783,12 +762,12 @@ def test_delete_image_of_product_no_admin_or_worker(client):
     payload = r.json
     auth_token = payload['auth_token']
 
-    r = client.delete(f'/products/{product.id}/images/{image.id}', headers={'Authorization': f'Bearer {auth_token}'})
+    r = client.delete(f'/api/products/{product.id}/images/{image.id}',
+                      headers={'Authorization': f'Bearer {auth_token}'})
     payload = r.json
 
     assert r.status_code == status.HTTP_403_FORBIDDEN
-    assert payload['status'] == 'fail'
-    assert payload['message'] == 'You do not have permission to do that.'
+    assert payload['message'] == 'You do not have permission to perform this action.'
 
 
 def test_delete_image_of_product_not_logged_in(client):
@@ -801,9 +780,8 @@ def test_delete_image_of_product_not_logged_in(client):
 
     assert product.id
 
-    r = client.delete(f'/products/{product.id}/images/{image.id}')
+    r = client.delete(f'/api/products/{product.id}/images/{image.id}')
     payload = r.json
 
     assert r.status_code == status.HTTP_403_FORBIDDEN
-    assert payload['status'] == 'fail'
-    assert payload['message'] == 'You do not have permission to do that.'
+    assert payload['message'] == 'You do not have permission to perform this action.'

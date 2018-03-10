@@ -5,3 +5,4 @@ Dockerfile-prod
 .pytest_cache
 htmlcov
 public
+*.log

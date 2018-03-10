@@ -12,7 +12,7 @@ def test_get_single_user_as_admin(client):
     user.role = UserRole.ADMIN
 
     r = client.post(
-        '/auth/login',
+        '/api/auth/login',
         data=json.dumps({
             'email': 'tibor@mikita.eu',
             'password': 'halo'
@@ -24,14 +24,16 @@ def test_get_single_user_as_admin(client):
     auth_token = payload['auth_token']
 
     r = client.get(
-        f'/users/{user.id}',
+        f'/api/users/{user.id}',
         headers={'Authorization': f'Bearer {auth_token}'}
     )
 
     payload = r.json
+
+    user = payload
+
     assert r.status_code == status.HTTP_200_OK
-    assert payload['data']['email'] == 'tibor@mikita.eu'
-    assert payload['status'] == 'success'
+    assert user['email'] == 'tibor@mikita.eu'
 
 
 def test_get_single_user_as_worker(client):
@@ -40,7 +42,7 @@ def test_get_single_user_as_worker(client):
     user.role = UserRole.ADMIN
 
     r = client.post(
-        '/auth/login',
+        '/api/auth/login',
         data=json.dumps({
             'email': 'tibor@mikita.eu',
             'password': 'halo'
@@ -52,14 +54,16 @@ def test_get_single_user_as_worker(client):
     auth_token = payload['auth_token']
 
     r = client.get(
-        f'/users/{user.id}',
+        f'/api/users/{user.id}',
         headers={'Authorization': f'Bearer {auth_token}'}
     )
 
     payload = r.json
+
+    user = payload
+
     assert r.status_code == status.HTTP_200_OK
-    assert payload['data']['email'] == 'tibor@mikita.eu'
-    assert payload['status'] == 'success'
+    assert user['email'] == 'tibor@mikita.eu'
 
 
 def test_get_single_user_not_admin_or_worker(client):
@@ -67,7 +71,7 @@ def test_get_single_user_not_admin_or_worker(client):
     user.active = True
 
     r = client.post(
-        '/auth/login',
+        '/api/auth/login',
         data=json.dumps({
             'email': 'tibor@mikita.eu',
             'password': 'halo'
@@ -81,27 +85,25 @@ def test_get_single_user_not_admin_or_worker(client):
     assert user.role != UserRole.ADMIN and user.role != UserRole.WORKER
 
     r = client.get(
-        f'/users/{user.id}',
+        f'/api/users/{user.id}',
         headers={'Authorization': f'Bearer {auth_token}'}
     )
     payload = r.json
 
     assert r.status_code == status.HTTP_403_FORBIDDEN
-    assert payload['status'] == 'fail'
-    assert payload['message'] == 'You do not have permission to do that.'
+    assert payload['message'] == 'You do not have permission to perform this action.'
 
 
 def test_get_single_user_not_logged_in(client):
     user = user_store.add(email='tibor@mikita.eu', password='halo')
 
     r = client.get(
-        f'/users/{user.id}'
+        f'/api/users/{user.id}'
     )
 
     payload = r.json
     assert r.status_code == status.HTTP_403_FORBIDDEN
-    assert payload['status'] == 'fail'
-    assert payload['message'] == 'You do not have permission to do that.'
+    assert payload['message'] == 'You do not have permission to perform this action.'
 
 
 def test_get_single_user_not_exist(client):
@@ -110,7 +112,7 @@ def test_get_single_user_not_exist(client):
     user.role = UserRole.ADMIN
 
     r = client.post(
-        '/auth/login',
+        '/api/auth/login',
         data=json.dumps({
             'email': 'tibor@mikita.eu',
             'password': 'halo'
@@ -123,45 +125,14 @@ def test_get_single_user_not_exist(client):
 
     non_existing_id = 999
     r = client.get(
-        f'/users/{non_existing_id}',
+        f'/api/users/{non_existing_id}',
         headers={'Authorization': f'Bearer {auth_token}'}
     )
 
     payload = r.json
 
     assert r.status_code == status.HTTP_404_NOT_FOUND
-    assert payload['status'] == 'fail'
-    assert payload['message'] == 'User not found.'
-
-
-def test_get_single_user_id_not_int(client):
-    user = user_store.add(email='tibor@mikita.eu', password='halo')
-    user.active = True
-    user.role = UserRole.ADMIN
-
-    r = client.post(
-        '/auth/login',
-        data=json.dumps({
-            'email': 'tibor@mikita.eu',
-            'password': 'halo'
-        }),
-        content_type='application/json'
-    )
-
-    payload = r.json
-    auth_token = payload['auth_token']
-
-    non_int_id = 'blah'
-    r = client.get(
-        f'/users/{non_int_id}',
-        headers={'Authorization': f'Bearer {auth_token}'}
-    )
-
-    payload = r.json
-
-    assert r.status_code == status.HTTP_400_BAD_REQUEST
-    assert payload['status'] == 'fail'
-    assert payload['message'] == 'User id must be int.'
+    assert 'This resource does not exist.' in payload['message']
 
 
 def test_get_all_users_as_admin(client):
@@ -175,7 +146,7 @@ def test_get_all_users_as_admin(client):
     user.role = UserRole.ADMIN
 
     r = client.post(
-        '/auth/login',
+        '/api/auth/login',
         data=json.dumps({
             'email': 'user1@server.eu',
             'password': 'pass1'
@@ -187,21 +158,21 @@ def test_get_all_users_as_admin(client):
     auth_token = payload['auth_token']
 
     r = client.get(
-        '/users',
+        '/api/users/',
         headers={'Authorization': f'Bearer {auth_token}'}
     )
     payload = r.json
 
+    users = payload
+
     assert r.status_code == status.HTTP_200_OK
-    assert payload['status'] == 'success'
-    assert len(payload['data']) == number_of_users
+    assert len(users) == number_of_users
 
     # sort by id
-    sorted_users = sorted(payload['data'], key=lambda x: x['id'])
+    sorted_users = sorted(users, key=lambda x: x['id'])
 
     for i, user in enumerate(sorted_users):
         assert user['email'] == f'user{i}@server.eu'
-        assert user['password']
 
 
 def test_get_all_users_as_worker(client):
@@ -215,7 +186,7 @@ def test_get_all_users_as_worker(client):
     user.role = UserRole.ADMIN
 
     r = client.post(
-        '/auth/login',
+        '/api/auth/login',
         data=json.dumps({
             'email': 'user1@server.eu',
             'password': 'pass1'
@@ -227,21 +198,22 @@ def test_get_all_users_as_worker(client):
     auth_token = payload['auth_token']
 
     r = client.get(
-        '/users',
+        '/api/users/',
         headers={'Authorization': f'Bearer {auth_token}'}
     )
+
     payload = r.json
 
+    users = payload
+
     assert r.status_code == status.HTTP_200_OK
-    assert payload['status'] == 'success'
-    assert len(payload['data']) == number_of_users
+    assert len(users) == number_of_users
 
     # sort by id
-    sorted_users = sorted(payload['data'], key=lambda x: x['id'])
+    sorted_users = sorted(users, key=lambda x: x['id'])
 
     for i, user in enumerate(sorted_users):
         assert user['email'] == f'user{i}@server.eu'
-        assert user['password']
 
 
 def test_get_all_users_not_admin_or_worker(client):
@@ -254,7 +226,7 @@ def test_get_all_users_not_admin_or_worker(client):
     user.active = True
 
     r = client.post(
-        '/auth/login',
+        '/api/auth/login',
         data=json.dumps({
             'email': 'user1@server.eu',
             'password': 'pass1'
@@ -268,14 +240,13 @@ def test_get_all_users_not_admin_or_worker(client):
     assert user.role != UserRole.ADMIN and user.role != UserRole.WORKER
 
     r = client.get(
-        '/users',
+        '/api/users/',
         headers={'Authorization': f'Bearer {auth_token}'}
     )
     payload = r.json
 
     assert r.status_code == status.HTTP_403_FORBIDDEN
-    assert payload['status'] == 'fail'
-    assert payload['message'] == 'You do not have permission to do that.'
+    assert payload['message'] == 'You do not have permission to perform this action.'
 
 
 def test_get_all_users_not_logged_in(client):
@@ -285,10 +256,9 @@ def test_get_all_users_not_logged_in(client):
         user_store.add(email=f'user{i}@server.eu', password=f'pass{i}')
 
     r = client.get(
-        '/users'
+        '/api/users/'
     )
     payload = r.json
 
     assert r.status_code == status.HTTP_403_FORBIDDEN
-    assert payload['status'] == 'fail'
-    assert payload['message'] == 'You do not have permission to do that.'
+    assert payload['message'] == 'You do not have permission to perform this action.'

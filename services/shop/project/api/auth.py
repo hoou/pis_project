@@ -1,78 +1,75 @@
-from flask import Blueprint, request, jsonify
+from flask import request
 from flask_api import status
+from werkzeug.exceptions import Conflict
+from flask_restplus import Resource
 
 from project import bcrypt
+from project.api import api
+from project.api.errors import AuthenticationFailed, InvalidPayload, PermissionDenied
 from project.api.middleware.auth import authenticate
 from project.store import user_store
 from project.store.user_store import DuplicateEmailError
 from project.utils.jwt import encode_auth_token
 
-auth_blueprint = Blueprint('auth', __name__)
+ns = api.namespace('auth')
 
 
-@auth_blueprint.route('/auth/register', methods=['POST'])
-def register_user():
-    data = request.get_json()
+@ns.route('/register')
+class UserRegistration(Resource):
+    def post(self):
+        data = request.get_json()
 
-    if not data:
-        return jsonify({'status': 'fail', 'message': 'Invalid payload.'}), status.HTTP_400_BAD_REQUEST
+        if not data:
+            raise InvalidPayload
 
-    email = data.get('email')
-    password = data.get('password')
+        email = data.get('email')
+        password = data.get('password')
 
-    if email is None or password is None:
-        return jsonify({'status': 'fail', 'message': 'Invalid payload.'}), status.HTTP_400_BAD_REQUEST
+        if email is None or password is None:
+            raise InvalidPayload
 
-    try:
-        user_store.add(email=email, password=password)
-    except DuplicateEmailError:
-        return jsonify({'status': 'fail', 'message': 'User with this email already exists.'}), status.HTTP_409_CONFLICT
+        try:
+            user_store.add(email=email, password=password)
+        except DuplicateEmailError:
+            raise Conflict('User with this email already exists.')
 
-    return jsonify({
-        'status': 'success',
-        'message': 'Successfully registered.'
-    }), status.HTTP_201_CREATED
+        return {'message': 'Successfully registered.'}, status.HTTP_201_CREATED
 
 
-@auth_blueprint.route('/auth/login', methods=['POST'])
-def login_user():
-    data = request.get_json()
+@ns.route('/login')
+class UserLogin(Resource):
+    def post(self):
+        data = request.get_json()
 
-    if not data:
-        return jsonify({'status': 'fail', 'message': 'Invalid payload.'}), status.HTTP_400_BAD_REQUEST
+        if not data:
+            raise InvalidPayload
 
-    email = data.get('email')
-    password = data.get('password')
+        email = data.get('email')
+        password = data.get('password')
 
-    if email is None or password is None:
-        return jsonify({'status': 'fail', 'message': 'Invalid payload.'}), status.HTTP_400_BAD_REQUEST
+        if email is None or password is None:
+            raise InvalidPayload
 
-    user = user_store.get_by_email(email)
+        user = user_store.get_by_email(email)
 
-    if user is None:
-        return jsonify({
-            'status': 'fail',
-            'message': 'User with this email is not registered.'
-        }), status.HTTP_404_NOT_FOUND
+        if user is None:
+            raise AuthenticationFailed
 
-    if not user.active:
-        return jsonify({'status': 'fail', 'message': 'User is not active.'}), status.HTTP_403_FORBIDDEN
+        if not user.active:
+            raise PermissionDenied
 
-    is_valid_password = bcrypt.check_password_hash(user.password, password)
+        is_valid_password = bcrypt.check_password_hash(user.password, password)
 
-    if not is_valid_password:
-        return jsonify({'status': 'fail', 'message': 'Invalid password.'}), status.HTTP_400_BAD_REQUEST
+        if not is_valid_password:
+            raise AuthenticationFailed
 
-    auth_token = encode_auth_token(user.id)
+        auth_token = encode_auth_token(user.id)
 
-    return jsonify({
-        'status': 'success',
-        'message': 'User successfully logged in.',
-        'auth_token': auth_token.decode()
-    }), status.HTTP_200_OK
+        return {'message': 'User successfully logged in.', 'auth_token': auth_token.decode()}
 
 
-@auth_blueprint.route('/auth/logout', methods=['GET'])
-@authenticate
-def logout_user(user_id):
-    return jsonify({'status': 'success', 'message': 'User successfully logged out.'}), status.HTTP_200_OK
+@ns.route('/logout')
+class UserLogout(Resource):
+    @authenticate
+    def get(self, user_id):
+        return {'message': 'User successfully logged out.'}

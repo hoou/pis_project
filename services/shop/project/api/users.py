@@ -1,39 +1,32 @@
-from flask import Blueprint, jsonify
-from flask_api import status
+from flask_restplus import Resource
 
+from project.api import api
+from project.api.errors import NotFound
 from project.api.middleware.auth import authenticate, check_admin_or_worker
-from project.models.schemas import user_schema
+from project.models.serializers import user as user_serial
 from project.store import user_store
 
-users_blueprint = Blueprint('users', __name__)
+ns = api.namespace('users')
 
 
-@users_blueprint.route('/users/<user_to_find_id>', methods=['GET'])
-@authenticate
-@check_admin_or_worker
-def get_single_user(user_id, user_to_find_id):
-    try:
-        user_to_find_id = int(user_to_find_id)
-    except ValueError:
-        return jsonify({'status': 'fail', 'message': 'User id must be int.'}), status.HTTP_400_BAD_REQUEST
-
-    user = user_store.get(user_to_find_id)
-
-    if user is None:
-        return jsonify({'status': 'fail', 'message': 'User not found.'}), status.HTTP_404_NOT_FOUND
-
-    return jsonify({
-        'status': 'success',
-        'data': user_schema.dump(user).data
-    })
+@ns.route('/')
+class UserCollection(Resource):
+    @api.marshal_list_with(user_serial)
+    @authenticate
+    @check_admin_or_worker
+    def get(self, user_id):
+        return user_store.get_all()
 
 
-@users_blueprint.route('/users', methods=['GET'])
-@authenticate
-@check_admin_or_worker
-def get_all_users(user_id):
-    users = user_store.get_all()
-    return jsonify({
-        'status': 'success',
-        'data': [user_schema.dump(user).data for user in users]
-    })
+@ns.route('/<int:user_to_get_id>')
+class UserItem(Resource):
+    @api.marshal_with(user_serial)
+    @authenticate
+    @check_admin_or_worker
+    def get(self, user_id, user_to_get_id):
+        user = user_store.get(user_to_get_id)
+
+        if user is None:
+            raise NotFound
+
+        return user

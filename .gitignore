@@ -4,3 +4,4 @@ env
 .pytest_cache/
 services/shop/htmlcov/
 services/shop/public/
+services/shop/project/logs/

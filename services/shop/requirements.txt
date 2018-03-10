@@ -2,6 +2,7 @@ Flask==0.12.2
 Flask-SQLAlchemy==2.3.2
 pytest-flask==0.10.0
 Flask-API==1.0
+flask-restplus==0.10.1
 psycopg2-binary==2.7.4
 marshmallow-sqlalchemy==0.13.2
 gunicorn==19.7.1

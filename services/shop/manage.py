@@ -31,6 +31,10 @@ def seed_db():
     user_store.add(email='user1@server.eu', password='blah')
     user_store.add(email='user2@server.eu', password='blah-blah')
 
+    from project.store import product_store
+    product_store.add(name='Super product', price=19.99)
+    product_store.add(name='Very bad product', price=2.99)
+
 
 @cli.command()
 def test():
