@@ -21,11 +21,11 @@ def test_get_single_user_as_admin(client):
     )
 
     payload = r.json
-    auth_token = payload['auth_token']
+    access_token = payload['access_token']
 
     r = client.get(
         f'/api/users/{user.id}',
-        headers={'Authorization': f'Bearer {auth_token}'}
+        headers={'Authorization': f'Bearer {access_token}'}
     )
 
     payload = r.json
@@ -51,11 +51,11 @@ def test_get_single_user_as_worker(client):
     )
 
     payload = r.json
-    auth_token = payload['auth_token']
+    access_token = payload['access_token']
 
     r = client.get(
         f'/api/users/{user.id}',
-        headers={'Authorization': f'Bearer {auth_token}'}
+        headers={'Authorization': f'Bearer {access_token}'}
     )
 
     payload = r.json
@@ -80,13 +80,13 @@ def test_get_single_user_not_admin_or_worker(client):
     )
 
     payload = r.json
-    auth_token = payload['auth_token']
+    access_token = payload['access_token']
 
     assert user.role != UserRole.ADMIN and user.role != UserRole.WORKER
 
     r = client.get(
         f'/api/users/{user.id}',
-        headers={'Authorization': f'Bearer {auth_token}'}
+        headers={'Authorization': f'Bearer {access_token}'}
     )
     payload = r.json
 
@@ -121,12 +121,12 @@ def test_get_single_user_not_exist(client):
     )
 
     payload = r.json
-    auth_token = payload['auth_token']
+    access_token = payload['access_token']
 
     non_existing_id = 999
     r = client.get(
         f'/api/users/{non_existing_id}',
-        headers={'Authorization': f'Bearer {auth_token}'}
+        headers={'Authorization': f'Bearer {access_token}'}
     )
 
     payload = r.json
@@ -155,11 +155,11 @@ def test_get_all_users_as_admin(client):
     )
 
     payload = r.json
-    auth_token = payload['auth_token']
+    access_token = payload['access_token']
 
     r = client.get(
         '/api/users/',
-        headers={'Authorization': f'Bearer {auth_token}'}
+        headers={'Authorization': f'Bearer {access_token}'}
     )
     payload = r.json
 
@@ -195,11 +195,11 @@ def test_get_all_users_as_worker(client):
     )
 
     payload = r.json
-    auth_token = payload['auth_token']
+    access_token = payload['access_token']
 
     r = client.get(
         '/api/users/',
-        headers={'Authorization': f'Bearer {auth_token}'}
+        headers={'Authorization': f'Bearer {access_token}'}
     )
 
     payload = r.json
@@ -235,13 +235,13 @@ def test_get_all_users_not_admin_or_worker(client):
     )
 
     payload = r.json
-    auth_token = payload['auth_token']
+    access_token = payload['access_token']
 
     assert user.role != UserRole.ADMIN and user.role != UserRole.WORKER
 
     r = client.get(
         '/api/users/',
-        headers={'Authorization': f'Bearer {auth_token}'}
+        headers={'Authorization': f'Bearer {access_token}'}
     )
     payload = r.json
 

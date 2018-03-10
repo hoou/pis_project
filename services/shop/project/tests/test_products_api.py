@@ -2,11 +2,11 @@ import json
 
 import os
 from flask_api import status
+from flask_jwt_extended import create_access_token
 
 from project.models.product_image import ProductImage
 from project.models.user import UserRole
 from project.store import product_store, user_store
-from project.utils.jwt import encode_auth_token
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 product_dir = os.path.join(basedir, )
@@ -76,8 +76,6 @@ def test_add_product(app, client):
     user.active = True
     user.role = UserRole.ADMIN
 
-    app.config['TOKEN_EXPIRATION_SECONDS'] = 60
-
     r = client.post(
         '/api/auth/login',
         data=json.dumps({
@@ -89,7 +87,7 @@ def test_add_product(app, client):
 
     payload = r.json
 
-    auth_token = payload['auth_token']
+    access_token = payload['access_token']
 
     r = client.post(
         '/api/products/',
@@ -98,7 +96,7 @@ def test_add_product(app, client):
             'price': 213.99,
             'description': 'blah blah blah'
         }),
-        headers={'Authorization': f'Bearer {auth_token}'},
+        headers={'Authorization': f'Bearer {access_token}'},
         content_type='application/json'
     )
 
@@ -124,12 +122,12 @@ def test_add_product_empty_json(client):
 
     payload = r.json
 
-    auth_token = payload['auth_token']
+    access_token = payload['access_token']
 
     r = client.post(
         '/api/products/',
         data=json.dumps({}),
-        headers={'Authorization': f'Bearer {auth_token}'},
+        headers={'Authorization': f'Bearer {access_token}'},
         content_type='application/json'
     )
 
@@ -141,7 +139,7 @@ def test_add_product_empty_json(client):
 
 def test_add_product_not_existing_user(client):
     not_existing_user_id = 99
-    auth_token = encode_auth_token(not_existing_user_id).decode()
+    access_token = create_access_token(not_existing_user_id)
 
     r = client.post(
         '/api/products/',
@@ -150,7 +148,7 @@ def test_add_product_not_existing_user(client):
             'price': 213.212,
             'description': 'blah blah blah'
         }),
-        headers={'Authorization': f'Bearer {auth_token}'},
+        headers={'Authorization': f'Bearer {access_token}'},
         content_type='application/json'
     )
 
@@ -164,7 +162,7 @@ def test_add_product_not_active_user(client):
     user = user_store.add(email='tibor@mikita.eu', password='blah')
     user.role = UserRole.ADMIN
 
-    auth_token = encode_auth_token(user.id).decode()
+    access_token = create_access_token(user.id)
 
     r = client.post(
         '/api/products/',
@@ -173,7 +171,7 @@ def test_add_product_not_active_user(client):
             'price': 213.212,
             'description': 'blah blah blah'
         }),
-        headers={'Authorization': f'Bearer {auth_token}'},
+        headers={'Authorization': f'Bearer {access_token}'},
         content_type='application/json'
     )
 
@@ -215,7 +213,7 @@ def test_add_product_not_admin_or_worker(client):
 
     payload = r.json
 
-    auth_token = payload['auth_token']
+    access_token = payload['access_token']
 
     assert user.role != UserRole.ADMIN and user.role != UserRole.WORKER
 
@@ -226,7 +224,7 @@ def test_add_product_not_admin_or_worker(client):
             'price': 213.212,
             'description': 'blah blah blah'
         }),
-        headers={'Authorization': f'Bearer {auth_token}'},
+        headers={'Authorization': f'Bearer {access_token}'},
         content_type='application/json'
     )
 
@@ -252,7 +250,7 @@ def test_add_product_missing_name(client):
 
     payload = r.json
 
-    auth_token = payload['auth_token']
+    access_token = payload['access_token']
 
     r = client.post(
         '/api/products/',
@@ -260,7 +258,7 @@ def test_add_product_missing_name(client):
             'price': 213.212,
             'description': 'blah blah blah'
         }),
-        headers={'Authorization': f'Bearer {auth_token}'},
+        headers={'Authorization': f'Bearer {access_token}'},
         content_type='application/json'
     )
 
@@ -286,7 +284,7 @@ def test_add_product_missing_price(client):
 
     payload = r.json
 
-    auth_token = payload['auth_token']
+    access_token = payload['access_token']
 
     r = client.post(
         '/api/products/',
@@ -294,7 +292,7 @@ def test_add_product_missing_price(client):
             'name': 'Super Perfect Product Numero Uno',
             'description': 'blah blah blah'
         }),
-        headers={'Authorization': f'Bearer {auth_token}'},
+        headers={'Authorization': f'Bearer {access_token}'},
         content_type='application/json'
     )
 
@@ -324,7 +322,7 @@ def test_add_product_image(client):
 
     payload = r.json
 
-    auth_token = payload['auth_token']
+    access_token = payload['access_token']
 
     with open(testing_image_jpg_path, 'rb') as f:
         r = client.post(
@@ -332,7 +330,7 @@ def test_add_product_image(client):
             data={
                 'file': (f, f.name)
             },
-            headers={'Authorization': f'Bearer {auth_token}'},
+            headers={'Authorization': f'Bearer {access_token}'},
             content_type='multipart/form-data'
         )
 
@@ -361,7 +359,7 @@ def test_add_product_image_not_existing_product(client):
 
     payload = r.json
 
-    auth_token = payload['auth_token']
+    access_token = payload['access_token']
 
     not_existing_product_id = 99
 
@@ -371,7 +369,7 @@ def test_add_product_image_not_existing_product(client):
             data={
                 'file': (f, f.name)
             },
-            headers={'Authorization': f'Bearer {auth_token}'},
+            headers={'Authorization': f'Bearer {access_token}'},
             content_type='multipart/form-data'
         )
 
@@ -401,12 +399,12 @@ def test_add_product_image_no_data(client):
 
     payload = r.json
 
-    auth_token = payload['auth_token']
+    access_token = payload['access_token']
 
     with open(testing_image_jpg_path, 'rb') as f:
         r = client.post(
             f'/api/products/{product.id}/images',
-            headers={'Authorization': f'Bearer {auth_token}'},
+            headers={'Authorization': f'Bearer {access_token}'},
             content_type='multipart/form-data'
         )
 
@@ -435,7 +433,7 @@ def test_add_product_image_not_admin_or_worker(client):
 
     payload = r.json
 
-    auth_token = payload['auth_token']
+    access_token = payload['access_token']
 
     assert user.role != UserRole.WORKER and user.role != UserRole.ADMIN
 
@@ -445,7 +443,7 @@ def test_add_product_image_not_admin_or_worker(client):
             data={
                 'file': (f, f.name)
             },
-            headers={'Authorization': f'Bearer {auth_token}'},
+            headers={'Authorization': f'Bearer {access_token}'},
             content_type='multipart/form-data'
         )
 
@@ -475,13 +473,13 @@ def test_add_product_image_no_file(client):
 
     payload = r.json
 
-    auth_token = payload['auth_token']
+    access_token = payload['access_token']
 
     with open(testing_image_jpg_path, 'rb') as f:
         r = client.post(
             f'/api/products/{product.id}/images',
             data={},
-            headers={'Authorization': f'Bearer {auth_token}'},
+            headers={'Authorization': f'Bearer {access_token}'},
             content_type='multipart/form-data'
         )
 
@@ -511,7 +509,7 @@ def test_add_product_image_empty_file(client):
 
     payload = r.json
 
-    auth_token = payload['auth_token']
+    access_token = payload['access_token']
 
     with open(testing_image_jpg_path, 'rb') as f:
         r = client.post(
@@ -519,7 +517,7 @@ def test_add_product_image_empty_file(client):
             data={
                 'file': None
             },
-            headers={'Authorization': f'Bearer {auth_token}'},
+            headers={'Authorization': f'Bearer {access_token}'},
             content_type='multipart/form-data'
         )
 
@@ -549,7 +547,7 @@ def test_add_product_image_not_file(client):
 
     payload = r.json
 
-    auth_token = payload['auth_token']
+    access_token = payload['access_token']
 
     with open(testing_image_jpg_path, 'rb') as f:
         r = client.post(
@@ -557,7 +555,7 @@ def test_add_product_image_not_file(client):
             data={
                 'file': 'blah'
             },
-            headers={'Authorization': f'Bearer {auth_token}'},
+            headers={'Authorization': f'Bearer {access_token}'},
             content_type='multipart/form-data'
         )
 
@@ -611,7 +609,7 @@ def test_add_product_image_not_allowed_file_ext(client):
 
     payload = r.json
 
-    auth_token = payload['auth_token']
+    access_token = payload['access_token']
 
     with open(testing_image_png_path, 'rb') as f:
         r = client.post(
@@ -619,7 +617,7 @@ def test_add_product_image_not_allowed_file_ext(client):
             data={
                 'file': (f, f.name)
             },
-            headers={'Authorization': f'Bearer {auth_token}'},
+            headers={'Authorization': f'Bearer {access_token}'},
             content_type='multipart/form-data'
         )
 
@@ -667,10 +665,10 @@ def test_delete_image_of_product(client):
         content_type='application/json'
     )
     payload = r.json
-    auth_token = payload['auth_token']
+    access_token = payload['access_token']
 
     r = client.delete(f'/api/products/{product.id}/images/{image.id}',
-                      headers={'Authorization': f'Bearer {auth_token}'})
+                      headers={'Authorization': f'Bearer {access_token}'})
     payload = r.json
 
     assert r.status_code == status.HTTP_200_OK
@@ -697,11 +695,11 @@ def test_delete_image_of_different_product(client):
         content_type='application/json'
     )
     payload = r.json
-    auth_token = payload['auth_token']
+    access_token = payload['access_token']
 
     r = client.delete(
         f'/api/products/{product_without_image.id}/images/{image.id}',
-        headers={'Authorization': f'Bearer {auth_token}'}
+        headers={'Authorization': f'Bearer {access_token}'}
     )
     payload = r.json
 
@@ -727,13 +725,13 @@ def test_delete_image_not_existing(client):
         content_type='application/json'
     )
     payload = r.json
-    auth_token = payload['auth_token']
+    access_token = payload['access_token']
 
     not_existing_image_id = 99
 
     r = client.delete(
         f'/api/products/{product.id}/images/{not_existing_image_id}',
-        headers={'Authorization': f'Bearer {auth_token}'}
+        headers={'Authorization': f'Bearer {access_token}'}
     )
     payload = r.json
 
@@ -760,10 +758,10 @@ def test_delete_image_of_product_no_admin_or_worker(client):
         content_type='application/json'
     )
     payload = r.json
-    auth_token = payload['auth_token']
+    access_token = payload['access_token']
 
     r = client.delete(f'/api/products/{product.id}/images/{image.id}',
-                      headers={'Authorization': f'Bearer {auth_token}'})
+                      headers={'Authorization': f'Bearer {access_token}'})
     payload = r.json
 
     assert r.status_code == status.HTTP_403_FORBIDDEN

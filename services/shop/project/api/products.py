@@ -5,11 +5,12 @@ import time
 
 from flask import request, current_app
 from flask_api import status
+from flask_jwt_extended import jwt_required
 from flask_restplus import Resource
 
 from project.api import api
 from project.api.errors import InvalidPayload, NotFound
-from project.api.middleware.auth import authenticate, check_admin_or_worker
+from project.api.middleware.auth import active_user, admin_or_worker
 from project.store import product_store
 from project.utils.file import is_uploaded_file_allowed
 from project.models.serializers import product as product_serial
@@ -24,9 +25,10 @@ class ProductCollection(Resource):
     def get(self):
         return product_store.get_all()
 
-    @authenticate
-    @check_admin_or_worker
-    def post(self, user_id):
+    @jwt_required
+    @active_user
+    @admin_or_worker
+    def post(self):
         data = request.get_json()
 
         if not data:
@@ -62,9 +64,10 @@ class ProductImageCollection(Resource):
     def get(self, product_id):
         return product_store.get_images(product_id)
 
-    @authenticate
-    @check_admin_or_worker
-    def post(self, user_id, product_id):
+    @jwt_required
+    @active_user
+    @admin_or_worker
+    def post(self, product_id):
         product = product_store.get(product_id)
 
         if product is None:
@@ -101,9 +104,10 @@ class ProductImageCollection(Resource):
 
 @ns.route('/<product_id>/images/<image_id>')
 class ProductImageItem(Resource):
-    @authenticate
-    @check_admin_or_worker
-    def delete(self, user_id, product_id, image_id):
+    @jwt_required
+    @active_user
+    @admin_or_worker
+    def delete(self, product_id, image_id):
         if not product_store.has_image(product_id, image_id):
             return {'message': 'Image not found.'}, status.HTTP_404_NOT_FOUND
 

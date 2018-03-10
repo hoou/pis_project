@@ -1,15 +1,15 @@
 from flask import request
 from flask_api import status
+from flask_jwt_extended import create_access_token, jwt_required
 from werkzeug.exceptions import Conflict
 from flask_restplus import Resource
 
 from project import bcrypt
 from project.api import api
 from project.api.errors import AuthenticationFailed, InvalidPayload, PermissionDenied
-from project.api.middleware.auth import authenticate
+from project.api.middleware.auth import active_user
 from project.store import user_store
 from project.store.user_store import DuplicateEmailError
-from project.utils.jwt import encode_auth_token
 
 ns = api.namespace('auth')
 
@@ -63,13 +63,15 @@ class UserLogin(Resource):
         if not is_valid_password:
             raise AuthenticationFailed
 
-        auth_token = encode_auth_token(user.id)
+        # auth_token = encode_auth_token(user.id)
+        access_token = create_access_token(user.id)
 
-        return {'message': 'User successfully logged in.', 'auth_token': auth_token.decode()}
+        return {'message': 'User successfully logged in.', 'access_token': access_token}
 
 
 @ns.route('/logout')
 class UserLogout(Resource):
-    @authenticate
-    def get(self, user_id):
+    @jwt_required
+    @active_user
+    def get(self):
         return {'message': 'User successfully logged out.'}

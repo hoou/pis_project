@@ -1,5 +1,6 @@
 import json
 
+import datetime
 from flask_api import status
 
 from project.store import user_store
@@ -93,7 +94,7 @@ def test_user_login(client):
 
     assert r.status_code == status.HTTP_200_OK
     assert payload['message'] == 'User successfully logged in.'
-    assert payload['auth_token']
+    assert payload['access_token']
 
 
 def test_user_login_inactive(client):
@@ -208,11 +209,11 @@ def test_user_logout(client):
     )
     payload = r.json
 
-    auth_token = payload['auth_token']
+    access_token = payload['access_token']
 
     r = client.get(
         '/api/auth/logout',
-        headers={'Authorization': f'Bearer {auth_token}'}
+        headers={'Authorization': f'Bearer {access_token}'}
     )
     payload = r.json
 
@@ -248,8 +249,8 @@ def test_user_logout_empty_auth_header(client):
     )
     payload = r.json
 
-    assert r.status_code == status.HTTP_400_BAD_REQUEST
-    assert payload['message'] == 'Malformed request.'
+    assert r.status_code == status.HTTP_403_FORBIDDEN
+    assert payload['message'] == 'You do not have permission to perform this action.'
 
 
 def test_user_logout_invalid_token(client):
@@ -259,15 +260,15 @@ def test_user_logout_invalid_token(client):
     )
     payload = r.json
 
-    assert r.status_code == status.HTTP_401_UNAUTHORIZED
-    assert payload['message'] == 'Invalid access token.'
+    assert r.status_code == status.HTTP_400_BAD_REQUEST
+    assert payload['message'] == 'Malformed request.'
 
 
 def test_user_logout_expired_token(app, client):
     user = user_store.add(email='tibor@mikita.eu', password='blah')
     user.active = True
 
-    app.config['TOKEN_EXPIRATION_SECONDS'] = -1
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(seconds=-1)
 
     r = client.post(
         '/api/auth/login',
@@ -279,11 +280,11 @@ def test_user_logout_expired_token(app, client):
     )
     payload = r.json
 
-    auth_token = payload['auth_token']
+    access_token = payload['access_token']
 
     r = client.get(
         '/api/auth/logout',
-        headers={'Authorization': f'Bearer {auth_token}'}
+        headers={'Authorization': f'Bearer {access_token}'}
     )
     payload = r.json
 

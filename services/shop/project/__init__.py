@@ -4,15 +4,16 @@ import os
 from flask import Flask, Blueprint
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
+from flask_jwt_extended import JWTManager
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import orm
 
 from project.api import api
 
 # init extensions
-
 db = SQLAlchemy()
 bcrypt = Bcrypt()
+jwt = JWTManager()
 
 session = orm.scoped_session(orm.sessionmaker())
 session.configure(bind="engine")
@@ -37,6 +38,7 @@ def create_app(script_info=None):
     # set up extensions
     db.init_app(app)
     bcrypt.init_app(app)
+    jwt.init_app(app)
 
     # init API
     blueprint = Blueprint('api', __name__, url_prefix='/api')
