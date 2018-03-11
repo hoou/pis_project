@@ -1,6 +1,7 @@
 from flask import request
 from flask_api import status
-from flask_jwt_extended import create_access_token, jwt_required
+from flask_jwt_extended import create_access_token, jwt_required, create_refresh_token, jwt_refresh_token_required, \
+    get_jwt_identity
 from werkzeug.exceptions import Conflict
 from flask_restplus import Resource
 
@@ -63,10 +64,19 @@ class UserLogin(Resource):
         if not is_valid_password:
             raise AuthenticationFailed
 
-        # auth_token = encode_auth_token(user.id)
         access_token = create_access_token(user.id)
+        refresh_token = create_refresh_token(user.id)
 
-        return {'message': 'User successfully logged in.', 'access_token': access_token}
+        return {'message': 'User successfully logged in.', 'access_token': access_token, 'refresh_token': refresh_token}
+
+
+@ns.route('/refresh')
+class TokenRefresh(Resource):
+    @jwt_refresh_token_required
+    def get(self):
+        user_id = get_jwt_identity()
+        new_access_token = create_access_token(user_id)
+        return {'message': 'Token successfully refreshed.', 'access_token': new_access_token}
 
 
 @ns.route('/logout')

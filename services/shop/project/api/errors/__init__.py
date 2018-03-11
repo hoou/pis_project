@@ -16,6 +16,13 @@ class ParseError(HTTPException):
     )
 
 
+class WrongTypeOfTokenError(HTTPException):
+    code = status.HTTP_400_BAD_REQUEST
+    description = (
+        'Wrong type of token given.'
+    )
+
+
 class AuthenticationFailed(HTTPException):
     code = status.HTTP_401_UNAUTHORIZED
     description = (
@@ -23,10 +30,10 @@ class AuthenticationFailed(HTTPException):
     )
 
 
-class ExpiredAccessToken(HTTPException):
+class ExpiredToken(HTTPException):
     code = status.HTTP_401_UNAUTHORIZED
     description = (
-        'Expired access token.'
+        'Expired token.'
     )
 
 

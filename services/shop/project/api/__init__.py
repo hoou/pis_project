@@ -1,8 +1,8 @@
-from flask_jwt_extended.exceptions import NoAuthorizationError, InvalidHeaderError
+from flask_jwt_extended.exceptions import NoAuthorizationError, InvalidHeaderError, WrongTokenError
 from flask_restplus import Api
 from jwt.exceptions import DecodeError, ExpiredSignatureError
 
-from project.api.errors import PermissionDenied, ParseError, ExpiredAccessToken
+from project.api.errors import PermissionDenied, ParseError, ExpiredToken, WrongTypeOfTokenError
 
 api = Api()
 
@@ -24,4 +24,9 @@ def handle_decode_error(error):
 
 @api.errorhandler(ExpiredSignatureError)
 def handle_expired_signature_error(error):
-    return {'message': ExpiredAccessToken.description}, ExpiredAccessToken.code
+    return {'message': ExpiredToken.description}, ExpiredToken.code
+
+
+@api.errorhandler(WrongTokenError)
+def handle_wrong_token_error(error):
+    return {'message': WrongTypeOfTokenError.description}, WrongTypeOfTokenError.code

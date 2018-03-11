@@ -20,6 +20,7 @@ def test_app_is_testing(app):
     assert app.config['SQLALCHEMY_DATABASE_URI'] == os.environ.get('DATABASE_TEST_URL')
     assert app.config['BCRYPT_LOG_ROUNDS'] == 4
     assert app.config['JWT_ACCESS_TOKEN_EXPIRES'] == datetime.timedelta(seconds=3)
+    assert app.config['JWT_REFRESH_TOKEN_EXPIRES'] == datetime.timedelta(seconds=30)
 
 
 def test_app_is_production(app_prod):

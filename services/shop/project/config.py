@@ -23,6 +23,7 @@ class TestingConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_TEST_URL')
     BCRYPT_LOG_ROUNDS = 4
     JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(seconds=3)
+    JWT_REFRESH_TOKEN_EXPIRES = datetime.timedelta(seconds=30)
 
 
 class ProductionConfig(BaseConfig):

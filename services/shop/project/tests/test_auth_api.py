@@ -1,7 +1,8 @@
+import datetime
 import json
 
-import datetime
 from flask_api import status
+from flask_jwt_extended import decode_token
 
 from project.business import users
 
@@ -95,6 +96,7 @@ def test_user_login(client):
     assert r.status_code == status.HTTP_200_OK
     assert payload['message'] == 'User successfully logged in.'
     assert payload['access_token']
+    assert payload['refresh_token']
 
 
 def test_user_login_inactive(client):
@@ -289,4 +291,139 @@ def test_user_logout_expired_token(app, client):
     payload = r.json
 
     assert r.status_code == status.HTTP_401_UNAUTHORIZED
-    assert payload['message'] == 'Expired access token.'
+    assert payload['message'] == 'Expired token.'
+
+
+def test_refresh_token(app, client):
+    user = users.add(email='tibor@mikita.eu', password='blah')
+    user.active = True
+
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(seconds=1)
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+    refresh_token = payload['refresh_token']
+
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(seconds=3)
+
+    r = client.get(
+        '/api/auth/refresh',
+        headers={'Authorization': f'Bearer {refresh_token}'}
+    )
+
+    payload = r.json
+
+    old_access_token = access_token
+
+    assert r.status_code == status.HTTP_200_OK
+    assert payload['message'] == 'Token successfully refreshed.'
+    assert payload['access_token']
+
+    decoded_access_token = decode_token(payload['access_token'])
+    decoded_old_access_token = decode_token(old_access_token)
+
+    assert decoded_access_token['exp'] > decoded_old_access_token['exp']
+    assert decoded_access_token['identity'] == decoded_old_access_token['identity']
+
+
+def test_refresh_token_with_access_token(client):
+    user = users.add(email='tibor@mikita.eu', password='blah')
+    user.active = True
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    r = client.get(
+        '/api/auth/refresh',
+        headers={'Authorization': f'Bearer {access_token}'}
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_400_BAD_REQUEST
+    assert payload['message'] == 'Wrong type of token given.'
+
+
+def test_refresh_token_with_expired_token(app, client):
+    user = users.add(email='tibor@mikita.eu', password='blah')
+    user.active = True
+
+    app.config['JWT_REFRESH_TOKEN_EXPIRES'] = datetime.timedelta(seconds=-1)
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    refresh_token = payload['refresh_token']
+
+    r = client.get(
+        '/api/auth/refresh',
+        headers={'Authorization': f'Bearer {refresh_token}'}
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_401_UNAUTHORIZED
+    assert payload['message'] == 'Expired token.'
+
+
+def test_refresh_token_with_no_refresh_token(client):
+    r = client.get(
+        '/api/auth/refresh',
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_403_FORBIDDEN
+    assert payload['message'] == 'You do not have permission to perform this action.'
+
+
+def test_refresh_token_with_empty_token(client):
+    r = client.get(
+        '/api/auth/refresh',
+        headers={'Authorization': ''}
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_403_FORBIDDEN
+    assert payload['message'] == 'You do not have permission to perform this action.'
+
+
+def test_refresh_token_with_invalid_token(client):
+    r = client.get(
+        '/api/auth/refresh',
+        headers={'Authorization': 'Bearer blabla_invalid_token'}
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_400_BAD_REQUEST
+    assert payload['message'] == 'Malformed request.'
