@@ -1,16 +1,16 @@
 from functools import wraps
 
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_jwt_extended import get_jwt_identity
 
 from project.api.errors import *
+from project.business import users
 from project.models.user import UserRole
-from project.store import user_store
 
 
 def active_user(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        user = user_store.get(get_jwt_identity())
+        user = users.get(get_jwt_identity())
         if user is None:
             raise AuthenticationFailed
 
@@ -26,7 +26,7 @@ def admin_or_worker(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         user_id = get_jwt_identity()
-        if user_store.get(user_id).role != UserRole.ADMIN and user_store.get(user_id).role != UserRole.WORKER:
+        if users.get(user_id).role != UserRole.ADMIN and users.get(user_id).role != UserRole.WORKER:
             raise PermissionDenied
         return f(*args, **kwargs)
 

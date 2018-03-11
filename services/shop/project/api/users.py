@@ -5,7 +5,7 @@ from project.api import api
 from project.api.errors import NotFound
 from project.api.middleware.auth import active_user, admin_or_worker
 from project.models.serializers import user as user_serial
-from project.store import user_store
+from project.business import users
 
 ns = api.namespace('users')
 
@@ -17,7 +17,7 @@ class UserCollection(Resource):
     @active_user
     @admin_or_worker
     def get(self):
-        return user_store.get_all()
+        return users.get_all()
 
 
 @ns.route('/<int:user_to_get_id>')
@@ -27,7 +27,7 @@ class UserItem(Resource):
     @active_user
     @admin_or_worker
     def get(self, user_to_get_id):
-        user = user_store.get(user_to_get_id)
+        user = users.get(user_to_get_id)
 
         if user is None:
             raise NotFound

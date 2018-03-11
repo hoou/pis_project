@@ -27,13 +27,13 @@ def recreate_db():
 
 @cli.command()
 def seed_db():
-    from project.store import user_store
-    user_store.add(email='user1@server.eu', password='blah')
-    user_store.add(email='user2@server.eu', password='blah-blah')
+    from project.business import users
+    users.add(email='user1@server.eu', password='blah')
+    users.add(email='user2@server.eu', password='blah-blah')
 
-    from project.store import product_store
-    product_store.add(name='Super product', price=19.99)
-    product_store.add(name='Very bad product', price=2.99)
+    from project.business import products
+    products.add(name='Super product', price=19.99)
+    products.add(name='Very bad product', price=2.99)
 
 
 @cli.command()

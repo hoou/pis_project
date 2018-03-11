@@ -3,7 +3,7 @@ import json
 import datetime
 from flask_api import status
 
-from project.store import user_store
+from project.business import users
 
 
 def test_user_registration(client):
@@ -21,7 +21,7 @@ def test_user_registration(client):
 
 
 def test_user_registration_duplicate_email(client):
-    user_store.add(email='tibor@mikita.eu', password='halo')
+    users.add(email='tibor@mikita.eu', password='halo')
 
     r = client.post(
         '/api/auth/register',
@@ -78,7 +78,7 @@ def test_user_registration_no_email(client):
 
 
 def test_user_login(client):
-    user = user_store.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(email='tibor@mikita.eu', password='blah')
     user.active = True
 
     r = client.post(
@@ -98,7 +98,7 @@ def test_user_login(client):
 
 
 def test_user_login_inactive(client):
-    user = user_store.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(email='tibor@mikita.eu', password='blah')
 
     assert not user.active
 
@@ -177,7 +177,7 @@ def test_user_login_not_registered(client):
 
 
 def test_user_login_invalid_password(client):
-    user = user_store.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(email='tibor@mikita.eu', password='blah')
     user.active = True
 
     r = client.post(
@@ -196,7 +196,7 @@ def test_user_login_invalid_password(client):
 
 
 def test_user_logout(client):
-    user = user_store.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(email='tibor@mikita.eu', password='blah')
     user.active = True
 
     r = client.post(
@@ -265,7 +265,7 @@ def test_user_logout_invalid_token(client):
 
 
 def test_user_logout_expired_token(app, client):
-    user = user_store.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(email='tibor@mikita.eu', password='blah')
     user.active = True
 
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(seconds=-1)

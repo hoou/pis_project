@@ -6,7 +6,7 @@ from flask_jwt_extended import create_access_token
 
 from project.models.product_image import ProductImage
 from project.models.user import UserRole
-from project.store import product_store, user_store
+from project.business import products, users
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 product_dir = os.path.join(basedir, )
@@ -15,21 +15,21 @@ testing_image_png_path = os.path.join(basedir, 'test_files/lena.png')
 
 
 def test_get_all_products(client):
-    product_store.add(name='Product One', price=13.99)
-    product_store.add(name='Product Two', price=23.99, description='blah')
-    product_store.add(name='Product Three', price=3.99)
-    product_store.add(name='Product Four', price=68.99)
+    products.add(name='Product One', price=13.99)
+    products.add(name='Product Two', price=23.99, description='blah')
+    products.add(name='Product Three', price=3.99)
+    products.add(name='Product Four', price=68.99)
 
     r = client.get('/api/products/')
 
     payload = r.json
 
-    products = payload
+    all_products = payload
 
     assert r.status_code == status.HTTP_200_OK
-    assert len(products) == 4
+    assert len(all_products) == 4
 
-    sorted_products = sorted(products, key=lambda product: product['id'])
+    sorted_products = sorted(all_products, key=lambda product: product['id'])
 
     assert sorted_products[0]['name'] == 'Product One'
     assert sorted_products[1]['name'] == 'Product Two'
@@ -48,7 +48,7 @@ def test_get_all_products(client):
 
 
 def test_get_single_product(client):
-    product = product_store.add(name='Super Product', price=99.99)
+    product = products.add(name='Super Product', price=99.99)
 
     r = client.get(f'/api/products/{product.id}')
 
@@ -72,7 +72,7 @@ def test_get_single_product_non_existing(client):
 
 
 def test_add_product(app, client):
-    user = user_store.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(email='tibor@mikita.eu', password='blah')
     user.active = True
     user.role = UserRole.ADMIN
 
@@ -107,7 +107,7 @@ def test_add_product(app, client):
 
 
 def test_add_product_empty_json(client):
-    user = user_store.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(email='tibor@mikita.eu', password='blah')
     user.active = True
     user.role = UserRole.ADMIN
 
@@ -159,7 +159,7 @@ def test_add_product_not_existing_user(client):
 
 
 def test_add_product_not_active_user(client):
-    user = user_store.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(email='tibor@mikita.eu', password='blah')
     user.role = UserRole.ADMIN
 
     access_token = create_access_token(user.id)
@@ -199,7 +199,7 @@ def test_add_product_not_logged_in(client):
 
 
 def test_add_product_not_admin_or_worker(client):
-    user = user_store.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(email='tibor@mikita.eu', password='blah')
     user.active = True
 
     r = client.post(
@@ -235,7 +235,7 @@ def test_add_product_not_admin_or_worker(client):
 
 
 def test_add_product_missing_name(client):
-    user = user_store.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(email='tibor@mikita.eu', password='blah')
     user.active = True
     user.role = UserRole.ADMIN
 
@@ -269,7 +269,7 @@ def test_add_product_missing_name(client):
 
 
 def test_add_product_missing_price(client):
-    user = user_store.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(email='tibor@mikita.eu', password='blah')
     user.active = True
     user.role = UserRole.ADMIN
 
@@ -303,11 +303,11 @@ def test_add_product_missing_price(client):
 
 
 def test_add_product_image(client):
-    user = user_store.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(email='tibor@mikita.eu', password='blah')
     user.active = True
     user.role = UserRole.ADMIN
 
-    product = product_store.add(name='Super Small Product', price=0.99)
+    product = products.add(name='Super Small Product', price=0.99)
 
     assert product.id
 
@@ -344,7 +344,7 @@ def test_add_product_image(client):
 
 
 def test_add_product_image_not_existing_product(client):
-    user = user_store.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(email='tibor@mikita.eu', password='blah')
     user.active = True
     user.role = UserRole.ADMIN
 
@@ -380,11 +380,11 @@ def test_add_product_image_not_existing_product(client):
 
 
 def test_add_product_image_no_data(client):
-    user = user_store.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(email='tibor@mikita.eu', password='blah')
     user.active = True
     user.role = UserRole.ADMIN
 
-    product = product_store.add(name='Super Small Product', price=0.99)
+    product = products.add(name='Super Small Product', price=0.99)
 
     assert product.id
 
@@ -415,10 +415,10 @@ def test_add_product_image_no_data(client):
 
 
 def test_add_product_image_not_admin_or_worker(client):
-    user = user_store.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(email='tibor@mikita.eu', password='blah')
     user.active = True
 
-    product = product_store.add(name='Super Small Product', price=0.99)
+    product = products.add(name='Super Small Product', price=0.99)
 
     assert product.id
 
@@ -454,11 +454,11 @@ def test_add_product_image_not_admin_or_worker(client):
 
 
 def test_add_product_image_no_file(client):
-    user = user_store.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(email='tibor@mikita.eu', password='blah')
     user.active = True
     user.role = UserRole.ADMIN
 
-    product = product_store.add(name='Super Small Product', price=0.99)
+    product = products.add(name='Super Small Product', price=0.99)
 
     assert product.id
 
@@ -490,11 +490,11 @@ def test_add_product_image_no_file(client):
 
 
 def test_add_product_image_empty_file(client):
-    user = user_store.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(email='tibor@mikita.eu', password='blah')
     user.active = True
     user.role = UserRole.ADMIN
 
-    product = product_store.add(name='Super Small Product', price=0.99)
+    product = products.add(name='Super Small Product', price=0.99)
 
     assert product.id
 
@@ -528,11 +528,11 @@ def test_add_product_image_empty_file(client):
 
 
 def test_add_product_image_not_file(client):
-    user = user_store.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(email='tibor@mikita.eu', password='blah')
     user.active = True
     user.role = UserRole.ADMIN
 
-    product = product_store.add(name='Super Small Product', price=0.99)
+    product = products.add(name='Super Small Product', price=0.99)
 
     assert product.id
 
@@ -566,11 +566,11 @@ def test_add_product_image_not_file(client):
 
 
 def test_add_product_image_not_logged_in(client):
-    user = user_store.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(email='tibor@mikita.eu', password='blah')
     user.active = True
     user.role = UserRole.ADMIN
 
-    product = product_store.add(name='Super Small Product', price=0.99)
+    product = products.add(name='Super Small Product', price=0.99)
 
     assert product.id
 
@@ -590,11 +590,11 @@ def test_add_product_image_not_logged_in(client):
 
 
 def test_add_product_image_not_allowed_file_ext(client):
-    user = user_store.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(email='tibor@mikita.eu', password='blah')
     user.active = True
     user.role = UserRole.ADMIN
 
-    product = product_store.add(name='Super Small Product', price=0.99)
+    product = products.add(name='Super Small Product', price=0.99)
 
     assert product.id
 
@@ -628,10 +628,10 @@ def test_add_product_image_not_allowed_file_ext(client):
 
 
 def test_get_images_of_product(client):
-    product = product_store.add(name='Super Small Product', price=0.99)
-    product_store.add_image(product, url='fake_url.jpg')
-    product_store.add_image(product, url='fake_url2.jpg')
-    product_store.add_image(product, url='fake_url3.jpg')
+    product = products.add(name='Super Small Product', price=0.99)
+    products.add_image(product, url='fake_url.jpg')
+    products.add_image(product, url='fake_url2.jpg')
+    products.add_image(product, url='fake_url3.jpg')
 
     r = client.get(f'/api/products/{product.id}/images')
     payload = r.json
@@ -647,10 +647,10 @@ def test_get_images_of_product(client):
 
 
 def test_delete_image_of_product(client):
-    product = product_store.add(name='Super Small Product', price=0.99)
-    image = product_store.add_image(product, url='fake_url.jpg')
+    product = products.add(name='Super Small Product', price=0.99)
+    image = products.add_image(product, url='fake_url.jpg')
 
-    user = user_store.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(email='tibor@mikita.eu', password='blah')
     user.active = True
     user.role = UserRole.ADMIN
 
@@ -676,11 +676,11 @@ def test_delete_image_of_product(client):
 
 
 def test_delete_image_of_different_product(client):
-    product = product_store.add(name='Super Small Product', price=0.99)
-    product_without_image = product_store.add(name='Different Product', price=2.99)
-    image = product_store.add_image(product, url='fake_url.jpg')
+    product = products.add(name='Super Small Product', price=0.99)
+    product_without_image = products.add(name='Different Product', price=2.99)
+    image = products.add_image(product, url='fake_url.jpg')
 
-    user = user_store.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(email='tibor@mikita.eu', password='blah')
     user.active = True
     user.role = UserRole.ADMIN
 
@@ -708,9 +708,9 @@ def test_delete_image_of_different_product(client):
 
 
 def test_delete_image_not_existing(client):
-    product = product_store.add(name='Super Small Product', price=0.99)
+    product = products.add(name='Super Small Product', price=0.99)
 
-    user = user_store.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(email='tibor@mikita.eu', password='blah')
     user.active = True
     user.role = UserRole.ADMIN
 
@@ -740,10 +740,10 @@ def test_delete_image_not_existing(client):
 
 
 def test_delete_image_of_product_no_admin_or_worker(client):
-    product = product_store.add(name='Super Small Product', price=0.99)
-    image = product_store.add_image(product, url='fake_url.jpg')
+    product = products.add(name='Super Small Product', price=0.99)
+    image = products.add_image(product, url='fake_url.jpg')
 
-    user = user_store.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(email='tibor@mikita.eu', password='blah')
     user.active = True
 
     assert product.id
@@ -769,10 +769,10 @@ def test_delete_image_of_product_no_admin_or_worker(client):
 
 
 def test_delete_image_of_product_not_logged_in(client):
-    product = product_store.add(name='Super Small Product', price=0.99)
-    image = product_store.add_image(product, url='fake_url.jpg')
+    product = products.add(name='Super Small Product', price=0.99)
+    image = products.add_image(product, url='fake_url.jpg')
 
-    user = user_store.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(email='tibor@mikita.eu', password='blah')
     user.active = True
     user.role = UserRole.ADMIN
 

@@ -8,8 +8,8 @@ from project import bcrypt
 from project.api import api
 from project.api.errors import AuthenticationFailed, InvalidPayload, PermissionDenied
 from project.api.middleware.auth import active_user
-from project.store import user_store
-from project.store.user_store import DuplicateEmailError
+from project.business import users
+from project.business.users import DuplicateEmailError
 
 ns = api.namespace('auth')
 
@@ -29,7 +29,7 @@ class UserRegistration(Resource):
             raise InvalidPayload
 
         try:
-            user_store.add(email=email, password=password)
+            users.add(email=email, password=password)
         except DuplicateEmailError:
             raise Conflict('User with this email already exists.')
 
@@ -50,7 +50,7 @@ class UserLogin(Resource):
         if email is None or password is None:
             raise InvalidPayload
 
-        user = user_store.get_by_email(email)
+        user = users.get_by_email(email)
 
         if user is None:
             raise AuthenticationFailed

@@ -11,7 +11,7 @@ from flask_restplus import Resource
 from project.api import api
 from project.api.errors import InvalidPayload, NotFound
 from project.api.middleware.auth import active_user, admin_or_worker
-from project.store import product_store
+from project.business import products
 from project.utils.file import is_uploaded_file_allowed
 from project.models.serializers import product as product_serial
 from project.models.serializers import product_image as product_image_serial
@@ -23,7 +23,7 @@ ns = api.namespace('products')
 class ProductCollection(Resource):
     @api.marshal_list_with(product_serial)
     def get(self):
-        return product_store.get_all()
+        return products.get_all()
 
     @jwt_required
     @active_user
@@ -41,7 +41,7 @@ class ProductCollection(Resource):
         if name is None or price is None:
             raise InvalidPayload
 
-        product_store.add(name=name, price=price, description=description)
+        products.add(name=name, price=price, description=description)
 
         return {'message': 'Product was successfully added.'}, status.HTTP_201_CREATED
 
@@ -50,7 +50,7 @@ class ProductCollection(Resource):
 class ProductItem(Resource):
     @api.marshal_with(product_serial)
     def get(self, product_id):
-        product = product_store.get(product_id)
+        product = products.get(product_id)
 
         if product is None:
             raise NotFound('Product not found.')
@@ -62,13 +62,13 @@ class ProductItem(Resource):
 class ProductImageCollection(Resource):
     @api.marshal_list_with(product_image_serial)
     def get(self, product_id):
-        return product_store.get_images(product_id)
+        return products.get_images(product_id)
 
     @jwt_required
     @active_user
     @admin_or_worker
     def post(self, product_id):
-        product = product_store.get(product_id)
+        product = products.get(product_id)
 
         if product is None:
             return {'message': 'Product not found.'}, status.HTTP_404_NOT_FOUND
@@ -97,7 +97,7 @@ class ProductImageCollection(Resource):
         file_path = os.path.join(product_dir, filename)
         file.save(file_path)
 
-        product_store.add_image(product, url=file_path)
+        products.add_image(product, url=file_path)
 
         return {'message': 'Image was successfully uploaded.'}, status.HTTP_201_CREATED
 
@@ -108,9 +108,9 @@ class ProductImageItem(Resource):
     @active_user
     @admin_or_worker
     def delete(self, product_id, image_id):
-        if not product_store.has_image(product_id, image_id):
+        if not products.has_image(product_id, image_id):
             return {'message': 'Image not found.'}, status.HTTP_404_NOT_FOUND
 
-        product_store.delete_image(image_id)
+        products.delete_image(image_id)
 
         return {'message': 'Image was successfully deleted.'}

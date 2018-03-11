@@ -3,11 +3,11 @@ import json
 from flask_api import status
 
 from project.models.user import UserRole
-from project.store import user_store
+from project.business import users
 
 
 def test_get_single_user_as_admin(client):
-    user = user_store.add(email='tibor@mikita.eu', password='halo')
+    user = users.add(email='tibor@mikita.eu', password='halo')
     user.active = True
     user.role = UserRole.ADMIN
 
@@ -37,7 +37,7 @@ def test_get_single_user_as_admin(client):
 
 
 def test_get_single_user_as_worker(client):
-    user = user_store.add(email='tibor@mikita.eu', password='halo')
+    user = users.add(email='tibor@mikita.eu', password='halo')
     user.active = True
     user.role = UserRole.ADMIN
 
@@ -67,7 +67,7 @@ def test_get_single_user_as_worker(client):
 
 
 def test_get_single_user_not_admin_or_worker(client):
-    user = user_store.add(email='tibor@mikita.eu', password='halo')
+    user = users.add(email='tibor@mikita.eu', password='halo')
     user.active = True
 
     r = client.post(
@@ -95,7 +95,7 @@ def test_get_single_user_not_admin_or_worker(client):
 
 
 def test_get_single_user_not_logged_in(client):
-    user = user_store.add(email='tibor@mikita.eu', password='halo')
+    user = users.add(email='tibor@mikita.eu', password='halo')
 
     r = client.get(
         f'/api/users/{user.id}'
@@ -107,7 +107,7 @@ def test_get_single_user_not_logged_in(client):
 
 
 def test_get_single_user_not_exist(client):
-    user = user_store.add(email='tibor@mikita.eu', password='halo')
+    user = users.add(email='tibor@mikita.eu', password='halo')
     user.active = True
     user.role = UserRole.ADMIN
 
@@ -139,9 +139,9 @@ def test_get_all_users_as_admin(client):
     number_of_users = 3
 
     for i in range(number_of_users):
-        user_store.add(email=f'user{i}@server.eu', password=f'pass{i}')
+        users.add(email=f'user{i}@server.eu', password=f'pass{i}')
 
-    user = user_store.get_by_email('user1@server.eu')
+    user = users.get_by_email('user1@server.eu')
     user.active = True
     user.role = UserRole.ADMIN
 
@@ -163,13 +163,13 @@ def test_get_all_users_as_admin(client):
     )
     payload = r.json
 
-    users = payload
+    all_users = payload
 
     assert r.status_code == status.HTTP_200_OK
-    assert len(users) == number_of_users
+    assert len(all_users) == number_of_users
 
     # sort by id
-    sorted_users = sorted(users, key=lambda x: x['id'])
+    sorted_users = sorted(all_users, key=lambda x: x['id'])
 
     for i, user in enumerate(sorted_users):
         assert user['email'] == f'user{i}@server.eu'
@@ -179,9 +179,9 @@ def test_get_all_users_as_worker(client):
     number_of_users = 3
 
     for i in range(number_of_users):
-        user_store.add(email=f'user{i}@server.eu', password=f'pass{i}')
+        users.add(email=f'user{i}@server.eu', password=f'pass{i}')
 
-    user = user_store.get_by_email('user1@server.eu')
+    user = users.get_by_email('user1@server.eu')
     user.active = True
     user.role = UserRole.ADMIN
 
@@ -204,13 +204,13 @@ def test_get_all_users_as_worker(client):
 
     payload = r.json
 
-    users = payload
+    all_users = payload
 
     assert r.status_code == status.HTTP_200_OK
-    assert len(users) == number_of_users
+    assert len(all_users) == number_of_users
 
     # sort by id
-    sorted_users = sorted(users, key=lambda x: x['id'])
+    sorted_users = sorted(all_users, key=lambda x: x['id'])
 
     for i, user in enumerate(sorted_users):
         assert user['email'] == f'user{i}@server.eu'
@@ -220,9 +220,9 @@ def test_get_all_users_not_admin_or_worker(client):
     number_of_users = 3
 
     for i in range(number_of_users):
-        user_store.add(email=f'user{i}@server.eu', password=f'pass{i}')
+        users.add(email=f'user{i}@server.eu', password=f'pass{i}')
 
-    user = user_store.get_by_email('user1@server.eu')
+    user = users.get_by_email('user1@server.eu')
     user.active = True
 
     r = client.post(
@@ -253,7 +253,7 @@ def test_get_all_users_not_logged_in(client):
     number_of_users = 3
 
     for i in range(number_of_users):
-        user_store.add(email=f'user{i}@server.eu', password=f'pass{i}')
+        users.add(email=f'user{i}@server.eu', password=f'pass{i}')
 
     r = client.get(
         '/api/users/'
