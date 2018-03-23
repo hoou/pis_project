@@ -94,6 +94,37 @@ def test_add_category_empty_json(client):
     assert payload['message'] == 'Invalid payload.'
 
 
+def test_add_category_missing_name(client):
+    user = users.add(email='tibor@mikita.eu', password='blah')
+    user.active = True
+    user.role = UserRole.ADMIN
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    r = client.post(
+        '/api/categories/',
+        data=json.dumps({'foo': 'bar'}),
+        headers={'Authorization': f'Bearer {access_token}'},
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_400_BAD_REQUEST
+    assert payload['message'] == 'Invalid payload.'
+
+
 def test_add_category_not_existing_user(client):
     not_existing_user_id = 99
     access_token = create_access_token(not_existing_user_id)
