@@ -18,3 +18,8 @@ product_image = api.model('Product image', {
     'id': fields.Integer(),
     'url': fields.String(required=True)
 })
+
+category = api.model('Category', {
+    'id': fields.Integer(),
+    'name': fields.String(required=True)
+})

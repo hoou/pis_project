@@ -1,0 +1,71 @@
+from flask import request
+from flask_api import status
+from flask_jwt_extended import jwt_required
+from flask_restplus import Resource
+
+from project.api.errors import InvalidPayload
+from project.api.middleware.auth import active_user, admin_or_worker
+from project.business import categories
+from project.models.serializers import category as category_serial
+
+from project import api
+
+ns = api.namespace('categories')
+
+
+@ns.route('/')
+class CategoryCollection(Resource):
+    @api.marshal_list_with(category_serial)
+    def get(self):
+        return categories.get_all()
+
+    @jwt_required
+    @active_user
+    @admin_or_worker
+    def post(self):
+        data = request.get_json()
+
+        if not data:
+            raise InvalidPayload
+
+        name = data.get('name')
+
+        if name is None:
+            raise InvalidPayload
+
+        categories.add(name=name)
+
+        return {'message': 'Category was successfully added.'}, status.HTTP_201_CREATED
+
+
+@ns.route('/<int:category_id>')
+class CategoryItem(Resource):
+    @jwt_required
+    @active_user
+    @admin_or_worker
+    def delete(self, category_id):
+        if not categories.get(category_id):
+            return {'message': 'Category not found.'}, status.HTTP_404_NOT_FOUND
+
+        categories.remove(category_id)
+
+        return {'message': 'Category was successfully deleted.'}
+
+    @jwt_required
+    @active_user
+    @admin_or_worker
+    def put(self, category_id):
+        data = request.get_json()
+
+        category = categories.get(category_id)
+        if not category:
+            return {'message': 'Category not found.'}, status.HTTP_404_NOT_FOUND
+
+        name = data.get('name')
+
+        if name is None:
+            raise InvalidPayload
+
+        category.name = name
+
+        return {'message': 'Category was successfully modified.'}

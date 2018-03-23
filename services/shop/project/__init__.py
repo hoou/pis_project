@@ -51,6 +51,8 @@ def create_app(script_info=None):
     api.add_namespace(auth_ns)
     from project.api.products import ns as products_ns
     api.add_namespace(products_ns)
+    from project.api.categories import ns as categories_ns
+    api.add_namespace(categories_ns)
     app.register_blueprint(blueprint)
 
     # shell context for flask cli
