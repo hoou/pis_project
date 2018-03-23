@@ -102,7 +102,7 @@ class ProductImageCollection(Resource):
         return {'message': 'Image was successfully uploaded.'}, status.HTTP_201_CREATED
 
 
-@ns.route('/<product_id>/images/<image_id>')
+@ns.route('/<int:product_id>/images/<int:image_id>')
 class ProductImageItem(Resource):
     @jwt_required
     @active_user
