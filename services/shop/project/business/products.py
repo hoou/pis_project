@@ -14,12 +14,6 @@ def add(**kwargs):
 
     session.commit()
 
-    # try:
-    #     pass
-    # except IntegrityError:
-    #     session.rollback()
-    #     raise DuplicateEmailError('Sorry. User with that email already exists.')
-
     return product
 
 
@@ -29,6 +23,12 @@ def get_all():
 
 def get(product_id):
     return Product.query.filter_by(id=product_id).first()
+
+
+def remove(product_id):
+    product = get(product_id)
+    session.delete(product)
+    session.commit()
 
 
 def add_image(product: Product, **kwargs):

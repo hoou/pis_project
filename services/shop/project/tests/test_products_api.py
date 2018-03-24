@@ -302,6 +302,107 @@ def test_add_product_missing_price(client):
     assert payload['message'] == 'Invalid payload.'
 
 
+def test_delete_product(client):
+    product = products.add(name='Super Small Product', price=0.99)
+
+    user = users.add(email='tibor@mikita.eu', password='blah')
+    user.active = True
+    user.role = UserRole.ADMIN
+
+    assert product.id
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+    payload = r.json
+    access_token = payload['access_token']
+
+    r = client.delete(f'/api/products/{product.id}',
+                      headers={'Authorization': f'Bearer {access_token}'})
+    payload = r.json
+
+    assert r.status_code == status.HTTP_200_OK
+    assert payload['message'] == 'Product was successfully deleted.'
+    assert products.get(product.id) is None
+
+
+def test_delete_not_existing_product(client):
+    user = users.add(email='tibor@mikita.eu', password='blah')
+    user.active = True
+    user.role = UserRole.ADMIN
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+    payload = r.json
+    access_token = payload['access_token']
+
+    not_existing_product_id = 99
+
+    r = client.delete(
+        f'/api/products/{not_existing_product_id}',
+        headers={'Authorization': f'Bearer {access_token}'}
+    )
+    payload = r.json
+
+    assert r.status_code == status.HTTP_404_NOT_FOUND
+    assert payload['message'] == 'Product not found.'
+
+
+def test_delete_product_no_admin_or_worker(client):
+    product = products.add(name='Super Small Product', price=0.99)
+
+    user = users.add(email='tibor@mikita.eu', password='blah')
+    user.active = True
+
+    assert product.id
+    assert user.role != UserRole.ADMIN and user.role != UserRole.WORKER
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+    payload = r.json
+    access_token = payload['access_token']
+
+    r = client.delete(f'/api/products/{product.id}',
+                      headers={'Authorization': f'Bearer {access_token}'})
+    payload = r.json
+
+    assert r.status_code == status.HTTP_403_FORBIDDEN
+    assert payload['message'] == 'You do not have permission to perform this action.'
+
+
+def test_delete_product_not_logged_in(client):
+    product = products.add(name='Super Small Product', price=0.99)
+
+    user = users.add(email='tibor@mikita.eu', password='blah')
+    user.active = True
+    user.role = UserRole.ADMIN
+
+    assert product.id
+
+    r = client.delete(f'/api/products/{product.id}')
+    payload = r.json
+
+    assert r.status_code == status.HTTP_403_FORBIDDEN
+    assert payload['message'] == 'You do not have permission to perform this action.'
+
+
 def test_add_product_image(client):
     user = users.add(email='tibor@mikita.eu', password='blah')
     user.active = True

@@ -57,6 +57,17 @@ class ProductItem(Resource):
 
         return product
 
+    @jwt_required
+    @active_user
+    @admin_or_worker
+    def delete(self, product_id):
+        if not products.get(product_id):
+            return {'message': 'Product not found.'}, status.HTTP_404_NOT_FOUND
+
+        products.remove(product_id)
+
+        return {'message': 'Product was successfully deleted.'}
+
 
 @ns.route('/<int:product_id>/images')
 class ProductImageCollection(Resource):
