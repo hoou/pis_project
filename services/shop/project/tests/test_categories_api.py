@@ -4,6 +4,7 @@ from flask_api import status
 from flask_jwt_extended import create_access_token
 
 from project.business import categories, users
+from project.models.product import Product
 from project.models.user import UserRole
 
 
@@ -241,6 +242,37 @@ def test_delete_category(client):
     assert r.status_code == status.HTTP_200_OK
     assert payload['message'] == 'Category was successfully deleted.'
     assert categories.get(category.id) is None
+
+
+def test_delete_category_with_products(client):
+    category = categories.add(name='Men')
+    categories.add_product(category, Product(name='Product 1', price=1.99))
+    categories.add_product(category, Product(name='Product 2', price=2.99))
+    categories.add_product(category, Product(name='Product 3', price=3.99))
+
+    user = users.add(email='tibor@mikita.eu', password='blah')
+    user.active = True
+    user.role = UserRole.ADMIN
+
+    assert category.id
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+    payload = r.json
+    access_token = payload['access_token']
+
+    r = client.delete(f'/api/categories/{category.id}',
+                      headers={'Authorization': f'Bearer {access_token}'})
+    payload = r.json
+
+    assert r.status_code == status.HTTP_400_BAD_REQUEST
+    assert payload['message'] == 'Category contains products.'
 
 
 def test_delete_not_existing_category(client):

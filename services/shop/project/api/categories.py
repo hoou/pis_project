@@ -45,8 +45,12 @@ class CategoryItem(Resource):
     @active_user
     @admin_or_worker
     def delete(self, category_id):
-        if not categories.get(category_id):
+        category = categories.get(category_id)
+        if not category:
             return {'message': 'Category not found.'}, status.HTTP_404_NOT_FOUND
+
+        if len(category.products) != 0:
+            return {'message': 'Category contains products.'}, status.HTTP_400_BAD_REQUEST
 
         categories.remove(category_id)
 
