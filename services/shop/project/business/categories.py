@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 
 from project import db
 from project.models.category import Category
+from project.models.product import Product
 
 session: Session = db.session
 
@@ -24,4 +25,9 @@ def get(category_id):
 def remove(category_id):
     category = get(category_id)
     session.delete(category)
+    session.commit()
+
+
+def add_product(category: Category, product: Product):
+    category.products.append(product)
     session.commit()

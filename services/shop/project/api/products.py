@@ -25,26 +25,6 @@ class ProductCollection(Resource):
     def get(self):
         return products.get_all()
 
-    @jwt_required
-    @active_user
-    @admin_or_worker
-    def post(self):
-        data = request.get_json()
-
-        if not data:
-            raise InvalidPayload
-
-        name = data.get('name')
-        price = data.get('price')
-        description = data.get('description')
-
-        if name is None or price is None:
-            raise InvalidPayload
-
-        products.add(name=name, price=price, description=description)
-
-        return {'message': 'Product was successfully added.'}, status.HTTP_201_CREATED
-
 
 @ns.route('/<int:product_id>')
 class ProductItem(Resource):

@@ -6,6 +6,7 @@ from flask_restplus import Resource
 from project.api.errors import InvalidPayload
 from project.api.middleware.auth import active_user, admin_or_worker
 from project.business import categories
+from project.models.product import Product
 from project.models.serializers import category as category_serial
 
 from project import api
@@ -69,3 +70,32 @@ class CategoryItem(Resource):
         category.name = name
 
         return {'message': 'Category was successfully modified.'}
+
+
+@ns.route('/<int:category_id>/products')
+class CategoryProductCollection(Resource):
+    @jwt_required
+    @active_user
+    @admin_or_worker
+    def post(self, category_id):
+        data = request.get_json()
+
+        if not data:
+            raise InvalidPayload
+
+        name = data.get('name')
+        price = data.get('price')
+        description = data.get('description')
+
+        if name is None or price is None:
+            raise InvalidPayload
+
+        category = categories.get(category_id)
+
+        if category is None:
+            return {'message': 'Category not found.'}, status.HTTP_404_NOT_FOUND
+
+        product = Product(name=name, price=price, description=description)
+        categories.add_product(category, product)
+
+        return {'message': 'Product was successfully added.'}, status.HTTP_201_CREATED
