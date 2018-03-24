@@ -3,7 +3,7 @@ from flask_api import status
 from flask_jwt_extended import jwt_required
 from flask_restplus import Resource
 
-from project.api.errors import InvalidPayload
+from project.api.errors import InvalidPayload, NotFound, BadRequest
 from project.api.middleware.auth import active_user, admin_or_worker
 from project.business import categories
 from project.models.product import Product
@@ -47,12 +47,12 @@ class CategoryItem(Resource):
     def delete(self, category_id):
         category = categories.get(category_id)
         if not category:
-            return {'message': 'Category not found.'}, status.HTTP_404_NOT_FOUND
+            raise NotFound('Category not found.')
 
         if len(category.products) != 0:
-            return {'message': 'Category contains products.'}, status.HTTP_400_BAD_REQUEST
+            raise BadRequest('Category contains products.')
 
-        categories.remove(category_id)
+        categories.delete(category_id)
 
         return {'message': 'Category was successfully deleted.'}
 
@@ -64,7 +64,7 @@ class CategoryItem(Resource):
 
         category = categories.get(category_id)
         if not category:
-            return {'message': 'Category not found.'}, status.HTTP_404_NOT_FOUND
+            raise NotFound('Category not found.')
 
         name = data.get('name')
 
@@ -97,7 +97,7 @@ class CategoryProductCollection(Resource):
         category = categories.get(category_id)
 
         if category is None:
-            return {'message': 'Category not found.'}, status.HTTP_404_NOT_FOUND
+            raise NotFound('Category not found.')
 
         product = Product(name=name, price=price, description=description)
         categories.add_product(category, product)

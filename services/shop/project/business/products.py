@@ -18,16 +18,15 @@ def add(**kwargs):
 
 
 def get_all():
-    return Product.query.all()
+    return Product.query.filter_by(is_deleted=False).all()
 
 
 def get(product_id):
-    return Product.query.filter_by(id=product_id).first()
+    return Product.query.filter_by(id=product_id, is_deleted=False).first()
 
 
-def remove(product_id):
-    product = get(product_id)
-    session.delete(product)
+def delete(product: Product):
+    product.is_deleted = True
     session.commit()
 
 

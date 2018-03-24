@@ -18,9 +18,11 @@ testing_image_png_path = os.path.join(basedir, 'test_files/lena.png')
 def test_get_all_products(client):
     category = categories.add(name='Men')
     categories.add_product(category, Product(name='Product One', price=13.99))
-    categories.add_product(category, Product(name='Product Two', price=23.99, description='blah'))
+    product = Product(name='Product Two', price=23.99, description='blah')
+    categories.add_product(category, product)
     categories.add_product(category, Product(name='Product Three', price=3.99))
     categories.add_product(category, Product(name='Product Four', price=68.99))
+    products.delete(product)
 
     r = client.get('/api/products/')
 
@@ -29,24 +31,21 @@ def test_get_all_products(client):
     all_products = payload
 
     assert r.status_code == status.HTTP_200_OK
-    assert len(all_products) == 4
+    assert len(all_products) == 3
 
     sorted_products = sorted(all_products, key=lambda product: product['id'])
 
     assert sorted_products[0]['name'] == 'Product One'
-    assert sorted_products[1]['name'] == 'Product Two'
-    assert sorted_products[2]['name'] == 'Product Three'
-    assert sorted_products[3]['name'] == 'Product Four'
+    assert sorted_products[1]['name'] == 'Product Three'
+    assert sorted_products[2]['name'] == 'Product Four'
 
     assert sorted_products[0]['price'] == 13.99
-    assert sorted_products[1]['price'] == 23.99
-    assert sorted_products[2]['price'] == 3.99
-    assert sorted_products[3]['price'] == 68.99
+    assert sorted_products[1]['price'] == 3.99
+    assert sorted_products[2]['price'] == 68.99
 
     assert sorted_products[0]['description'] is None
-    assert sorted_products[1]['description'] == 'blah'
+    assert sorted_products[1]['description'] is None
     assert sorted_products[2]['description'] is None
-    assert sorted_products[3]['description'] is None
 
 
 def test_get_single_product(client):
@@ -62,6 +61,22 @@ def test_get_single_product(client):
     assert payload['name'] == 'Super Product'
     assert payload['price'] == 99.99
     assert payload['description'] is None
+
+
+def test_get_single_already_deleted_product(client):
+    category = categories.add(name='Men')
+    product = Product(name='Super Product', price=99.99)
+    categories.add_product(category, product)
+    products.delete(product)
+
+    assert product.is_deleted
+
+    r = client.get(f'/api/products/{product.id}')
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_404_NOT_FOUND
+    assert payload['message'] == 'Product not found.'
 
 
 def test_get_single_product_non_existing(client):
@@ -379,13 +394,48 @@ def test_delete_product(client):
     payload = r.json
     access_token = payload['access_token']
 
+    assert not product.is_deleted
+
     r = client.delete(f'/api/products/{product.id}',
                       headers={'Authorization': f'Bearer {access_token}'})
     payload = r.json
 
     assert r.status_code == status.HTTP_200_OK
     assert payload['message'] == 'Product was successfully deleted.'
-    assert products.get(product.id) is None
+    assert product.is_deleted
+
+
+def test_delete_already_deleted_product(client):
+    category = categories.add(name='Men')
+    product = Product(name='Super Small Product', price=0.99)
+    categories.add_product(category, product)
+    products.delete(product)
+
+    user = users.add(email='tibor@mikita.eu', password='blah')
+    user.active = True
+    user.role = UserRole.ADMIN
+
+    assert product.id
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+    payload = r.json
+    access_token = payload['access_token']
+
+    assert product.is_deleted
+
+    r = client.delete(f'/api/products/{product.id}',
+                      headers={'Authorization': f'Bearer {access_token}'})
+    payload = r.json
+
+    assert r.status_code == status.HTTP_404_NOT_FOUND
+    assert payload['message'] == 'Product not found.'
 
 
 def test_delete_not_existing_product(client):

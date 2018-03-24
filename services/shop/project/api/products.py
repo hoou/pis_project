@@ -9,7 +9,7 @@ from flask_jwt_extended import jwt_required
 from flask_restplus import Resource
 
 from project.api import api
-from project.api.errors import InvalidPayload, NotFound
+from project.api.errors import InvalidPayload, NotFound, BadRequest
 from project.api.middleware.auth import active_user, admin_or_worker
 from project.business import products
 from project.utils.file import is_uploaded_file_allowed
@@ -41,10 +41,11 @@ class ProductItem(Resource):
     @active_user
     @admin_or_worker
     def delete(self, product_id):
-        if not products.get(product_id):
-            return {'message': 'Product not found.'}, status.HTTP_404_NOT_FOUND
+        product = products.get(product_id)
+        if not product:
+            raise NotFound('Product not found.')
 
-        products.remove(product_id)
+        products.delete(product)
 
         return {'message': 'Product was successfully deleted.'}
 
@@ -62,15 +63,15 @@ class ProductImageCollection(Resource):
         product = products.get(product_id)
 
         if product is None:
-            return {'message': 'Product not found.'}, status.HTTP_404_NOT_FOUND
+            raise NotFound('Product not found.')
 
         file = request.files.get('file')
 
         if file is None:
-            return {'message': 'Invalid payload.'}, status.HTTP_400_BAD_REQUEST
+            raise InvalidPayload
 
         if not is_uploaded_file_allowed(file.filename):
-            return {'message': 'File extension not allowed.'}, status.HTTP_400_BAD_REQUEST
+            raise BadRequest('File extension not allowed.')
 
         # TODO move this shit to util function or something
         basedir = os.path.abspath(os.path.dirname(__file__))
@@ -100,7 +101,7 @@ class ProductImageItem(Resource):
     @admin_or_worker
     def delete(self, product_id, image_id):
         if not products.has_image(product_id, image_id):
-            return {'message': 'Image not found.'}, status.HTTP_404_NOT_FOUND
+            raise NotFound('Image not found.')
 
         products.delete_image(image_id)
 

@@ -2,6 +2,13 @@ from flask_api import status
 from werkzeug.exceptions import HTTPException
 
 
+class BadRequest(HTTPException):
+    code = status.HTTP_400_BAD_REQUEST
+    description = (
+        'Bad request.'
+    )
+
+
 class InvalidPayload(HTTPException):
     code = status.HTTP_400_BAD_REQUEST
     description = (

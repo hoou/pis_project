@@ -7,6 +7,7 @@ class Product(db.Model):
     name = db.Column(db.String(64), nullable=False)
     description = db.Column(db.Text)
     price = db.Column(db.Float, nullable=False)
+    is_deleted = db.Column(db.Boolean(), default=False)
     images = db.relationship('ProductImage', backref='product', lazy=True)
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=False)
 

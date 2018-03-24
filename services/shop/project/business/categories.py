@@ -22,7 +22,7 @@ def get(category_id):
     return Category.query.filter_by(id=category_id).first()
 
 
-def remove(category_id):
+def delete(category_id):
     category = get(category_id)
     session.delete(category)
     session.commit()

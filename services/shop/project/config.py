@@ -11,6 +11,7 @@ class BaseConfig:
     BCRYPT_LOG_ROUNDS = 13
     UPLOAD_FOLDER = os.environ.get('UPLOAD_FOLDER')
     UPLOAD_ALLOWED_EXT = {'jpg', 'jpeg'}
+    ERROR_404_HELP = False
 
 
 class DevelopmentConfig(BaseConfig):
