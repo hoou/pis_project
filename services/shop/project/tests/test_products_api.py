@@ -1030,3 +1030,265 @@ def test_delete_image_of_product_not_logged_in(client):
 
     assert r.status_code == status.HTTP_403_FORBIDDEN
     assert payload['message'] == 'You do not have permission to perform this action.'
+
+
+def test_update_product(client):
+    category = categories.add(name='Men')
+    product = Product(name='Super Small Product', price=0.99)
+    categories.add_product(category, product)
+
+    user = users.add(email='tibor@mikita.eu', password='blah')
+    user.active = True
+    user.role = UserRole.ADMIN
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    assert product.name == 'Super Small Product'
+
+    r = client.put(
+        f'/api/products/{product.id}',
+        data=json.dumps({
+            'name': 'Super Big Product',
+            'price': 0.99,
+            'category_id': category.id
+        }),
+        headers={'Authorization': f'Bearer {access_token}'},
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_200_OK
+    assert payload['message'] == 'Product was successfully modified.'
+    assert product.name == 'Super Big Product'
+    assert product.price == 0.99
+
+
+def test_update_product_not_logged_in(client):
+    category = categories.add(name='Men')
+    product = Product(name='Super Small Product', price=0.99)
+    categories.add_product(category, product)
+
+    r = client.put(
+        f'/api/products/{product.id}',
+        data=json.dumps({
+            'name': 'Super Big Product',
+            'price': 0.99,
+            'category_id': category.id
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_403_FORBIDDEN
+    assert payload['message'] == 'You do not have permission to perform this action.'
+
+
+def test_update_product_not_admin_or_worker(client):
+    category = categories.add(name='Men')
+    product = Product(name='Super Small Product', price=0.99)
+    categories.add_product(category, product)
+
+    user = users.add(email='tibor@mikita.eu', password='blah')
+    user.active = True
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    assert user.role != UserRole.ADMIN and user.role != UserRole.WORKER
+
+    r = client.put(
+        f'/api/products/{product.id}',
+        data=json.dumps({
+            'name': 'Super Big Product',
+            'price': 0.99,
+            'category_id': category.id
+        }),
+        headers={'Authorization': f'Bearer {access_token}'},
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_403_FORBIDDEN
+    assert payload['message'] == 'You do not have permission to perform this action.'
+
+
+def test_update_not_existing_product(client):
+    user = users.add(email='tibor@mikita.eu', password='blah')
+    user.active = True
+    user.role = UserRole.ADMIN
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    not_existing_product_id = 99
+    not_existing_category_id = 100
+
+    r = client.put(
+        f'/api/products/{not_existing_product_id}',
+        data=json.dumps({
+            'name': 'Super Big Product',
+            'price': 0.99,
+            'category_id': not_existing_category_id
+        }),
+        headers={'Authorization': f'Bearer {access_token}'},
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_404_NOT_FOUND
+    assert payload['message'] == 'Product not found.'
+
+
+def test_update_product_missing_name(client):
+    category = categories.add(name='Men')
+    product = Product(name='Super Small Product', price=0.99)
+    categories.add_product(category, product)
+
+    user = users.add(email='tibor@mikita.eu', password='blah')
+    user.active = True
+    user.role = UserRole.ADMIN
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    assert product.name == 'Super Small Product'
+
+    r = client.put(
+        f'/api/products/{product.id}',
+        data=json.dumps({
+            'price': 0.99,
+            'category_id': category.id
+        }),
+        headers={'Authorization': f'Bearer {access_token}'},
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_400_BAD_REQUEST
+    assert payload['message'] == 'Invalid payload.'
+
+
+def test_update_product_missing_price(client):
+    category = categories.add(name='Men')
+    product = Product(name='Super Small Product', price=0.99)
+    categories.add_product(category, product)
+
+    user = users.add(email='tibor@mikita.eu', password='blah')
+    user.active = True
+    user.role = UserRole.ADMIN
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    assert product.name == 'Super Small Product'
+
+    r = client.put(
+        f'/api/products/{product.id}',
+        data=json.dumps({
+            'name': 'Super Big Product',
+            'category_id': category.id
+        }),
+        headers={'Authorization': f'Bearer {access_token}'},
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_400_BAD_REQUEST
+    assert payload['message'] == 'Invalid payload.'
+
+
+def test_update_product_missing_category_id(client):
+    category = categories.add(name='Men')
+    product = Product(name='Super Small Product', price=0.99)
+    categories.add_product(category, product)
+
+    user = users.add(email='tibor@mikita.eu', password='blah')
+    user.active = True
+    user.role = UserRole.ADMIN
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    assert product.name == 'Super Small Product'
+
+    r = client.put(
+        f'/api/products/{product.id}',
+        data=json.dumps({
+            'name': 'Super Big Product',
+            'price': 0.99
+        }),
+        headers={'Authorization': f'Bearer {access_token}'},
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_400_BAD_REQUEST
+    assert payload['message'] == 'Invalid payload.'

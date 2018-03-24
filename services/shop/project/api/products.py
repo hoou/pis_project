@@ -49,6 +49,31 @@ class ProductItem(Resource):
 
         return {'message': 'Product was successfully deleted.'}
 
+    @jwt_required
+    @active_user
+    @admin_or_worker
+    def put(self, product_id):
+        data = request.get_json()
+
+        product = products.get(product_id)
+        if not product:
+            raise NotFound('Product not found.')
+
+        name = data.get('name')
+        price = data.get('price')
+        description = data.get('description')
+        category_id = data.get('category_id')
+
+        if name is None or price is None or category_id is None:
+            raise InvalidPayload
+
+        product.name = name
+        product.price = price
+        product.description = description
+        product.category_id = category_id
+
+        return {'message': 'Product was successfully modified.'}
+
 
 @ns.route('/<int:product_id>/images')
 class ProductImageCollection(Resource):
