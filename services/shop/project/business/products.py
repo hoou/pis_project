@@ -3,18 +3,10 @@ from sqlalchemy.orm import Session
 from project import db
 from project.models.product import Product
 from project.models.product_image import ProductImage
+from project.models.product_rating import ProductRating
+from project.models.user import User
 
 session: Session = db.session
-
-
-def add(**kwargs):
-    product = Product(**kwargs)
-
-    session.add(product)
-
-    session.commit()
-
-    return product
 
 
 def get_all():
@@ -43,9 +35,31 @@ def get_images(product_id):
 
 def delete_image(image_id):
     session.delete(ProductImage.query.filter_by(id=image_id).first())
+    session.commit()
 
 
 def has_image(product_id, image_id):
     product_images = get_images(product_id)
     image = ProductImage.query.filter_by(id=image_id).first()
     return image in product_images
+
+
+def add_rating(product: Product, user: User, rating: int):
+    product_rating = ProductRating(rating)
+    product_rating.product_id = product.id
+    product_rating.user_id = user.id
+    session.add(product_rating)
+    session.commit()
+
+
+def get_ratings(product: Product):
+    return ProductRating.query.filter_by(product_id=product.id).all()
+
+
+def get_product_rating_by_user(product: Product, user: User):
+    return ProductRating.query.filter_by(product_id=product.id, user_id=user.id).first()
+
+
+def delete_rating(product: Product, user: User):
+    session.delete(ProductRating.query.filter_by(product_id=product.id, user_id=user.id).first())
+    session.commit()

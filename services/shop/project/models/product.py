@@ -9,6 +9,7 @@ class Product(db.Model):
     price = db.Column(db.Float, nullable=False)
     is_deleted = db.Column(db.Boolean(), default=False)
     images = db.relationship('ProductImage', backref='product', lazy=True)
+    ratings = db.relationship('ProductRating', backref='product', lazy=True)
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=False)
 
     def __init__(self, name, price, description=None):

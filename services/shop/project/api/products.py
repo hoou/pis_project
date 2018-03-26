@@ -5,16 +5,17 @@ import time
 
 from flask import request, current_app
 from flask_api import status
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restplus import Resource
 
 from project.api import api
 from project.api.errors import InvalidPayload, NotFound, BadRequest
 from project.api.middleware.auth import active_user, admin_or_worker
-from project.business import products
+from project.business import products, users
 from project.utils.file import is_uploaded_file_allowed
 from project.models.serializers import product as product_serial
 from project.models.serializers import product_image as product_image_serial
+from project.models.serializers import product_rating as product_rating_serial
 
 ns = api.namespace('products')
 
@@ -131,3 +132,62 @@ class ProductImageItem(Resource):
         products.delete_image(image_id)
 
         return {'message': 'Image was successfully deleted.'}
+
+
+@ns.route('/<int:product_id>/ratings')
+class ProductRatingCollection(Resource):
+    @api.marshal_list_with(product_rating_serial)
+    def get(self, product_id):
+        product = products.get(product_id)
+
+        if product is None:
+            raise NotFound('Product not found.')
+
+        return products.get_ratings(product)
+
+    @jwt_required
+    @active_user
+    def post(self, product_id):
+        data = request.get_json()
+
+        product = products.get(product_id)
+
+        if product is None:
+            raise NotFound('Product not found.')
+
+        user_id = get_jwt_identity()
+        user = users.get(user_id)
+
+        if products.get_product_rating_by_user(product, user) is not None:
+            raise BadRequest('This user already rated this product.')
+
+        rating = data.get('rating')
+
+        if rating is None:
+            raise InvalidPayload
+
+        products.add_rating(product, user, rating)
+
+        return {'message': 'Rating was successfully added.'}, status.HTTP_201_CREATED
+
+    @jwt_required
+    @active_user
+    def delete(self, product_id):
+        data = request.get_json()
+
+        product = products.get(product_id)
+
+        if product is None:
+            raise NotFound('Product not found.')
+
+        user_id = get_jwt_identity()
+        user = users.get(user_id)
+
+        rating = products.get_product_rating_by_user(product, user)
+
+        if rating is None:
+            raise NotFound('Rating not found.')
+
+        products.delete_rating(product, user)
+
+        return {'message': 'Rating was successfully deleted.'}, status.HTTP_200_OK

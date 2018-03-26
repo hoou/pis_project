@@ -33,7 +33,7 @@ def test_get_all_products(client):
     assert r.status_code == status.HTTP_200_OK
     assert len(all_products) == 3
 
-    sorted_products = sorted(all_products, key=lambda product: product['id'])
+    sorted_products = sorted(all_products, key=lambda product_: product_['id'])
 
     assert sorted_products[0]['name'] == 'Product One'
     assert sorted_products[1]['name'] == 'Product Three'
@@ -1292,3 +1292,352 @@ def test_update_product_missing_category_id(client):
 
     assert r.status_code == status.HTTP_400_BAD_REQUEST
     assert payload['message'] == 'Invalid payload.'
+
+
+def test_add_product_rating(client):
+    category = categories.add(name='Men')
+    product = Product(name='Super Small Product', price=0.99)
+    categories.add_product(category, product)
+
+    user = users.add(email='tibor@mikita.eu', password='blah')
+    user.active = True
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    r = client.post(
+        f'/api/products/{product.id}/ratings',
+        data=json.dumps({
+            'rating': 5
+        }),
+        headers={'Authorization': f'Bearer {access_token}'},
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_201_CREATED
+    assert payload['message'] == 'Rating was successfully added.'
+    assert len(product.ratings) == 1
+    assert product.ratings[0] is not None
+    assert product.ratings[0].rating == 5
+
+
+def test_add_product_rating_not_existing_product(client):
+    user = users.add(email='tibor@mikita.eu', password='blah')
+    user.active = True
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    not_existing_product_id = 99
+
+    r = client.post(
+        f'/api/products/{not_existing_product_id}/ratings',
+        data=json.dumps({
+            'rating': 5
+        }),
+        headers={'Authorization': f'Bearer {access_token}'},
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_404_NOT_FOUND
+    assert payload['message'] == 'Product not found.'
+
+
+def test_add_product_rating_not_logged_in(client):
+    category = categories.add(name='Men')
+    product = Product(name='Super Small Product', price=0.99)
+    categories.add_product(category, product)
+
+    r = client.post(
+        f'/api/products/{product.id}/ratings',
+        data=json.dumps({
+            'rating': 5
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_403_FORBIDDEN
+    assert payload['message'] == 'You do not have permission to perform this action.'
+
+
+def test_add_product_rating_empty_json(client):
+    category = categories.add(name='Men')
+    product = Product(name='Super Small Product', price=0.99)
+    categories.add_product(category, product)
+
+    user = users.add(email='tibor@mikita.eu', password='blah')
+    user.active = True
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    r = client.post(
+        f'/api/products/{product.id}/ratings',
+        data=json.dumps({}),
+        headers={'Authorization': f'Bearer {access_token}'},
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_400_BAD_REQUEST
+    assert payload['message'] == 'Invalid payload.'
+
+
+def test_add_product_rating_second_time(client):
+    category = categories.add(name='Men')
+    product = Product(name='Super Small Product', price=0.99)
+    categories.add_product(category, product)
+
+    user = users.add(email='tibor@mikita.eu', password='blah')
+    user.active = True
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    client.post(
+        f'/api/products/{product.id}/ratings',
+        data=json.dumps({
+            'rating': 5
+        }),
+        headers={'Authorization': f'Bearer {access_token}'},
+        content_type='application/json'
+    )
+
+    assert product.ratings[0].user == user
+
+    r = client.post(
+        f'/api/products/{product.id}/ratings',
+        data=json.dumps({
+            'rating': 5
+        }),
+        headers={'Authorization': f'Bearer {access_token}'},
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_400_BAD_REQUEST
+    assert payload['message'] == 'This user already rated this product.'
+
+
+def test_get_product_ratings(client):
+    category = categories.add(name='Men')
+    product = Product(name='Super Small Product', price=0.99)
+    categories.add_product(category, product)
+
+    user1 = users.add(email='user1@server.com', password='blah')
+    user2 = users.add(email='user2@server.com', password='blah')
+    user3 = users.add(email='user3@server.com', password='blah')
+
+    assert user1.id == 1
+    assert user2.id == 2
+    assert user3.id == 3
+
+    products.add_rating(product, user1, 5)
+    products.add_rating(product, user2, 4)
+    products.add_rating(product, user3, 3)
+
+    r = client.get(f'/api/products/{product.id}/ratings')
+
+    payload = r.json
+
+    product_ratings = payload
+
+    assert r.status_code == status.HTTP_200_OK
+    assert len(product_ratings) == 3
+
+    sorted_product_ratings = sorted(product_ratings, key=lambda rating: rating['user']['id'])
+
+    assert sorted_product_ratings[0]['user']['id'] == 1
+    assert sorted_product_ratings[1]['user']['id'] == 2
+    assert sorted_product_ratings[2]['user']['id'] == 3
+
+    assert sorted_product_ratings[0]['user']['email'] == 'user1@server.com'
+    assert sorted_product_ratings[1]['user']['email'] == 'user2@server.com'
+    assert sorted_product_ratings[2]['user']['email'] == 'user3@server.com'
+
+    assert sorted_product_ratings[0]['product']['id'] == product.id
+    assert sorted_product_ratings[1]['product']['id'] == product.id
+    assert sorted_product_ratings[2]['product']['id'] == product.id
+
+    assert sorted_product_ratings[0]['rating'] == 5
+    assert sorted_product_ratings[1]['rating'] == 4
+    assert sorted_product_ratings[2]['rating'] == 3
+
+
+def test_get_not_existing_product_ratings(client):
+    not_existing_product_id = 99
+
+    r = client.get(f'/api/products/{not_existing_product_id}/ratings')
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_404_NOT_FOUND
+    assert payload['message'] == 'Product not found.'
+
+
+def test_delete_product_rating(client):
+    category = categories.add(name='Men')
+    product = Product(name='Super Small Product', price=0.99)
+    categories.add_product(category, product)
+
+    user = users.add(email='tibor@mikita.eu', password='blah')
+    user.active = True
+
+    products.add_rating(product, user, 5)
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    assert len(product.ratings) == 1
+
+    r = client.delete(
+        f'/api/products/{product.id}/ratings',
+        headers={'Authorization': f'Bearer {access_token}'}
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_200_OK
+    assert payload['message'] == 'Rating was successfully deleted.'
+    assert len(product.ratings) == 0
+
+
+def test_delete_product_rating_on_not_existing_product(client):
+    user = users.add(email='tibor@mikita.eu', password='blah')
+    user.active = True
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    not_existing_product_id = 99
+
+    r = client.delete(
+        f'/api/products/{not_existing_product_id}/ratings',
+        headers={'Authorization': f'Bearer {access_token}'}
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_404_NOT_FOUND
+    assert payload['message'] == 'Product not found.'
+
+
+def test_delete_not_existing_product_rating(client):
+    category = categories.add(name='Men')
+    product = Product(name='Super Small Product', price=0.99)
+    categories.add_product(category, product)
+
+    user = users.add(email='tibor@mikita.eu', password='blah')
+    user.active = True
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    assert len(product.ratings) == 0
+
+    r = client.delete(
+        f'/api/products/{product.id}/ratings',
+        headers={'Authorization': f'Bearer {access_token}'}
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_404_NOT_FOUND
+    assert payload['message'] == 'Rating not found.'
+
+
+def test_delete_product_rating_not_logged_in(client):
+    category = categories.add(name='Men')
+    product = Product(name='Super Small Product', price=0.99)
+    categories.add_product(category, product)
+
+    user = users.add(email='tibor@mikita.eu', password='blah')
+    user.active = True
+
+    products.add_rating(product, user, 5)
+
+    r = client.delete(f'/api/products/{product.id}/ratings')
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_403_FORBIDDEN
+    assert payload['message'] == 'You do not have permission to perform this action.'
+

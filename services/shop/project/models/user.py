@@ -26,6 +26,7 @@ class User(db.Model):
     city = db.Column(db.String(64))
     country = db.Column(db.String(64))
     date_of_birth = db.Column(db.Date())
+    ratings = db.relationship('ProductRating', backref='user')
 
     def __init__(self, email, password, first_name=None, last_name=None, phone=None, street=None, zip_code=None,
                  city=None, country=None, date_of_birth=None):

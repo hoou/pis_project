@@ -19,6 +19,13 @@ product_image = api.model('Product image', {
     'url': fields.String(required=True)
 })
 
+product_rating = api.model('Product rating', {
+    'id': fields.Integer(),
+    'user': fields.Nested(user),
+    'product': fields.Nested(product),
+    'rating': fields.Integer()
+})
+
 category = api.model('Category', {
     'id': fields.Integer(),
     'name': fields.String(required=True)
