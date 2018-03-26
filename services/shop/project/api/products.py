@@ -173,8 +173,6 @@ class ProductRatingCollection(Resource):
     @jwt_required
     @active_user
     def delete(self, product_id):
-        data = request.get_json()
-
         product = products.get(product_id)
 
         if product is None:
