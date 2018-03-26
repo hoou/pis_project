@@ -1333,6 +1333,78 @@ def test_add_product_rating(client):
     assert product.ratings[0].rating == 5
 
 
+def test_add_product_rating_out_of_range(client):
+    category = categories.add(name='Men')
+    product = Product(name='Super Small Product', price=0.99)
+    categories.add_product(category, product)
+
+    user = users.add(email='tibor@mikita.eu', password='blah')
+    user.active = True
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    r = client.post(
+        f'/api/products/{product.id}/ratings',
+        data=json.dumps({
+            'rating': 6
+        }),
+        headers={'Authorization': f'Bearer {access_token}'},
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_400_BAD_REQUEST
+    assert payload['message'] == 'Rating must be integer between 1 and 5.'
+
+
+def test_add_product_rating_not_number(client):
+    category = categories.add(name='Men')
+    product = Product(name='Super Small Product', price=0.99)
+    categories.add_product(category, product)
+
+    user = users.add(email='tibor@mikita.eu', password='blah')
+    user.active = True
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    r = client.post(
+        f'/api/products/{product.id}/ratings',
+        data=json.dumps({
+            'rating': 'not_a_number'
+        }),
+        headers={'Authorization': f'Bearer {access_token}'},
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_400_BAD_REQUEST
+    assert payload['message'] == 'Rating must be integer between 1 and 5.'
+
+
 def test_add_product_rating_not_existing_product(client):
     user = users.add(email='tibor@mikita.eu', password='blah')
     user.active = True
@@ -1640,4 +1712,3 @@ def test_delete_product_rating_not_logged_in(client):
 
     assert r.status_code == status.HTTP_403_FORBIDDEN
     assert payload['message'] == 'You do not have permission to perform this action.'
-

@@ -9,7 +9,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restplus import Resource
 
 from project.api import api
-from project.api.errors import InvalidPayload, NotFound, BadRequest
+from project.api.errors import InvalidPayload, NotFound, BadRequest, ProductRatingError
 from project.api.middleware.auth import active_user, admin_or_worker
 from project.business import products, users
 from project.utils.file import is_uploaded_file_allowed
@@ -165,6 +165,12 @@ class ProductRatingCollection(Resource):
 
         if rating is None:
             raise InvalidPayload
+
+        if not isinstance(rating, int):
+            raise ProductRatingError
+
+        if not (1 <= rating <= 5):
+            raise ProductRatingError
 
         products.add_rating(product, user, rating)
 

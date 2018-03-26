@@ -30,6 +30,13 @@ class WrongTypeOfTokenError(HTTPException):
     )
 
 
+class ProductRatingError(HTTPException):
+    code = status.HTTP_400_BAD_REQUEST
+    description = (
+        'Rating must be integer between 1 and 5.'
+    )
+
+
 class AuthenticationFailed(HTTPException):
     code = status.HTTP_401_UNAUTHORIZED
     description = (
