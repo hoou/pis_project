@@ -15,9 +15,6 @@ db = SQLAlchemy()
 bcrypt = Bcrypt()
 jwt = JWTManager()
 
-session = orm.scoped_session(orm.sessionmaker())
-session.configure(bind="engine")
-
 
 def create_app(script_info=None):
     # init app
