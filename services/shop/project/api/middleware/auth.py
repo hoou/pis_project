@@ -7,9 +7,12 @@ from project.business import users
 from project.models.user import UserRole
 
 
-def active_user(f):
+def active_required_if_logged_in(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        if get_jwt_identity() is None:
+            return f(*args, **kwargs)
+
         user = users.get(get_jwt_identity())
         if user is None:
             raise AuthenticationFailed

@@ -4,7 +4,7 @@ from flask_jwt_extended import jwt_required
 from flask_restplus import Resource
 
 from project.api.errors import InvalidPayload, NotFound, BadRequest
-from project.api.middleware.auth import active_user, admin_or_worker
+from project.api.middleware.auth import active_required_if_logged_in, admin_or_worker
 from project.business import categories
 from project.models.product import Product
 from project.models.serializers import category as category_serial
@@ -21,7 +21,7 @@ class CategoryCollection(Resource):
         return categories.get_all()
 
     @jwt_required
-    @active_user
+    @active_required_if_logged_in
     @admin_or_worker
     def post(self):
         data = request.get_json()
@@ -42,7 +42,7 @@ class CategoryCollection(Resource):
 @ns.route('/<int:category_id>')
 class CategoryItem(Resource):
     @jwt_required
-    @active_user
+    @active_required_if_logged_in
     @admin_or_worker
     def delete(self, category_id):
         category = categories.get(category_id)
@@ -57,7 +57,7 @@ class CategoryItem(Resource):
         return {'message': 'Category was successfully deleted.'}
 
     @jwt_required
-    @active_user
+    @active_required_if_logged_in
     @admin_or_worker
     def put(self, category_id):
         data = request.get_json()
@@ -79,7 +79,7 @@ class CategoryItem(Resource):
 @ns.route('/<int:category_id>/products')
 class CategoryProductCollection(Resource):
     @jwt_required
-    @active_user
+    @active_required_if_logged_in
     @admin_or_worker
     def post(self, category_id):
         data = request.get_json()

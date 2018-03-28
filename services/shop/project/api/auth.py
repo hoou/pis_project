@@ -8,7 +8,7 @@ from flask_restplus import Resource
 from project import bcrypt
 from project.api import api
 from project.api.errors import AuthenticationFailed, InvalidPayload, PermissionDenied
-from project.api.middleware.auth import active_user
+from project.api.middleware.auth import active_required_if_logged_in
 from project.business import users
 from project.business.users import DuplicateEmailError
 
@@ -82,6 +82,6 @@ class TokenRefresh(Resource):
 @ns.route('/logout')
 class UserLogout(Resource):
     @jwt_required
-    @active_user
+    @active_required_if_logged_in
     def get(self):
         return {'message': 'User successfully logged out.'}

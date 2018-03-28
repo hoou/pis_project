@@ -10,7 +10,7 @@ from flask_restplus import Resource
 
 from project.api import api
 from project.api.errors import InvalidPayload, NotFound, BadRequest, ProductRatingError
-from project.api.middleware.auth import active_user, admin_or_worker
+from project.api.middleware.auth import active_required_if_logged_in, admin_or_worker
 from project.business import products, users
 from project.utils.file import is_uploaded_file_allowed
 from project.models.serializers import product as product_serial
@@ -39,7 +39,7 @@ class ProductItem(Resource):
         return product
 
     @jwt_required
-    @active_user
+    @active_required_if_logged_in
     @admin_or_worker
     def delete(self, product_id):
         product = products.get(product_id)
@@ -51,7 +51,7 @@ class ProductItem(Resource):
         return {'message': 'Product was successfully deleted.'}
 
     @jwt_required
-    @active_user
+    @active_required_if_logged_in
     @admin_or_worker
     def put(self, product_id):
         data = request.get_json()
@@ -83,7 +83,7 @@ class ProductImageCollection(Resource):
         return products.get_images(product_id)
 
     @jwt_required
-    @active_user
+    @active_required_if_logged_in
     @admin_or_worker
     def post(self, product_id):
         product = products.get(product_id)
@@ -123,7 +123,7 @@ class ProductImageCollection(Resource):
 @ns.route('/<int:product_id>/images/<int:image_id>')
 class ProductImageItem(Resource):
     @jwt_required
-    @active_user
+    @active_required_if_logged_in
     @admin_or_worker
     def delete(self, product_id, image_id):
         if not products.has_image(product_id, image_id):
@@ -146,7 +146,7 @@ class ProductRatingCollection(Resource):
         return products.get_ratings(product)
 
     @jwt_required
-    @active_user
+    @active_required_if_logged_in
     def post(self, product_id):
         data = request.get_json()
 
@@ -177,7 +177,7 @@ class ProductRatingCollection(Resource):
         return {'message': 'Rating was successfully added.'}, status.HTTP_201_CREATED
 
     @jwt_required
-    @active_user
+    @active_required_if_logged_in
     def delete(self, product_id):
         product = products.get(product_id)
 
