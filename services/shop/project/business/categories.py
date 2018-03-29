@@ -31,3 +31,8 @@ def delete(category_id):
 def add_product(category: Category, product: Product):
     category.products.append(product)
     session.commit()
+
+
+def change_name(category: Category, name: str):
+    category.name = name
+    session.commit()

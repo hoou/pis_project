@@ -71,7 +71,7 @@ class CategoryItem(Resource):
         if name is None:
             raise InvalidPayload
 
-        category.name = name
+        categories.change_name(category, name)
 
         return {'message': 'Category was successfully modified.'}
 
