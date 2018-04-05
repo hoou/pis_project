@@ -50,6 +50,8 @@ def create_app(script_info=None):
     api.add_namespace(products_ns)
     from project.api.categories import ns as categories_ns
     api.add_namespace(categories_ns)
+    from project.api.orders import ns as orders_ns
+    api.add_namespace(orders_ns)
     app.register_blueprint(blueprint)
 
     # shell context for flask cli
