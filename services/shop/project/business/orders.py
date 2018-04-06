@@ -47,11 +47,6 @@ def add(items: List[OrderItem], delivery_address: DeliveryAddress, user_id: int 
     return order
 
 
-def add_item(order: Order, item: OrderItem):
-    order.items.append(item)
-    session.commit()
-
-
 def change_status(order: Order, status: OrderStatus):
     order.status = status
     try:
