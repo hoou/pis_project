@@ -17,57 +17,57 @@ def test_create_email_invalid_type(app):
     with pytest.raises(TypeError) as e:
         User(None, 'blah')
 
-    assert str(e.value) =='Email must be string.'
+    assert str(e.value) == 'Email must be string.'
 
 
 def test_create_invalid_email_format(app):
     with pytest.raises(ValueError) as e:
         User('tibor.mikita.eu', 'blah')
 
-    assert str(e.value) =='Invalid email format.'
+    assert str(e.value) == 'Invalid email format.'
 
 
 def test_create_password_invalid_type(app):
     with pytest.raises(TypeError) as e:
         User('tibor@mikita.eu', 555)
 
-    assert str(e.value) =='Password must be string.'
+    assert str(e.value) == 'Password must be string.'
 
 
 def test_create_password_short(app):
     with pytest.raises(ValueError) as e:
         User('tibor@mikita.eu', 'abc')
 
-    assert str(e.value) =='Password must have between 4 and 15 chars, ' \
-                              'it must start with letter and can only be used letters, ' \
-                              'numbers and underscore.'
+    assert str(e.value) == 'Password must have between 4 and 15 chars, ' \
+                           'it must start with letter and can only be used letters, ' \
+                           'numbers and underscore.'
 
 
 def test_create_password_long(app):
     with pytest.raises(ValueError) as e:
         User('tibor@mikita.eu', 'aaaaa11111000001')
 
-    assert str(e.value) =='Password must have between 4 and 15 chars, ' \
-                              'it must start with letter and can only be used letters, ' \
-                              'numbers and underscore.'
+    assert str(e.value) == 'Password must have between 4 and 15 chars, ' \
+                           'it must start with letter and can only be used letters, ' \
+                           'numbers and underscore.'
 
 
 def test_create_password_starts_with_number(app):
     with pytest.raises(ValueError) as e:
         User('tibor@mikita.eu', '1aaaa')
 
-    assert str(e.value) =='Password must have between 4 and 15 chars, ' \
-                              'it must start with letter and can only be used letters, ' \
-                              'numbers and underscore.'
+    assert str(e.value) == 'Password must have between 4 and 15 chars, ' \
+                           'it must start with letter and can only be used letters, ' \
+                           'numbers and underscore.'
 
 
 def test_create_password_special_chars(app):
     with pytest.raises(ValueError) as e:
         User('tibor@mikita.eu', 'd%#$@')
 
-    assert str(e.value) =='Password must have between 4 and 15 chars, ' \
-                              'it must start with letter and can only be used letters, ' \
-                              'numbers and underscore.'
+    assert str(e.value) == 'Password must have between 4 and 15 chars, ' \
+                           'it must start with letter and can only be used letters, ' \
+                           'numbers and underscore.'
 
 
 def test_set_active(app):
@@ -86,7 +86,7 @@ def test_set_active_invalid_type(app):
     with pytest.raises(TypeError) as e:
         user.active = 'True'
 
-    assert str(e.value) =='Active flag must be boolean.'
+    assert str(e.value) == 'Active flag must be boolean.'
 
 
 def test_unset_active(app):
@@ -95,7 +95,7 @@ def test_unset_active(app):
     with pytest.raises(TypeError) as e:
         user.active = None
 
-    assert str(e.value) =='Active flag must be boolean.'
+    assert str(e.value) == 'Active flag must be boolean.'
 
 
 def test_set_phone(app):
@@ -132,7 +132,7 @@ def test_set_phone_invalid_type(app):
     with pytest.raises(TypeError) as e:
         user.phone = 111222333
 
-    assert str(e.value) =='Phone must be string.'
+    assert str(e.value) == 'Phone must be string.'
 
 
 def test_set_role(app):
@@ -202,7 +202,7 @@ def test_set_first_name_invalid_type(app):
     with pytest.raises(TypeError) as e:
         user.first_name = 555
 
-    assert str(e.value) =='First name must be string.'
+    assert str(e.value) == 'First name must be string.'
 
 
 def test_set_last_name(app):
@@ -231,7 +231,7 @@ def test_set_last_name_invalid_type(app):
     with pytest.raises(TypeError) as e:
         user.last_name = 555
 
-    assert str(e.value) =='Last name must be string.'
+    assert str(e.value) == 'Last name must be string.'
 
 
 def test_set_street(app):
@@ -260,7 +260,7 @@ def test_set_street_invalid_type(app):
     with pytest.raises(TypeError) as e:
         user.street = 555
 
-    assert str(e.value) =='Street must be string.'
+    assert str(e.value) == 'Street must be string.'
 
 
 def test_set_zip_code(app):
@@ -279,7 +279,7 @@ def test_set_zip_code_invalid_type(app):
     with pytest.raises(TypeError) as e:
         user.zip_code = 56601
 
-    assert str(e.value) =='ZIP code must be string.'
+    assert str(e.value) == 'ZIP code must be string.'
 
 
 def test_set_zip_code_invalid_format(app):
@@ -288,7 +288,7 @@ def test_set_zip_code_invalid_format(app):
     with pytest.raises(ValueError) as e:
         user.zip_code = '060a1'
 
-    assert str(e.value) =='ZIP code must contain 5 numbers.'
+    assert str(e.value) == 'ZIP code must contain 5 numbers.'
 
 
 def test_set_zip_code_short(app):
@@ -297,7 +297,7 @@ def test_set_zip_code_short(app):
     with pytest.raises(ValueError) as e:
         user.zip_code = '0666'
 
-    assert str(e.value) =='ZIP code must contain 5 numbers.'
+    assert str(e.value) == 'ZIP code must contain 5 numbers.'
 
 
 def test_set_zip_code_long(app):
@@ -306,7 +306,7 @@ def test_set_zip_code_long(app):
     with pytest.raises(ValueError) as e:
         user.zip_code = '066666'
 
-    assert str(e.value) =='ZIP code must contain 5 numbers.'
+    assert str(e.value) == 'ZIP code must contain 5 numbers.'
 
 
 def test_unset_zip_code(app):
@@ -317,6 +317,35 @@ def test_unset_zip_code(app):
     user.zip_code = None
 
     assert user.zip_code is None
+
+
+def test_set_city(app):
+    user = User('tibor@mikita.eu', 'blah')
+
+    assert user.city is None
+
+    user.city = 'Humenne'
+
+    assert user.city == 'Humenne'
+
+
+def test_unset_city(app):
+    user = User('tibor@mikita.eu', 'blah', city='Humenne')
+
+    assert user.city is not None
+
+    user.city = None
+
+    assert user.city is None
+
+
+def test_set_city_invalid_type(app):
+    user = User('tibor@mikita.eu', 'blah')
+
+    with pytest.raises(TypeError) as e:
+        user.city = 555
+
+    assert str(e.value) == 'City must be string.'
 
 
 def test_set_country(app):
@@ -377,7 +406,7 @@ def test_set_date_of_birth_invalid_type(app):
     with pytest.raises(TypeError) as e:
         user.date_of_birth = '19.2.2018'
 
-    assert str(e.value) =='Date of birth must be date.'
+    assert str(e.value) == 'Date of birth must be date.'
 
 
 def test_unset_date_of_birth(app):

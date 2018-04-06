@@ -110,6 +110,34 @@ def test_create_order_logged_in(client):
     assert last_user_order.user_id == user.id
 
 
+def test_create_order_no_data(client):
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
+    user.active = True
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    r = client.post(
+        '/api/orders/',
+        headers={'Authorization': f'Bearer {access_token}'}
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_400_BAD_REQUEST
+    assert payload['message'] == 'Invalid payload.'
+
+
 def test_create_order_logged_out(client):
     category = categories.add(Category(name='Men'))
     product1 = Product(name='Product One', price=19.99)
