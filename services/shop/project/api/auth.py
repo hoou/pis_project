@@ -11,6 +11,7 @@ from project.api.errors import AuthenticationFailed, InvalidPayload, PermissionD
 from project.api.middleware.auth import active_required_if_logged_in
 from project.business import users
 from project.business.users import DuplicateEmailError
+from project.models.user import User
 
 ns = api.namespace('auth')
 
@@ -30,7 +31,7 @@ class UserRegistration(Resource):
             raise InvalidPayload
 
         try:
-            users.add(email=email, password=password)
+            users.add(User(email, password))
         except DuplicateEmailError:
             raise Conflict('User with this email already exists.')
 

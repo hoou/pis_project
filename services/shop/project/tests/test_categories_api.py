@@ -5,7 +5,7 @@ from flask_jwt_extended import create_access_token
 
 from project.business import categories, users
 from project.models.product import Product
-from project.models.user import UserRole
+from project.models.user import UserRole, User
 
 
 def test_get_all_categories(client):
@@ -32,7 +32,7 @@ def test_get_all_categories(client):
 
 
 def test_add_category(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
     user.role = UserRole.ADMIN
 
@@ -65,7 +65,7 @@ def test_add_category(client):
 
 
 def test_add_category_empty_json(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
     user.role = UserRole.ADMIN
 
@@ -96,7 +96,7 @@ def test_add_category_empty_json(client):
 
 
 def test_add_category_missing_name(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
     user.role = UserRole.ADMIN
 
@@ -146,7 +146,7 @@ def test_add_category_not_existing_user(client):
 
 
 def test_add_category_not_active_user(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.role = UserRole.ADMIN
 
     access_token = create_access_token(user.id)
@@ -182,7 +182,7 @@ def test_add_category_not_logged_in(client):
 
 
 def test_add_category_not_admin_or_worker(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
     r = client.post(
@@ -218,7 +218,7 @@ def test_add_category_not_admin_or_worker(client):
 def test_delete_category(client):
     category = categories.add(name='Men')
 
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
     user.role = UserRole.ADMIN
 
@@ -250,7 +250,7 @@ def test_delete_category_with_products(client):
     categories.add_product(category, Product(name='Product 2', price=2.99))
     categories.add_product(category, Product(name='Product 3', price=3.99))
 
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
     user.role = UserRole.ADMIN
 
@@ -276,7 +276,7 @@ def test_delete_category_with_products(client):
 
 
 def test_delete_not_existing_category(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
     user.role = UserRole.ADMIN
 
@@ -306,7 +306,7 @@ def test_delete_not_existing_category(client):
 def test_delete_category_no_admin_or_worker(client):
     category = categories.add(name='Men')
 
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
     assert category.id
@@ -334,7 +334,7 @@ def test_delete_category_no_admin_or_worker(client):
 def test_delete_category_not_logged_in(client):
     category = categories.add(name='Men')
 
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
     user.role = UserRole.ADMIN
 
@@ -350,7 +350,7 @@ def test_delete_category_not_logged_in(client):
 def test_update_category(client):
     category = categories.add(name='Mans')
 
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
     user.role = UserRole.ADMIN
 
@@ -388,7 +388,7 @@ def test_update_category(client):
 def test_update_category_empty_json(client):
     category = categories.add(name='Mans')
 
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
     user.role = UserRole.ADMIN
 
@@ -421,7 +421,7 @@ def test_update_category_empty_json(client):
 
 
 def test_update_not_existing_category(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
     user.role = UserRole.ADMIN
 
@@ -454,7 +454,7 @@ def test_update_not_existing_category(client):
 def test_update_category_no_admin_or_worker(client):
     category = categories.add(name='Mans')
 
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
     assert category.id
@@ -485,7 +485,7 @@ def test_update_category_no_admin_or_worker(client):
 def test_update_category_not_logged_in(client):
     category = categories.add(name='Mans')
 
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
     user.role = UserRole.ADMIN
 

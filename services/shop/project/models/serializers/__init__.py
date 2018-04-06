@@ -6,7 +6,15 @@ from project import api
 
 user = api.model('User', {
     'id': fields.Integer(),
-    'email': fields.String(required=True)
+    'email': fields.String(required=True),
+    'first_name': fields.String(),
+    'last_name': fields.String(),
+    'phone': fields.String(),
+    'street': fields.String(),
+    'zip_code': fields.String(),
+    'city': fields.String(),
+    'country': fields.Integer(),
+    'date_of_birth': fields.Date()
 })
 
 product = api.model('Product', {

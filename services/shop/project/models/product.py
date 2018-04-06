@@ -1,4 +1,5 @@
 from project import db
+from project.models.product_image import ProductImage
 
 
 class Product(db.Model):

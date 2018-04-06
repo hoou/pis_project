@@ -5,6 +5,7 @@ from flask_api import status
 from flask_jwt_extended import decode_token
 
 from project.business import users
+from project.models.user import User
 
 
 def test_user_registration(client):
@@ -22,7 +23,7 @@ def test_user_registration(client):
 
 
 def test_user_registration_duplicate_email(client):
-    users.add(email='tibor@mikita.eu', password='halo')
+    users.add(User(email='tibor@mikita.eu', password='blah'))
 
     r = client.post(
         '/api/auth/register',
@@ -79,7 +80,7 @@ def test_user_registration_no_email(client):
 
 
 def test_user_login(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
     r = client.post(
@@ -100,7 +101,7 @@ def test_user_login(client):
 
 
 def test_user_login_inactive(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
 
     assert not user.active
 
@@ -179,7 +180,7 @@ def test_user_login_not_registered(client):
 
 
 def test_user_login_invalid_password(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
     r = client.post(
@@ -198,7 +199,7 @@ def test_user_login_invalid_password(client):
 
 
 def test_user_logout(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
     r = client.post(
@@ -267,7 +268,7 @@ def test_user_logout_invalid_token(client):
 
 
 def test_user_logout_expired_token(app, client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(seconds=-1)
@@ -295,7 +296,7 @@ def test_user_logout_expired_token(app, client):
 
 
 def test_refresh_token(app, client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(seconds=1)
@@ -337,7 +338,7 @@ def test_refresh_token(app, client):
 
 
 def test_refresh_token_with_access_token(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
     r = client.post(
@@ -365,7 +366,7 @@ def test_refresh_token_with_access_token(client):
 
 
 def test_refresh_token_with_expired_token(app, client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
     app.config['JWT_REFRESH_TOKEN_EXPIRES'] = datetime.timedelta(seconds=-1)

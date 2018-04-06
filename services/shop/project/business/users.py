@@ -11,27 +11,39 @@ class DuplicateEmailError(Exception):
     pass
 
 
-def add(**kwargs):
-    user = User(**kwargs)
-
+def add(user: User):
     session.add(user)
 
     try:
         session.commit()
     except IntegrityError:
-        session.rollback()
         raise DuplicateEmailError('Sorry. User with that email already exists.')
 
     return user
 
 
-def get(user_id: int):
-    return User.query.filter_by(id=user_id).first()
+def get(user_id: int) -> User:
+    return User.query.filter_by(_id=user_id).first()
 
 
 def get_by_email(email):
-    return User.query.filter_by(email=email).first()
+    return User.query.filter_by(_email=email).first()
 
 
 def get_all():
     return User.query.all()
+
+
+def update(user, attributes: set, data):
+    session.begin_nested()
+
+    sorted_attributes = sorted(attributes)
+    for attribute in sorted_attributes:
+        if data.get(attribute) is not None and hasattr(user, attribute):
+            try:
+                setattr(user, attribute, data[attribute])
+            except (TypeError, ValueError) as e:
+                session.rollback()
+                raise e
+
+    session.commit()

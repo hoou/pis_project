@@ -1,11 +1,8 @@
 from enum import IntEnum
 
-from flask_restplus import fields
-
 from project import db
 from project.models.delivery_address import DeliveryAddress
 from project.models.order_item import OrderItem
-from project.models.user import User
 
 
 class OrderStatus(IntEnum):
@@ -26,7 +23,7 @@ class Order(db.Model):
     items = db.relationship('OrderItem', backref='order', lazy=True)
     delivery_address_id = db.Column(db.Integer, db.ForeignKey('delivery_addresses.id'), nullable=False)
     delivery_address = db.relationship('DeliveryAddress')
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users._id'), nullable=True)
 
     def __init__(self, delivery_address: DeliveryAddress, user_id: int = None):
         self.user_id = user_id

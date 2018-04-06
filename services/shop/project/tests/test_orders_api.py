@@ -5,14 +5,14 @@ from flask_api import status
 
 from project.business import users, categories, orders
 from project.models.delivery_address import DeliveryAddress
-from project.models.order import OrderStatus, Order
+from project.models.order import OrderStatus
 from project.models.order_item import OrderItem
 from project.models.product import Product
-from project.models.user import UserRole
+from project.models.user import UserRole, User
 
 
 def test_create_order_logged_in(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
     category = categories.add(name='Men')
@@ -191,7 +191,7 @@ def test_create_order_logged_out(client):
 
 
 def test_create_order_not_existing_products(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
     category = categories.add(name='Men')
@@ -253,7 +253,7 @@ def test_create_order_not_existing_products(client):
 
 
 def test_create_order_zero_count(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
     category = categories.add(name='Men')
@@ -315,7 +315,7 @@ def test_create_order_zero_count(client):
 
 
 def test_create_order_negative_count(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
     category = categories.add(name='Men')
@@ -377,7 +377,7 @@ def test_create_order_negative_count(client):
 
 
 def test_create_order_count_not_int(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
     category = categories.add(name='Men')
@@ -439,7 +439,7 @@ def test_create_order_count_not_int(client):
 
 
 def test_create_order_no_items(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
     category = categories.add(name='Men')
@@ -487,7 +487,7 @@ def test_create_order_no_items(client):
 
 
 def test_create_order_empty_items(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
     category = categories.add(name='Men')
@@ -536,7 +536,7 @@ def test_create_order_empty_items(client):
 
 
 def test_create_order_item_missing_product_id(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
     category = categories.add(name='Men')
@@ -597,7 +597,7 @@ def test_create_order_item_missing_product_id(client):
 
 
 def test_create_order_item_missing_count(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
     category = categories.add(name='Men')
@@ -658,7 +658,7 @@ def test_create_order_item_missing_count(client):
 
 
 def test_create_order_no_delivery_address(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
     category = categories.add(name='Men')
@@ -711,7 +711,7 @@ def test_create_order_no_delivery_address(client):
 
 
 def test_create_order_delivery_address_missing_required_field(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
     category = categories.add(name='Men')
@@ -772,7 +772,7 @@ def test_create_order_delivery_address_missing_required_field(client):
 
 
 def test_create_order_same_product_different_items(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
     category = categories.add(name='Men')
@@ -834,7 +834,7 @@ def test_create_order_same_product_different_items(client):
 
 
 def test_update_order_status(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
     user.role = UserRole.ADMIN
 
@@ -918,7 +918,7 @@ def test_update_order_status_not_logged_in(client):
 
 
 def test_update_order_status_not_admin_or_worker(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
     category = categories.add(name='Men')
@@ -968,7 +968,7 @@ def test_update_order_status_not_admin_or_worker(client):
 
 
 def test_update_status_of_not_existing_order(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
     user.role = UserRole.ADMIN
 
@@ -1003,7 +1003,7 @@ def test_update_status_of_not_existing_order(client):
 
 
 def test_update_order_status_empty_json(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
     user.role = UserRole.ADMIN
 
@@ -1052,7 +1052,7 @@ def test_update_order_status_empty_json(client):
 
 
 def test_update_order_status_missing_status(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
     user.role = UserRole.ADMIN
 
@@ -1103,7 +1103,7 @@ def test_update_order_status_missing_status(client):
 
 
 def test_update_order_status_invalid_status(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
     user.role = UserRole.ADMIN
 
@@ -1156,7 +1156,7 @@ def test_update_order_status_invalid_status(client):
 
 
 def test_cancel_order(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
     category = categories.add(name='Men')
@@ -1204,7 +1204,7 @@ def test_cancel_order(client):
 
 
 def test_cancel_order_not_logged_in(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
     category = categories.add(name='Men')
@@ -1232,7 +1232,7 @@ def test_cancel_order_not_logged_in(client):
 
 
 def test_cancel_already_cancelled_order(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
     category = categories.add(name='Men')
@@ -1279,7 +1279,7 @@ def test_cancel_already_cancelled_order(client):
 
 
 def test_cancel_not_existing_order(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
     r = client.post(
@@ -1312,7 +1312,7 @@ def test_cancel_not_existing_order(client):
 
 
 def test_cancel_not_mine_order(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
     category = categories.add(name='Men')
@@ -1358,7 +1358,7 @@ def test_cancel_not_mine_order(client):
 
 
 def test_get_all_orders(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
     user.role = UserRole.ADMIN
 
@@ -1383,7 +1383,7 @@ def test_get_all_orders(client):
     delivery_address2 = DeliveryAddress('Peter', 'Hnat', '+421999999999', 'Ecerova', '11111', 'Bratislava', 'SK')
     delivery_address3 = DeliveryAddress('Samuel', 'Jaklovsky', '+421555555555', 'Skacelova', '22222', 'Radvan', 'SK')
 
-    order1 = orders.add([order1_item1, order1_item2, order1_item3], delivery_address1)
+    orders.add([order1_item1, order1_item2, order1_item3], delivery_address1)
     order2 = orders.add([order2_item1, order2_item2], delivery_address2)
     order3 = orders.add([order3_item1], delivery_address3)
 
@@ -1473,7 +1473,7 @@ def test_get_all_orders_not_logged_in(client):
 
 
 def test_get_all_orders_not_admin_or_worker(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
     r = client.post(
@@ -1503,7 +1503,7 @@ def test_get_all_orders_not_admin_or_worker(client):
 
 
 def test_get_order(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
     category = categories.add(name='Men')
@@ -1570,7 +1570,7 @@ def test_get_order(client):
 
 
 def test_get_not_mine_order(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
     category = categories.add(name='Men')
@@ -1639,7 +1639,7 @@ def test_get_order_not_logged_in(client):
 
 
 def test_get_not_existing_order(client):
-    user = users.add(email='tibor@mikita.eu', password='blah')
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
     r = client.post(

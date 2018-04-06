@@ -1,26 +1,41 @@
+import datetime
 import json
 
+from flask.testing import FlaskClient
 from flask_api import status
 
-from project.models.user import UserRole
 from project.business import users
+from project.models.user import User, Country
 
 
-def test_get_single_user_as_admin(client):
-    user = users.add(email='tibor@mikita.eu', password='halo')
+def test_get_user(client: FlaskClient):
+    user = users.add(
+        User(
+            email='tibor@mikita.eu',
+            password='blah',
+            first_name='Tibor',
+            last_name='Mikita',
+            phone='+421111222333',
+            street='Kosicka',
+            zip_code='06601',
+            city='Humenne',
+            country=Country.SK,
+            date_of_birth=datetime.date(1994, 5, 25)
+        )
+    )
     user.active = True
-    user.role = UserRole.ADMIN
 
     r = client.post(
         '/api/auth/login',
         data=json.dumps({
             'email': 'tibor@mikita.eu',
-            'password': 'halo'
+            'password': 'blah'
         }),
         content_type='application/json'
     )
 
     payload = r.json
+
     access_token = payload['access_token']
 
     r = client.get(
@@ -29,236 +44,603 @@ def test_get_single_user_as_admin(client):
     )
 
     payload = r.json
-
-    user = payload
+    user_info = payload
 
     assert r.status_code == status.HTTP_200_OK
-    assert user['email'] == 'tibor@mikita.eu'
+
+    assert user_info['email'] == 'tibor@mikita.eu'
+    assert user_info['first_name'] == 'Tibor'
+    assert user_info['last_name'] == 'Mikita'
+    assert user_info['phone'] == '+421111222333'
+    assert user_info['street'] == 'Kosicka'
+    assert user_info['zip_code'] == '06601'
+    assert user_info['city'] == 'Humenne'
+    assert user_info['country'] == Country.SK
+    assert datetime.datetime.strptime(user_info['date_of_birth'], '%Y-%m-%d').date() == datetime.date(1994, 5, 25)
 
 
-def test_get_single_user_as_worker(client):
-    user = users.add(email='tibor@mikita.eu', password='halo')
-    user.active = True
-    user.role = UserRole.ADMIN
-
-    r = client.post(
-        '/api/auth/login',
-        data=json.dumps({
-            'email': 'tibor@mikita.eu',
-            'password': 'halo'
-        }),
-        content_type='application/json'
+def test_get_not_existing_user(client: FlaskClient):
+    user = users.add(
+        User(
+            email='tibor@mikita.eu',
+            password='blah',
+            first_name='Tibor',
+            last_name='Mikita',
+            phone='+421111222333',
+            street='Kosicka',
+            zip_code='06601',
+            city='Humenne',
+            country=Country.SK,
+            date_of_birth=datetime.date(1994, 5, 25)
+        )
     )
-
-    payload = r.json
-    access_token = payload['access_token']
-
-    r = client.get(
-        f'/api/users/{user.id}',
-        headers={'Authorization': f'Bearer {access_token}'}
-    )
-
-    payload = r.json
-
-    user = payload
-
-    assert r.status_code == status.HTTP_200_OK
-    assert user['email'] == 'tibor@mikita.eu'
-
-
-def test_get_single_user_not_admin_or_worker(client):
-    user = users.add(email='tibor@mikita.eu', password='halo')
     user.active = True
 
     r = client.post(
         '/api/auth/login',
         data=json.dumps({
             'email': 'tibor@mikita.eu',
-            'password': 'halo'
+            'password': 'blah'
         }),
         content_type='application/json'
     )
 
     payload = r.json
+
     access_token = payload['access_token']
 
-    assert user.role != UserRole.ADMIN and user.role != UserRole.WORKER
+    not_existing_user_id = 99
+    not_existing_user = users.get(not_existing_user_id)
+
+    assert not_existing_user is None
 
     r = client.get(
-        f'/api/users/{user.id}',
-        headers={'Authorization': f'Bearer {access_token}'}
-    )
-    payload = r.json
-
-    assert r.status_code == status.HTTP_403_FORBIDDEN
-    assert payload['message'] == 'You do not have permission to perform this action.'
-
-
-def test_get_single_user_not_logged_in(client):
-    user = users.add(email='tibor@mikita.eu', password='halo')
-
-    r = client.get(
-        f'/api/users/{user.id}'
-    )
-
-    payload = r.json
-    assert r.status_code == status.HTTP_403_FORBIDDEN
-    assert payload['message'] == 'You do not have permission to perform this action.'
-
-
-def test_get_single_user_not_exist(client):
-    user = users.add(email='tibor@mikita.eu', password='halo')
-    user.active = True
-    user.role = UserRole.ADMIN
-
-    r = client.post(
-        '/api/auth/login',
-        data=json.dumps({
-            'email': 'tibor@mikita.eu',
-            'password': 'halo'
-        }),
-        content_type='application/json'
-    )
-
-    payload = r.json
-    access_token = payload['access_token']
-
-    non_existing_id = 999
-    r = client.get(
-        f'/api/users/{non_existing_id}',
+        f'/api/users/{not_existing_user_id}',
         headers={'Authorization': f'Bearer {access_token}'}
     )
 
     payload = r.json
 
     assert r.status_code == status.HTTP_404_NOT_FOUND
-    assert 'This resource does not exist.' in payload['message']
+    assert payload['message'] == 'User not found.'
 
 
-def test_get_all_users_as_admin(client):
-    number_of_users = 3
-
-    for i in range(number_of_users):
-        users.add(email=f'user{i}@server.eu', password=f'pass{i}')
-
-    user = users.get_by_email('user1@server.eu')
-    user.active = True
-    user.role = UserRole.ADMIN
-
-    r = client.post(
-        '/api/auth/login',
-        data=json.dumps({
-            'email': 'user1@server.eu',
-            'password': 'pass1'
-        }),
-        content_type='application/json'
+def test_get_user_not_logged_in(client: FlaskClient):
+    user = users.add(
+        User(
+            email='tibor@mikita.eu',
+            password='blah',
+            first_name='Tibor',
+            last_name='Mikita',
+            phone='+421111222333',
+            street='Kosicka',
+            zip_code='06601',
+            city='Humenne',
+            country=Country.SK,
+            date_of_birth=datetime.date(1994, 5, 25)
+        )
     )
-
-    payload = r.json
-    access_token = payload['access_token']
-
-    r = client.get(
-        '/api/users/',
-        headers={'Authorization': f'Bearer {access_token}'}
-    )
-    payload = r.json
-
-    all_users = payload
-
-    assert r.status_code == status.HTTP_200_OK
-    assert len(all_users) == number_of_users
-
-    # sort by id
-    sorted_users = sorted(all_users, key=lambda x: x['id'])
-
-    for i, user in enumerate(sorted_users):
-        assert user['email'] == f'user{i}@server.eu'
-
-
-def test_get_all_users_as_worker(client):
-    number_of_users = 3
-
-    for i in range(number_of_users):
-        users.add(email=f'user{i}@server.eu', password=f'pass{i}')
-
-    user = users.get_by_email('user1@server.eu')
-    user.active = True
-    user.role = UserRole.ADMIN
-
-    r = client.post(
-        '/api/auth/login',
-        data=json.dumps({
-            'email': 'user1@server.eu',
-            'password': 'pass1'
-        }),
-        content_type='application/json'
-    )
-
-    payload = r.json
-    access_token = payload['access_token']
-
-    r = client.get(
-        '/api/users/',
-        headers={'Authorization': f'Bearer {access_token}'}
-    )
-
-    payload = r.json
-
-    all_users = payload
-
-    assert r.status_code == status.HTTP_200_OK
-    assert len(all_users) == number_of_users
-
-    # sort by id
-    sorted_users = sorted(all_users, key=lambda x: x['id'])
-
-    for i, user in enumerate(sorted_users):
-        assert user['email'] == f'user{i}@server.eu'
-
-
-def test_get_all_users_not_admin_or_worker(client):
-    number_of_users = 3
-
-    for i in range(number_of_users):
-        users.add(email=f'user{i}@server.eu', password=f'pass{i}')
-
-    user = users.get_by_email('user1@server.eu')
     user.active = True
 
-    r = client.post(
-        '/api/auth/login',
-        data=json.dumps({
-            'email': 'user1@server.eu',
-            'password': 'pass1'
-        }),
-        content_type='application/json'
-    )
+    r = client.get(f'/api/users/{user.id}', )
 
-    payload = r.json
-    access_token = payload['access_token']
-
-    assert user.role != UserRole.ADMIN and user.role != UserRole.WORKER
-
-    r = client.get(
-        '/api/users/',
-        headers={'Authorization': f'Bearer {access_token}'}
-    )
     payload = r.json
 
     assert r.status_code == status.HTTP_403_FORBIDDEN
     assert payload['message'] == 'You do not have permission to perform this action.'
 
 
-def test_get_all_users_not_logged_in(client):
-    number_of_users = 3
+def test_get_other_user(client: FlaskClient):
+    user = users.add(User('peter@hnat.eu', 'poaa'))
+    user.active = True
 
-    for i in range(number_of_users):
-        users.add(email=f'user{i}@server.eu', password=f'pass{i}')
+    other_user = users.add(
+        User(
+            email='tibor@mikita.eu',
+            password='blah',
+            first_name='Tibor',
+            last_name='Mikita',
+            phone='+421111222333',
+            street='Kosicka',
+            zip_code='06601',
+            city='Humenne',
+            country=Country.SK,
+            date_of_birth=datetime.date(1994, 5, 25)
+        )
+    )
+    other_user.active = True
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'peter@hnat.eu',
+            'password': 'poaa'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
 
     r = client.get(
-        '/api/users/'
+        f'/api/users/{other_user.id}',
+        headers={'Authorization': f'Bearer {access_token}'}
     )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_400_BAD_REQUEST
+    assert payload['message'] == 'You cannot get user profile of other person.'
+
+
+def test_update_user_profile(client: FlaskClient):
+    user = users.add(
+        User(
+            email='tibor@mikita.eu',
+            password='blah',
+            first_name='Tibor',
+            last_name='Mikita',
+            phone='+421111222333',
+            street='Kosicka',
+            zip_code='06601',
+            city='Humenne',
+            country=Country.SK,
+            date_of_birth=datetime.date(1994, 5, 25)
+        )
+    )
+    user.active = True
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    assert user.city == 'Humenne'
+    assert user.street == 'Kosicka'
+    assert user.zip_code == '06601'
+    assert user.phone == '+421111222333'
+
+    r = client.patch(
+        f'/api/users/{user.id}',
+        data=json.dumps({
+            'city': 'Medzilaborce',
+            'street': 'Bratislavska',
+            'zip_code': '99999',
+            'phone': '+420999999999'
+        }),
+        content_type='application/json',
+        headers={'Authorization': f'Bearer {access_token}'}
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_200_OK
+    assert payload['message'] == 'Profile successfully modified.'
+
+    assert user.city == 'Medzilaborce'
+    assert user.street == 'Bratislavska'
+    assert user.zip_code == '99999'
+    assert user.phone == '+420999999999'
+
+
+def test_update_user_profile_not_logged_in(client: FlaskClient):
+    user = users.add(
+        User(
+            email='tibor@mikita.eu',
+            password='blah',
+            first_name='Tibor',
+            last_name='Mikita',
+            phone='+421111222333',
+            street='Kosicka',
+            zip_code='06601',
+            city='Humenne',
+            country=Country.SK,
+            date_of_birth=datetime.date(1994, 5, 25)
+        )
+    )
+    user.active = True
+
+    r = client.patch(
+        f'/api/users/{user.id}',
+        data=json.dumps({
+            'city': 'Medzilaborce',
+            'street': 'Bratislavska',
+            'zip_code': '99999',
+            'phone': '+420999999999'
+        }),
+        content_type='application/json'
+    )
+
     payload = r.json
 
     assert r.status_code == status.HTTP_403_FORBIDDEN
     assert payload['message'] == 'You do not have permission to perform this action.'
+
+
+def test_update_not_existing_user_profile(client: FlaskClient):
+    user = users.add(
+        User(
+            email='tibor@mikita.eu',
+            password='blah',
+            first_name='Tibor',
+            last_name='Mikita',
+            phone='+421111222333',
+            street='Kosicka',
+            zip_code='06601',
+            city='Humenne',
+            country=Country.SK,
+            date_of_birth=datetime.date(1994, 5, 25)
+        )
+    )
+    user.active = True
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    not_existing_user_id = 99
+    not_existing_user = users.get(not_existing_user_id)
+
+    assert not_existing_user is None
+
+    r = client.patch(
+        f'/api/users/{not_existing_user_id}',
+        data=json.dumps({
+            'city': 'Medzilaborce',
+            'street': 'Bratislavska',
+            'zip_code': '99999',
+            'phone': '+420999999999'
+        }),
+        content_type='application/json',
+        headers={'Authorization': f'Bearer {access_token}'}
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_404_NOT_FOUND
+    assert payload['message'] == 'User not found.'
+
+
+def test_update_other_user_profile_not_mine(client: FlaskClient):
+    user1 = users.add(
+        User(
+            email='tibor@mikita.eu',
+            password='blah',
+            first_name='Tibor',
+            last_name='Mikita',
+            phone='+421111222333',
+            street='Kosicka',
+            zip_code='06601',
+            city='Humenne',
+            country=Country.SK,
+            date_of_birth=datetime.date(1994, 5, 25)
+        )
+    )
+    user1.active = True
+
+    user2 = users.add(User('peter@gnat.eu', 'dsaa'))
+    user2.active = True
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'peter@gnat.eu',
+            'password': 'dsaa'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    r = client.patch(
+        f'/api/users/{user1.id}',
+        data=json.dumps({
+            'city': 'Medzilaborce',
+            'street': 'Bratislavska',
+            'zip_code': '99999',
+            'phone': '+420999999999'
+        }),
+        content_type='application/json',
+        headers={'Authorization': f'Bearer {access_token}'}
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_400_BAD_REQUEST
+    assert payload['message'] == 'You cannot edit profile of other person.'
+
+
+def test_update_user_profile_empty(client: FlaskClient):
+    user = users.add(
+        User(
+            email='tibor@mikita.eu',
+            password='blah',
+            first_name='Tibor',
+            last_name='Mikita',
+            phone='+421111222333',
+            street='Kosicka',
+            zip_code='06601',
+            city='Humenne',
+            country=Country.SK,
+            date_of_birth=datetime.date(1994, 5, 25)
+        )
+    )
+    user.active = True
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    r = client.patch(
+        f'/api/users/{user.id}',
+        data=json.dumps({}),
+        content_type='application/json',
+        headers={'Authorization': f'Bearer {access_token}'}
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_400_BAD_REQUEST
+    assert payload['message'] == 'Invalid payload.'
+
+
+def test_update_user_profile_no_data(client: FlaskClient):
+    user = users.add(
+        User(
+            email='tibor@mikita.eu',
+            password='blah',
+            first_name='Tibor',
+            last_name='Mikita',
+            phone='+421111222333',
+            street='Kosicka',
+            zip_code='06601',
+            city='Humenne',
+            country=Country.SK,
+            date_of_birth=datetime.date(1994, 5, 25)
+        )
+    )
+    user.active = True
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    r = client.patch(
+        f'/api/users/{user.id}',
+        headers={'Authorization': f'Bearer {access_token}'}
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_400_BAD_REQUEST
+    assert payload['message'] == 'Invalid payload.'
+
+
+def test_update_user_profile_not_existing_attribute(client: FlaskClient):
+    user = users.add(
+        User(
+            email='tibor@mikita.eu',
+            password='blah',
+            first_name='Tibor',
+            last_name='Mikita',
+            phone='+421111222333',
+            street='Kosicka',
+            zip_code='06601',
+            city='Humenne',
+            country=Country.SK,
+            date_of_birth=datetime.date(1994, 5, 25)
+        )
+    )
+    user.active = True
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    assert user.city == 'Humenne'
+    assert user.street == 'Kosicka'
+    assert user.zip_code == '06601'
+    assert user.phone == '+421111222333'
+
+    r = client.patch(
+        f'/api/users/{user.id}',
+        data=json.dumps({
+            'number': '42'
+        }),
+        content_type='application/json',
+        headers={'Authorization': f'Bearer {access_token}'}
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_400_BAD_REQUEST
+    assert payload['message'] == 'Invalid payload.'
+
+
+def test_update_user_profile_date_invalid_type(client: FlaskClient):
+    user = users.add(
+        User(
+            email='tibor@mikita.eu',
+            password='blah',
+            first_name='Tibor',
+            last_name='Mikita',
+            phone='+421111222333',
+            street='Kosicka',
+            zip_code='06601',
+            city='Humenne',
+            country=Country.SK,
+            date_of_birth=datetime.date(1994, 5, 25)
+        )
+    )
+    user.active = True
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    r = client.patch(
+        f'/api/users/{user.id}',
+        data=json.dumps({
+            'date_of_birth': 5
+        }),
+        content_type='application/json',
+        headers={'Authorization': f'Bearer {access_token}'}
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_400_BAD_REQUEST
+    assert payload['message'] == 'Date of birth must be date.'
+
+
+def test_update_user_profile_invalid_phone_format(client: FlaskClient):
+    user = users.add(
+        User(
+            email='tibor@mikita.eu',
+            password='blah',
+            first_name='Tibor',
+            last_name='Mikita',
+            phone='+421111222333',
+            street='Kosicka',
+            zip_code='06601',
+            city='Humenne',
+            country=Country.SK,
+            date_of_birth=datetime.date(1994, 5, 25)
+        )
+    )
+    user.active = True
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    r = client.patch(
+        f'/api/users/{user.id}',
+        data=json.dumps({
+            'phone': '0999999999'
+        }),
+        content_type='application/json',
+        headers={'Authorization': f'Bearer {access_token}'}
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_400_BAD_REQUEST
+    assert 'Phone must have format' in payload['message']
+
+
+def test_update_user_profile_transaction(client: FlaskClient):
+    user = users.add(
+        User(
+            email='tibor@mikita.eu',
+            password='blah',
+            first_name='Tibor',
+            last_name='Mikita',
+            phone='+421111222333',
+            street='Kosicka',
+            zip_code='06601',
+            city='Humenne',
+            country=Country.SK,
+            date_of_birth=datetime.date(1994, 5, 25)
+        )
+    )
+    user.active = True
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    assert user.first_name == 'Tibor'
+
+    r = client.patch(
+        f'/api/users/{user.id}',
+        data=json.dumps({
+            'city': 'Presov',
+            'phone': '0999999999'
+        }),
+        content_type='application/json',
+        headers={'Authorization': f'Bearer {access_token}'}
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_400_BAD_REQUEST
+    assert 'Phone must have format' in payload['message']
+
+    user_after_update = users.get(user.id)
+
+    assert user_after_update.city == 'Humenne'
