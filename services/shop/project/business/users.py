@@ -30,10 +30,6 @@ def get_by_email(email):
     return User.query.filter_by(_email=email).first()
 
 
-def get_all():
-    return User.query.all()
-
-
 def update(user, attributes: set, data):
     session.begin_nested()
 
