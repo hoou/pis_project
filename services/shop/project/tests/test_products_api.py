@@ -4,6 +4,7 @@ import os
 from flask_api import status
 from flask_jwt_extended import create_access_token
 
+from project.models.category import Category
 from project.models.product import Product
 from project.models.product_image import ProductImage
 from project.models.user import UserRole, User
@@ -16,7 +17,7 @@ testing_image_png_path = os.path.join(basedir, 'test_files/lena.png')
 
 
 def test_get_all_products(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     categories.add_product(category, Product(name='Product One', price=13.99))
     product = Product(name='Product Two', price=23.99, description='blah')
     categories.add_product(category, product)
@@ -49,7 +50,7 @@ def test_get_all_products(client):
 
 
 def test_get_single_product(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Product', price=99.99)
     categories.add_product(category, product)
 
@@ -64,7 +65,7 @@ def test_get_single_product(client):
 
 
 def test_get_single_already_deleted_product(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Product', price=99.99)
     categories.add_product(category, product)
     products.delete(product)
@@ -91,7 +92,7 @@ def test_get_single_product_non_existing(client):
 
 
 def test_add_product(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
 
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
@@ -165,7 +166,7 @@ def test_add_product_not_existing_category(client):
 
 
 def test_add_product_empty_json(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
 
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
@@ -201,7 +202,7 @@ def test_add_product_not_existing_user(client):
     not_existing_user_id = 99
     access_token = create_access_token(not_existing_user_id)
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
 
     r = client.post(
         f'/api/categories/{category.id}/products',
@@ -221,7 +222,7 @@ def test_add_product_not_existing_user(client):
 
 
 def test_add_product_not_active_user(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
 
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.role = UserRole.ADMIN
@@ -246,7 +247,7 @@ def test_add_product_not_active_user(client):
 
 
 def test_add_product_not_logged_in(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
 
     r = client.post(
         f'/api/categories/{category.id}/products',
@@ -265,7 +266,7 @@ def test_add_product_not_logged_in(client):
 
 
 def test_add_product_not_admin_or_worker(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
 
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
@@ -302,7 +303,7 @@ def test_add_product_not_admin_or_worker(client):
 
 
 def test_add_product_missing_name(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
 
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
@@ -338,7 +339,7 @@ def test_add_product_missing_name(client):
 
 
 def test_add_product_missing_price(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
 
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
@@ -373,7 +374,7 @@ def test_add_product_missing_price(client):
 
 
 def test_delete_product(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 
@@ -406,7 +407,7 @@ def test_delete_product(client):
 
 
 def test_delete_already_deleted_product(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
     products.delete(product)
@@ -467,7 +468,7 @@ def test_delete_not_existing_product(client):
 
 
 def test_delete_product_no_admin_or_worker(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 
@@ -497,7 +498,7 @@ def test_delete_product_no_admin_or_worker(client):
 
 
 def test_delete_product_not_logged_in(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 
@@ -519,7 +520,7 @@ def test_add_product_image(client):
     user.active = True
     user.role = UserRole.ADMIN
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 
@@ -598,7 +599,7 @@ def test_add_product_image_no_data(client):
     user.active = True
     user.role = UserRole.ADMIN
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 
@@ -633,7 +634,7 @@ def test_add_product_image_not_admin_or_worker(client):
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 
@@ -675,7 +676,7 @@ def test_add_product_image_no_file(client):
     user.active = True
     user.role = UserRole.ADMIN
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 
@@ -712,7 +713,7 @@ def test_add_product_image_empty_file(client):
     user.active = True
     user.role = UserRole.ADMIN
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 
@@ -751,7 +752,7 @@ def test_add_product_image_not_file(client):
     user.active = True
     user.role = UserRole.ADMIN
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 
@@ -790,7 +791,7 @@ def test_add_product_image_not_logged_in(client):
     user.active = True
     user.role = UserRole.ADMIN
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 
@@ -816,7 +817,7 @@ def test_add_product_image_not_allowed_file_ext(client):
     user.active = True
     user.role = UserRole.ADMIN
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 
@@ -852,7 +853,7 @@ def test_add_product_image_not_allowed_file_ext(client):
 
 
 def test_get_images_of_product(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 
@@ -874,7 +875,7 @@ def test_get_images_of_product(client):
 
 
 def test_delete_image_of_product(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 
@@ -906,7 +907,7 @@ def test_delete_image_of_product(client):
 
 
 def test_delete_image_of_different_product(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 
@@ -943,7 +944,7 @@ def test_delete_image_of_different_product(client):
 
 
 def test_delete_image_not_existing(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 
@@ -977,7 +978,7 @@ def test_delete_image_not_existing(client):
 
 
 def test_delete_image_of_product_no_admin_or_worker(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 
@@ -1009,7 +1010,7 @@ def test_delete_image_of_product_no_admin_or_worker(client):
 
 
 def test_delete_image_of_product_not_logged_in(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 
@@ -1029,7 +1030,7 @@ def test_delete_image_of_product_not_logged_in(client):
 
 
 def test_update_product(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 
@@ -1072,7 +1073,7 @@ def test_update_product(client):
 
 
 def test_update_product_not_logged_in(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 
@@ -1093,7 +1094,7 @@ def test_update_product_not_logged_in(client):
 
 
 def test_update_product_not_admin_or_worker(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 
@@ -1171,7 +1172,7 @@ def test_update_not_existing_product(client):
 
 
 def test_update_product_missing_name(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 
@@ -1211,7 +1212,7 @@ def test_update_product_missing_name(client):
 
 
 def test_update_product_missing_price(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 
@@ -1251,7 +1252,7 @@ def test_update_product_missing_price(client):
 
 
 def test_update_product_missing_category_id(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 
@@ -1291,7 +1292,7 @@ def test_update_product_missing_category_id(client):
 
 
 def test_add_product_rating(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 
@@ -1330,7 +1331,7 @@ def test_add_product_rating(client):
 
 
 def test_add_product_rating_out_of_range(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 
@@ -1366,7 +1367,7 @@ def test_add_product_rating_out_of_range(client):
 
 
 def test_add_product_rating_not_number(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 
@@ -1436,7 +1437,7 @@ def test_add_product_rating_not_existing_product(client):
 
 
 def test_add_product_rating_not_logged_in(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 
@@ -1455,7 +1456,7 @@ def test_add_product_rating_not_logged_in(client):
 
 
 def test_add_product_rating_empty_json(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 
@@ -1489,7 +1490,7 @@ def test_add_product_rating_empty_json(client):
 
 
 def test_add_product_rating_second_time(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 
@@ -1536,7 +1537,7 @@ def test_add_product_rating_second_time(client):
 
 
 def test_get_product_ratings(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 
@@ -1592,7 +1593,7 @@ def test_get_not_existing_product_ratings(client):
 
 
 def test_delete_product_rating(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 
@@ -1659,7 +1660,7 @@ def test_delete_product_rating_on_not_existing_product(client):
 
 
 def test_delete_not_existing_product_rating(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 
@@ -1693,7 +1694,7 @@ def test_delete_not_existing_product_rating(client):
 
 
 def test_delete_product_rating_not_logged_in(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product = Product(name='Super Small Product', price=0.99)
     categories.add_product(category, product)
 

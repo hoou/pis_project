@@ -6,6 +6,7 @@ from flask_restplus import Resource
 from project.api.errors import InvalidPayload, NotFound, BadRequest
 from project.api.middleware.auth import active_required_if_logged_in, admin_or_worker
 from project.business import categories
+from project.models.category import Category
 from project.models.product import Product
 from project.models.serializers import category as category_serial
 
@@ -34,7 +35,7 @@ class CategoryCollection(Resource):
         if name is None:
             raise InvalidPayload
 
-        categories.add(name=name)
+        categories.add(Category(name=name))
 
         return {'message': 'Category was successfully added.'}, status.HTTP_201_CREATED
 

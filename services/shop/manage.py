@@ -3,6 +3,9 @@ import pytest
 from flask.cli import FlaskGroup
 
 from project import create_app, db
+from project.models.category import Category
+from project.models.product import Product
+from project.models.user import User
 
 cov = coverage.coverage(
     branch=True,
@@ -28,12 +31,14 @@ def recreate_db():
 @cli.command()
 def seed_db():
     from project.business import users
-    users.add(email='user1@server.eu', password='blah')
-    users.add(email='user2@server.eu', password='blah-blah')
+    users.add(User(email='user1@server.eu', password='blah'))
+    users.add(User(email='user2@server.eu', password='blah_blah'))
 
-    from project.business import products
-    products.add(name='Super product', price=19.99)
-    products.add(name='Very bad product', price=2.99)
+    from project.business import categories
+    category = categories.add(Category('Men'))
+
+    categories.add_product(category, Product(name='Super product', price=19.99))
+    categories.add_product(category, Product(name='Very bad product', price=2.99))
 
 
 @cli.command()

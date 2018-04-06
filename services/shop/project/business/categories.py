@@ -7,8 +7,7 @@ from project.models.product import Product
 session: Session = db.session
 
 
-def add(**kwargs):
-    category = Category(**kwargs)
+def add(category: Category):
     session.add(category)
     session.commit()
     return category

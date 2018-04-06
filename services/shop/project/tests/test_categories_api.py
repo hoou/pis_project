@@ -4,15 +4,16 @@ from flask_api import status
 from flask_jwt_extended import create_access_token
 
 from project.business import categories, users
+from project.models.category import Category
 from project.models.product import Product
 from project.models.user import UserRole, User
 
 
 def test_get_all_categories(client):
-    categories.add(name='Men')
-    categories.add(name='Women')
-    categories.add(name='Kids')
-    categories.add(name='Shirts')
+    categories.add(Category(name='Men'))
+    categories.add(Category(name='Women'))
+    categories.add(Category(name='Kids'))
+    categories.add(Category(name='Shirts'))
 
     r = client.get('/api/categories/')
 
@@ -216,7 +217,7 @@ def test_add_category_not_admin_or_worker(client):
 
 
 def test_delete_category(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
 
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
@@ -245,7 +246,7 @@ def test_delete_category(client):
 
 
 def test_delete_category_with_products(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     categories.add_product(category, Product(name='Product 1', price=1.99))
     categories.add_product(category, Product(name='Product 2', price=2.99))
     categories.add_product(category, Product(name='Product 3', price=3.99))
@@ -304,7 +305,7 @@ def test_delete_not_existing_category(client):
 
 
 def test_delete_category_no_admin_or_worker(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
 
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
@@ -332,7 +333,7 @@ def test_delete_category_no_admin_or_worker(client):
 
 
 def test_delete_category_not_logged_in(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
 
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
@@ -348,7 +349,7 @@ def test_delete_category_not_logged_in(client):
 
 
 def test_update_category(client):
-    category = categories.add(name='Mans')
+    category = categories.add(Category(name='Mans'))
 
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
@@ -386,7 +387,7 @@ def test_update_category(client):
 
 
 def test_update_category_empty_json(client):
-    category = categories.add(name='Mans')
+    category = categories.add(Category(name='Mans'))
 
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
@@ -452,7 +453,7 @@ def test_update_not_existing_category(client):
 
 
 def test_update_category_no_admin_or_worker(client):
-    category = categories.add(name='Mans')
+    category = categories.add(Category(name='Mans'))
 
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
@@ -483,7 +484,7 @@ def test_update_category_no_admin_or_worker(client):
 
 
 def test_update_category_not_logged_in(client):
-    category = categories.add(name='Mans')
+    category = categories.add(Category(name='Mans'))
 
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True

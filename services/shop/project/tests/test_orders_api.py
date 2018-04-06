@@ -4,6 +4,7 @@ from typing import List
 from flask_api import status
 
 from project.business import users, categories, orders
+from project.models.category import Category
 from project.models.delivery_address import DeliveryAddress
 from project.models.order import OrderStatus
 from project.models.order_item import OrderItem
@@ -15,7 +16,7 @@ def test_create_order_logged_in(client):
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product1 = Product(name='Product One', price=19.99)
     product2 = Product(name='Product Two', price=29.99)
     product3 = Product(name='Product Three', price=39.99)
@@ -110,7 +111,7 @@ def test_create_order_logged_in(client):
 
 
 def test_create_order_logged_out(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product1 = Product(name='Product One', price=19.99)
     product2 = Product(name='Product Two', price=29.99)
     product3 = Product(name='Product Three', price=39.99)
@@ -194,7 +195,7 @@ def test_create_order_not_existing_products(client):
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product1 = Product(name='Product One', price=19.99)
     product3 = Product(name='Product Three', price=39.99)
     categories.add_product(category, product1)
@@ -256,7 +257,7 @@ def test_create_order_zero_count(client):
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product1 = Product(name='Product One', price=19.99)
     product2 = Product(name='Product Two', price=29.99)
     product3 = Product(name='Product Three', price=39.99)
@@ -318,7 +319,7 @@ def test_create_order_negative_count(client):
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product1 = Product(name='Product One', price=19.99)
     product2 = Product(name='Product Two', price=29.99)
     product3 = Product(name='Product Three', price=39.99)
@@ -380,7 +381,7 @@ def test_create_order_count_not_int(client):
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product1 = Product(name='Product One', price=19.99)
     product2 = Product(name='Product Two', price=29.99)
     product3 = Product(name='Product Three', price=39.99)
@@ -442,7 +443,7 @@ def test_create_order_no_items(client):
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product1 = Product(name='Product One', price=19.99)
     product2 = Product(name='Product Two', price=29.99)
     product3 = Product(name='Product Three', price=39.99)
@@ -490,7 +491,7 @@ def test_create_order_empty_items(client):
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product1 = Product(name='Product One', price=19.99)
     product2 = Product(name='Product Two', price=29.99)
     product3 = Product(name='Product Three', price=39.99)
@@ -539,7 +540,7 @@ def test_create_order_item_missing_product_id(client):
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product1 = Product(name='Product One', price=19.99)
     product2 = Product(name='Product Two', price=29.99)
     product3 = Product(name='Product Three', price=39.99)
@@ -600,7 +601,7 @@ def test_create_order_item_missing_count(client):
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product1 = Product(name='Product One', price=19.99)
     product2 = Product(name='Product Two', price=29.99)
     product3 = Product(name='Product Three', price=39.99)
@@ -661,7 +662,7 @@ def test_create_order_no_delivery_address(client):
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product1 = Product(name='Product One', price=19.99)
     product2 = Product(name='Product Two', price=29.99)
     product3 = Product(name='Product Three', price=39.99)
@@ -714,7 +715,7 @@ def test_create_order_delivery_address_missing_required_field(client):
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product1 = Product(name='Product One', price=19.99)
     product2 = Product(name='Product Two', price=29.99)
     product3 = Product(name='Product Three', price=39.99)
@@ -775,7 +776,7 @@ def test_create_order_same_product_different_items(client):
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product1 = Product(name='Product One', price=19.99)
     product2 = Product(name='Product Two', price=29.99)
     product3 = Product(name='Product Three', price=39.99)
@@ -838,7 +839,7 @@ def test_update_order_status(client):
     user.active = True
     user.role = UserRole.ADMIN
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product1 = Product(name='Product One', price=19.99)
     product2 = Product(name='Product Two', price=29.99)
     product3 = Product(name='Product Three', price=39.99)
@@ -887,7 +888,7 @@ def test_update_order_status(client):
 
 
 def test_update_order_status_not_logged_in(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product1 = Product(name='Product One', price=19.99)
     product2 = Product(name='Product Two', price=29.99)
     product3 = Product(name='Product Three', price=39.99)
@@ -921,7 +922,7 @@ def test_update_order_status_not_admin_or_worker(client):
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product1 = Product(name='Product One', price=19.99)
     product2 = Product(name='Product Two', price=29.99)
     product3 = Product(name='Product Three', price=39.99)
@@ -1007,7 +1008,7 @@ def test_update_order_status_empty_json(client):
     user.active = True
     user.role = UserRole.ADMIN
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product1 = Product(name='Product One', price=19.99)
     product2 = Product(name='Product Two', price=29.99)
     product3 = Product(name='Product Three', price=39.99)
@@ -1056,7 +1057,7 @@ def test_update_order_status_missing_status(client):
     user.active = True
     user.role = UserRole.ADMIN
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product1 = Product(name='Product One', price=19.99)
     product2 = Product(name='Product Two', price=29.99)
     product3 = Product(name='Product Three', price=39.99)
@@ -1107,7 +1108,7 @@ def test_update_order_status_invalid_status(client):
     user.active = True
     user.role = UserRole.ADMIN
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product1 = Product(name='Product One', price=19.99)
     product2 = Product(name='Product Two', price=29.99)
     product3 = Product(name='Product Three', price=39.99)
@@ -1159,7 +1160,7 @@ def test_cancel_order(client):
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product1 = Product(name='Product One', price=19.99)
     product2 = Product(name='Product Two', price=29.99)
     product3 = Product(name='Product Three', price=39.99)
@@ -1207,7 +1208,7 @@ def test_cancel_order_not_logged_in(client):
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product1 = Product(name='Product One', price=19.99)
     product2 = Product(name='Product Two', price=29.99)
     product3 = Product(name='Product Three', price=39.99)
@@ -1235,7 +1236,7 @@ def test_cancel_already_cancelled_order(client):
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product1 = Product(name='Product One', price=19.99)
     product2 = Product(name='Product Two', price=29.99)
     product3 = Product(name='Product Three', price=39.99)
@@ -1315,7 +1316,7 @@ def test_cancel_not_mine_order(client):
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product1 = Product(name='Product One', price=19.99)
     product2 = Product(name='Product Two', price=29.99)
     product3 = Product(name='Product Three', price=39.99)
@@ -1362,7 +1363,7 @@ def test_get_all_orders(client):
     user.active = True
     user.role = UserRole.ADMIN
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product1 = Product(name='Product One', price=19.99)
     product2 = Product(name='Product Two', price=29.99)
     product3 = Product(name='Product Three', price=39.99)
@@ -1506,7 +1507,7 @@ def test_get_order(client):
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product1 = Product(name='Product One', price=19.99)
     product2 = Product(name='Product Two', price=29.99)
     product3 = Product(name='Product Three', price=39.99)
@@ -1573,7 +1574,7 @@ def test_get_not_mine_order(client):
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product1 = Product(name='Product One', price=19.99)
     product2 = Product(name='Product Two', price=29.99)
     product3 = Product(name='Product Three', price=39.99)
@@ -1614,7 +1615,7 @@ def test_get_not_mine_order(client):
 
 
 def test_get_order_not_logged_in(client):
-    category = categories.add(name='Men')
+    category = categories.add(Category(name='Men'))
     product1 = Product(name='Product One', price=19.99)
     product2 = Product(name='Product Two', price=29.99)
     product3 = Product(name='Product Three', price=39.99)
