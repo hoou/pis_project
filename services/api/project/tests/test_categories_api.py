@@ -164,7 +164,7 @@ def test_add_category_not_active_user(client):
     payload = r.json
 
     assert r.status_code == status.HTTP_403_FORBIDDEN
-    assert payload['message'] == 'You do not have permission to perform this action.'
+    assert payload['message'] == 'You have not active account.'
 
 
 def test_add_category_not_logged_in(client):
