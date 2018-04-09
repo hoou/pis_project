@@ -1,6 +1,9 @@
 import React, {Component} from 'react';
 import axios from 'axios';
+import {Route, Switch} from 'react-router-dom'
+
 import ProductsList from "./components/ProductsList";
+import About from "./components/About";
 
 class App extends Component {
 	constructor() {
@@ -30,10 +33,17 @@ class App extends Component {
 				<div className="row">
 					<div className="col-md-6">
 						<br/>
-						<h1>All Products</h1>
-						<hr/>
-						<br/>
-						<ProductsList products={this.state.products}/>
+						<Switch>
+							<Route exact path='/' render={() => (
+								<div>
+									<h1>All Products</h1>
+									<hr/>
+									<br/>
+									<ProductsList products={this.state.products}/>
+								</div>
+							)}/>
+							<Route exact path='/about' component={About}/>
+						</Switch>
 					</div>
 				</div>
 			</div>
