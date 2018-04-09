@@ -65,6 +65,13 @@ class PermissionDenied(HTTPException):
     )
 
 
+class UserNotActive(HTTPException):
+    code = status.HTTP_403_FORBIDDEN
+    description = (
+        'You have not active account.'
+    )
+
+
 class NotFound(HTTPException):
     code = status.HTTP_404_NOT_FOUND
     description = (

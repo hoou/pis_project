@@ -2,12 +2,12 @@ from flask import request
 from flask_api import status
 from flask_jwt_extended import create_access_token, jwt_required, create_refresh_token, jwt_refresh_token_required, \
     get_jwt_identity
-from werkzeug.exceptions import Conflict
 from flask_restplus import Resource
+from werkzeug.exceptions import Conflict
 
 from project import bcrypt
 from project.api import api
-from project.api.errors import AuthenticationFailed, InvalidPayload, PermissionDenied
+from project.api.errors import AuthenticationFailed, InvalidPayload, UserNotActive
 from project.api.middleware.auth import active_required_if_logged_in
 from project.business import users
 from project.business.users import DuplicateEmailError
@@ -58,7 +58,7 @@ class UserLogin(Resource):
             raise AuthenticationFailed
 
         if not user.active:
-            raise PermissionDenied
+            raise UserNotActive
 
         is_valid_password = bcrypt.check_password_hash(user.password, password)
 

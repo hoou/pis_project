@@ -18,7 +18,7 @@ def active_required_if_logged_in(f):
             raise AuthenticationFailed
 
         if not user.active:
-            raise PermissionDenied('You have not active account.')
+            raise UserNotActive
 
         return f(*args, **kwargs)
 
