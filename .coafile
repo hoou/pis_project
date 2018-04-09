@@ -1,5 +1,5 @@
 [all]
-files = services/shop/project/**.py, *.(yml|yaml), *.md
+files = services/api/project/**.py, *.(yml|yaml), *.md
 
 indent_size = 4
 use_spaces = yes
@@ -16,11 +16,11 @@ bears = LineCountBear
 
 [all.python]
 language = python
-files = services/shop/project/**.py
+files = services/api/project/**.py
 
 [all.python.keywords]
 language = python
-files = services/shop/project/**.py
+files = services/api/project/**.py
 bears = KeywordBear
 keywords =
   FIXME,

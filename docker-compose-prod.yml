@@ -2,10 +2,10 @@ version: '3.1'
 
 services:
 
-  shop:
-    container_name: shop
+  api:
+    container_name: api
     build:
-      context: services/shop
+      context: services/api
       dockerfile: Dockerfile-prod
     expose:
       - '5000'
@@ -38,4 +38,4 @@ services:
     ports:
       - 80:80
     depends_on:
-      - shop
+      - api

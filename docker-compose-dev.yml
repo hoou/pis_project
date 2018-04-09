@@ -2,13 +2,13 @@ version: '3.1'
 
 services:
 
-  shop:
-    container_name: shop
+  api:
+    container_name: api
     build:
-      context: services/shop
+      context: services/api
       dockerfile: Dockerfile-dev
     volumes:
-      - './services/shop:/usr/src/app'
+      - './services/api:/usr/src/app'
     ports:
       - 5001:5000
     environment:
@@ -44,4 +44,4 @@ services:
     ports:
       - 80:80
     depends_on:
-      - shop
+      - api

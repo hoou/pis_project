@@ -2,6 +2,6 @@ __pycache__
 env
 .idea
 .pytest_cache/
-services/shop/htmlcov/
-services/shop/public/
-services/shop/project/logs/
+services/api/htmlcov
+services/api/public
+services/api/project/logs
