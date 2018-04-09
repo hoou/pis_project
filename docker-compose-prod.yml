@@ -33,9 +33,25 @@ services:
     container_name: nginx
     build:
       context: services/nginx
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile-prod
     restart: always
     ports:
       - 80:80
     depends_on:
+      - api
+      - client
+
+  client:
+    container_name: client
+    build:
+      context: ./services/client
+      dockerfile: Dockerfile-prod
+      args:
+        - NODE_ENV=production
+        - REACT_APP_API_SERVICE_URL=${REACT_APP_API_SERVICE_URL}
+    ports:
+      - '3007:80'
+    depends_on:
+      - api
+    links:
       - api
