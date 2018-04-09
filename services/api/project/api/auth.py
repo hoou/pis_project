@@ -68,7 +68,7 @@ class UserLogin(Resource):
         access_token = create_access_token(user.id)
         refresh_token = create_refresh_token(user.id)
 
-        return {'message': 'User successfully logged in.', 'access_token': access_token, 'refresh_token': refresh_token}
+        return {'access_token': access_token, 'refresh_token': refresh_token}
 
 
 @ns.route('/refresh')

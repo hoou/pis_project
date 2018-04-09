@@ -95,7 +95,6 @@ def test_user_login(client):
     payload = r.json
 
     assert r.status_code == status.HTTP_200_OK
-    assert payload['message'] == 'User successfully logged in.'
     assert payload['access_token']
     assert payload['refresh_token']
 
