@@ -6,7 +6,7 @@ const ProductsList = (props) => {
 			{
 				props.products.map((product) => {
 					return (
-						<h4 key={product.id} className="card card-body bg-light">
+						<h4 key={product.id} className="well">
 							{product.name}
 						</h4>
 					)
