@@ -5,7 +5,7 @@ from flask.cli import FlaskGroup
 from project import create_app, db
 from project.models.category import Category
 from project.models.product import Product
-from project.models.user import User
+from project.models.user import User, UserRole
 
 cov = coverage.coverage(
     branch=True,
@@ -31,8 +31,9 @@ def recreate_db():
 @cli.command()
 def seed_db():
     from project.business import users
-    users.add(User(email='user1@server.eu', password='blah'))
-    users.add(User(email='user2@server.eu', password='blah_blah'))
+    user = users.add(User(email='tibor@mikita.eu', password='admin123'))
+    user.active = True
+    user.role = UserRole.ADMIN
 
     from project.business import categories
     category = categories.add(Category('Men'))
