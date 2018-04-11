@@ -1,59 +1,38 @@
-import React, {Component} from 'react';
-import axios from 'axios';
-import {Route, Switch} from 'react-router-dom'
+import React from 'react';
+import {Router, Route} from 'react-router-dom';
+import {connect} from 'react-redux';
 
-import ProductsList from "./components/ProductsList";
-import About from "./components/About";
-import NavBar from "./components/Navbar";
+import {history} from 'helpers';
+import {PrivateRoute} from 'routes/PrivateRoute';
+// import { HomePage } from '../HomePage';
+import {LoginPage} from 'views/LoginPage';
+import Admin from "containers/Admin/Admin"
 
-class App extends Component {
-	constructor() {
-		super();
-		this.state = {
-			products: [],
-			title: 'E-shop',
-		};
-	};
-
-	componentDidMount() {
-		this.getProducts();
-	};
-
-	getProducts() {
-		axios.get(`${process.env.REACT_APP_API_SERVICE_URL}/products`)
-			.then((res) => {
-				this.setState({products: res.data});
-			})
-			.catch((err) => {
-				console.log(err);
-			});
-	};
-
+class App extends React.Component {
 	render() {
 		return (
-			<div>
-				<NavBar title={this.state.title}/>
+			<div className="jumbotron">
 				<div className="container">
-					<div className="row">
-						<div className="col-md-6">
-							<br/>
-							<Switch>
-								<Route exact path='/' render={() => (
-									<div>
-										<h1>All Products</h1>
-										<hr/>
-										<br/>
-										<ProductsList products={this.state.products}/>
-									</div>
-								)}/>
-								<Route exact path='/about' component={About}/>
-							</Switch>
-						</div>
+					<div className="col-sm-8 col-sm-offset-2">
+						<Router history={history}>
+							<div>
+								<PrivateRoute exact path="/" component={Admin}/>
+								<Route path="/login" component={LoginPage}/>
+							</div>
+						</Router>
 					</div>
 				</div>
 			</div>
-		)
+		);
+	}
+}
+
+function mapStateToProps(state) {
+	const {alert} = state;
+	return {
+		alert
 	};
 }
 
-export default App;
+const connectedApp = connect(mapStateToProps)(App);
+export {connectedApp as App};
