@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Menu } from "@material-ui/icons";
+import { Menu } from "material-ui-icons";
 import {
   withStyles,
   AppBar,
@@ -30,6 +30,7 @@ function Header({ ...props }) {
   const appBarClasses = cx({
     [" " + classes[color]]: color
   });
+  console.log('header props', props);
   return (
     <AppBar className={classes.appBar + appBarClasses}>
       <Toolbar className={classes.container}>
@@ -40,7 +41,7 @@ function Header({ ...props }) {
           </Button>
         </div>
         <Hidden smDown implementation="css">
-          <HeaderLinks />
+          <HeaderLinks handleLogout={props.handleLogout}/>
         </Hidden>
         <Hidden mdUp>
           <IconButton

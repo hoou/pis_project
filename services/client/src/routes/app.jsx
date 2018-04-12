@@ -1,4 +1,4 @@
-import DashboardPage from "views/Dashboard/Dashboard.jsx";
+import DashboardPage from "views/Dashboard";
 // import UserProfile from "views/UserProfile/UserProfile.jsx";
 // import TableList from "views/TableList/TableList.jsx";
 // import Typography from "views/Typography/Typography.jsx";
@@ -14,7 +14,7 @@ import {
 	// BubbleChart,
 	// LocationOn,
 	// Notifications
-} from "@material-ui/icons";
+} from "material-ui-icons";
 
 const appRoutes = [
 	{
@@ -66,7 +66,7 @@ const appRoutes = [
 	//   icon: Notifications,
 	//   component: NotificationsPage
 	// },
-	{redirect: true, path: "/", to: "/dashboard", navbarName: "Redirect"}
+	{redirect: true, path: "/", to: "/dashboard", navbarName: "Administration"}
 ];
 
 export default appRoutes;

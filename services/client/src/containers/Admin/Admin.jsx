@@ -15,70 +15,70 @@ import appStyle from "variables/styles/appStyle.jsx";
 import image from "assets/img/sidebar-3.jpg";
 import logo from "assets/img/reactlogo.png";
 
-this.switchRoutes = (
-	<Switch>
-		{appRoutes.map((prop, key) => {
-			if (prop.redirect)
-				return <Redirect from={prop.path} to={prop.to} key={key}/>;
-			return <Route path={prop.path} component={prop.component} key={key}/>;
-		})}
-	</Switch>
+const switchRoutes = (
+  <Switch>
+    {appRoutes.map((prop, key) => {
+      if (prop.redirect)
+        return <Redirect from={prop.path} to={prop.to} key={key}/>;
+      return <Route path={prop.path} component={prop.component} key={key}/>;
+    })}
+  </Switch>
 );
 
 class Admin extends React.Component {
-	state = {
-		mobileOpen: false
-	};
+  state = {
+    mobileOpen: false
+  };
 
-	handleDrawerToggle = () => {
-		this.setState({mobileOpen: !this.state.mobileOpen});
-	};
+  handleDrawerToggle = () => {
+    this.setState({mobileOpen: !this.state.mobileOpen});
+  };
 
-	componentDidMount() {
-		if (navigator.platform.indexOf('Win') > -1) {
-			// eslint-disable-next-line
-			const ps = new PerfectScrollbar(this.refs.mainPanel);
-		}
-	}
+  componentDidMount() {
+    if (navigator.platform.indexOf('Win') > -1) {
+      // eslint-disable-next-line
+      const ps = new PerfectScrollbar(this.refs.mainPanel);
+    }
+  }
 
-	componentDidUpdate() {
-		this.refs.mainPanel.scrollTop = 0;
-	}
+  componentDidUpdate() {
+    this.refs.mainPanel.scrollTop = 0;
+  }
 
-	render() {
-		const {classes, ...rest} = this.props;
-
-		return (
-			<div className={classes.wrapper}>
-				<Sidebar
-					routes={appRoutes}
-					logoText={"Creative Tim"}
-					logo={logo}
-					image={image}
-					handleDrawerToggle={this.handleDrawerToggle}
-					open={this.state.mobileOpen}
-					color="blue"
-					{...rest}
-				/>
-				<div className={classes.mainPanel} ref="mainPanel">
-					<Header
-						routes={appRoutes}
-						handleDrawerToggle={this.handleDrawerToggle}
-						{...rest}
-					/>
-					<div className={classes.content}>
-						<div className={classes.container}>{this.switchRoutes}</div>
-					</div>
-					<Footer/>
-				</div>
-			</div>
-		);
-
-	}
+  render() {
+    const {classes, ...rest} = this.props;
+    console.log('admin', this.props);
+    return (
+      <div className={classes.wrapper}>
+        <Sidebar
+          routes={appRoutes}
+          logoText={"Creative Tim"}
+          logo={logo}
+          image={image}
+          handleDrawerToggle={this.handleDrawerToggle}
+          open={this.state.mobileOpen}
+          color="blue"
+          {...rest}
+        />
+        <div className={classes.mainPanel} ref="mainPanel">
+          <Header
+            routes={appRoutes}
+            handleDrawerToggle={this.handleDrawerToggle}
+            handleLogout={this.props.handleLogout}
+            {...rest}
+          />
+          <div className={classes.content}>
+            <div className={classes.container}>{switchRoutes}</div>
+          </div>
+          <Footer/>
+        </div>
+      </div>
+    );
+  }
 }
 
 Admin.propTypes = {
-	classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired
 };
 
 export default withStyles(appStyle)(Admin);

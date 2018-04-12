@@ -9,7 +9,7 @@ import {
   Tabs,
   Tab
 } from "material-ui";
-import { BugReport, Code, Cloud } from "@material-ui/icons";
+import { BugReport, Code, Cloud } from "material-ui-icons";
 
 import { Tasks } from "components";
 
