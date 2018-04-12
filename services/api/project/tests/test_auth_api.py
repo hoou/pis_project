@@ -5,7 +5,73 @@ from flask_api import status
 from flask_jwt_extended import decode_token
 
 from project.business import users
-from project.models.user import User
+from project.models.user import User, UserRole
+
+
+def test_status(client):
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
+    user.active = True
+    user.role = UserRole.WORKER
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    r = client.get(
+        '/api/auth/status',
+        headers={'Authorization': f'Bearer {access_token}'}
+    )
+    payload = r.json
+
+    assert r.status_code == status.HTTP_200_OK
+    assert payload['role'] == 'worker'
+
+
+def test_status_not_logged_in(client):
+    r = client.get('/api/auth/status', )
+    payload = r.json
+
+    assert r.status_code == status.HTTP_403_FORBIDDEN
+    assert payload['message'] == 'You do not have permission to perform this action.'
+
+
+def test_status_not_active(client):
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
+    user.role = UserRole.ADMIN
+    user.active = True
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    user.active = False
+
+    assert user.active is False
+
+    r = client.get(
+        '/api/auth/status',
+        headers={'Authorization': f'Bearer {access_token}'}
+    )
+    payload = r.json
+
+    assert r.status_code == status.HTTP_403_FORBIDDEN
+    assert payload['message'] == 'You have not active account.'
 
 
 def test_user_registration(client):
