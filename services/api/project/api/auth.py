@@ -16,6 +16,21 @@ from project.models.user import User
 ns = api.namespace('auth')
 
 
+@ns.route('/status')
+class UserStatus(Resource):
+    @jwt_required
+    @active_required_if_logged_in
+    def get(self):
+        user_id = get_jwt_identity()
+
+        user = users.get(user_id)
+
+        if not user.active:
+            raise UserNotActive
+
+        return {'role': user.role.name.lower()}
+
+
 @ns.route('/register')
 class UserRegistration(Resource):
     def post(self):
