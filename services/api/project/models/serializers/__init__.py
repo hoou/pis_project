@@ -4,6 +4,12 @@ from flask_restplus import fields
 
 from project import api
 
+
+class IntEnumNameField(fields.Raw):
+    def format(self, value: IntEnum):
+        return value.name.lower().replace('_', ' ')
+
+
 user = api.model('User', {
     'id': fields.Integer(),
     'email': fields.String(required=True),
@@ -59,16 +65,10 @@ order_item = api.model('OrderItem', {
     'product': fields.Nested(product)
 })
 
-
-class OrderStatusField(fields.Raw):
-    def format(self, value: IntEnum):
-        return value.name.lower().replace('_', ' ')
-
-
 order = api.model('Order', {
     'id': fields.Integer(),
     'status': fields.Integer(required=True),
-    'status_name': OrderStatusField(attribute='status'),
+    'status_name': IntEnumNameField(attribute='status'),
     'total': fields.Float(required=True),
     'created': fields.DateTime(required=True),
     'updated': fields.DateTime(required=True),
