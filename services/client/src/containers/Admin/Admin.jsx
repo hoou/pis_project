@@ -47,7 +47,6 @@ class Admin extends React.Component {
 
   render() {
     const {classes, ...rest} = this.props;
-    console.log('admin', this.props);
     return (
       <div className={classes.wrapper}>
         <Sidebar

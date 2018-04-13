@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Menu } from "material-ui-icons";
+import {Menu} from "material-ui-icons";
 import {
   withStyles,
   AppBar,
@@ -15,7 +15,7 @@ import headerStyle from "variables/styles/headerStyle.jsx";
 
 import HeaderLinks from "./HeaderLinks";
 
-function Header({ ...props }) {
+function Header({...props}) {
   function makeBrand() {
     var name;
     props.routes.map((prop, key) => {
@@ -26,7 +26,8 @@ function Header({ ...props }) {
     });
     return name;
   }
-  const { classes, color } = props;
+
+  const {classes, color} = props;
   const appBarClasses = cx({
     [" " + classes[color]]: color
   });
@@ -50,7 +51,7 @@ function Header({ ...props }) {
             aria-label="open drawer"
             onClick={props.handleDrawerToggle}
           >
-            <Menu />
+            <Menu/>
           </IconButton>
         </Hidden>
       </Toolbar>
