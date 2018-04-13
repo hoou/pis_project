@@ -36,10 +36,12 @@ def seed_db():
     user.role = UserRole.ADMIN
 
     from project.business import categories
-    category = categories.add(Category('Men'))
+    category1 = categories.add(Category('Traktory'))
+    category2 = categories.add(Category('Vlečky'))
+    category3 = categories.add(Category('Kultivátory'))
 
-    categories.add_product(category, Product(name='Super product', price=19.99))
-    categories.add_product(category, Product(name='Very bad product', price=2.99))
+    categories.add_product(category1, Product(name='Super product', price=19.99))
+    categories.add_product(category1, Product(name='Very bad product', price=2.99))
 
 
 @cli.command()
