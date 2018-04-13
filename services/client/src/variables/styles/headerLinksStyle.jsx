@@ -27,7 +27,8 @@ const headerLinksStyle = theme => ({
   linkText: {
     zIndex: "4",
     ...defaultFont,
-    fontSize: "14px"
+    fontSize: "14px",
+    color: "#a9afbb"
   },
   buttonLink: {
     top: "-6px",

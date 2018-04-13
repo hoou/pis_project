@@ -15,7 +15,7 @@ import {
 
 const headerStyle = theme => ({
   appBar: {
-    top: "-30px",
+    top: "-15px",
     [theme.breakpoints.down("md")]: {
       top: "-15px"
     },
