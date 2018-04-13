@@ -7,8 +7,8 @@ import LoginForm from "forms/LoginForm/LoginForm";
 import {Redirect} from "react-router-dom";
 import {Button, Grid, withStyles} from "material-ui";
 import ItemGrid from "components/Grid/ItemGrid";
-import RegularCard from "../components/Cards/RegularCard";
-import SnackbarContent from "../components/Snackbar/SnackbarContent";
+import RegularCard from "../../components/Cards/RegularCard";
+import SnackbarContent from "../../components/Snackbar/SnackbarContent";
 
 const styles = theme => ({
   root: {

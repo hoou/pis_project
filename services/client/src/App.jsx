@@ -4,7 +4,7 @@ import {connect} from 'react-redux';
 
 import {history} from 'helpers';
 import {PrivateRoute} from 'routes/PrivateRoute';
-import {LoginPage} from 'views/LoginPage';
+import {LoginPage} from 'views/LoginPage/LoginPage';
 import Admin from "containers/Admin/Admin"
 import authActions from "actions/auth.actions";
 
@@ -45,7 +45,7 @@ class App extends React.Component {
 }
 
 function mapStateToProps(state) {
-  const {auth} = state;
+  const {auth, categories} = state;
   return {
     loggedIn: auth.loggedIn,
     checkedStatus: auth.checkedStatus
