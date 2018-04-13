@@ -3,12 +3,22 @@ import {authHeader} from 'helpers';
 import {apiConstants} from 'constants/api.constants'
 
 export const categoriesService = {
+  add,
   getAll,
-  getById,
-  update,
-  delete: _delete
+  // getById,
+  // update,
+  remove
 };
 
+function add(name) {
+  const requestOptions = {
+    method: 'POST',
+    headers: {...authHeader(), 'Content-Type': 'application/json'},
+    body: JSON.stringify({name: name})
+  };
+
+  return fetch(apiConstants.URL + '/categories/', requestOptions).then(handleResponse);
+}
 
 function getAll() {
   const requestOptions = {
@@ -16,36 +26,35 @@ function getAll() {
     headers: authHeader()
   };
 
-  return fetch(apiConstants.URL + '/categories', requestOptions).then(handleResponse);
+  return fetch(apiConstants.URL + '/categories/', requestOptions).then(handleResponse);
 }
 
-function getById(id) {
-  const requestOptions = {
-    method: 'GET',
-    headers: authHeader()
-  };
+// function getById(id) {
+//   const requestOptions = {
+//     method: 'GET',
+//     headers: authHeader()
+//   };
+//
+//   return fetch('/users/' + id, requestOptions).then(handleResponse);
+// }
 
-  return fetch('/users/' + id, requestOptions).then(handleResponse);
-}
+// function update(user) {
+//   const requestOptions = {
+//     method: 'PUT',
+//     headers: {...authHeader(), 'Content-Type': 'application/json'},
+//     body: JSON.stringify(user)
+//   };
+//
+//   return fetch('/users/' + user.id, requestOptions).then(handleResponse);
+// }
 
-function update(user) {
-  const requestOptions = {
-    method: 'PUT',
-    headers: {...authHeader(), 'Content-Type': 'application/json'},
-    body: JSON.stringify(user)
-  };
-
-  return fetch('/users/' + user.id, requestOptions).then(handleResponse);
-}
-
-// prefixed function name with underscore because delete is a reserved word in javascript
-function _delete(id) {
+function remove(id) {
   const requestOptions = {
     method: 'DELETE',
     headers: authHeader()
   };
 
-  return fetch('/users/' + id, requestOptions).then(handleResponse);
+  return fetch(apiConstants.URL + '/categories/' + id, requestOptions).then(handleResponse);
 }
 
 function handleResponse(response) {

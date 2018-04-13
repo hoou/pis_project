@@ -58,6 +58,7 @@ function login(email, password) {
 }
 
 function logout() {
+  console.log("service logout - davam prec tokeny");
   // remove user from local storage to log user out
   localStorage.removeItem('access_token');
   localStorage.removeItem('refresh_token');

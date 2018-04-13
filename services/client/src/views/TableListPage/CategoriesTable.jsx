@@ -1,5 +1,5 @@
 import React from "react";
-import Table from "components/Table/Table";
+import EditTable from "components/Table/EditTable";
 import {connect} from "react-redux";
 import {categoriesActions} from "actions/categories.actions";
 import _ from "lodash"
@@ -8,7 +8,13 @@ class CategoriesTable extends React.Component {
   constructor(props) {
     super(props);
 
-    this.props.dispatch(categoriesActions.getAll())
+    this.props.dispatch(categoriesActions.getAll());
+
+    this.handleRemove = this.handleRemove.bind(this);
+  }
+
+  handleRemove(id) {
+    this.props.dispatch(categoriesActions.remove(id))
   }
 
   render() {
@@ -20,18 +26,18 @@ class CategoriesTable extends React.Component {
         ===>
       [["1", "Traktory"], ["2", "Kultivatory"]]
        */
-      let mappedItems = _.mapValues(
-        {items},
-        currentArray => _.map(_.map(currentArray, obj => _.mapValues(obj, val => val.toString())), _.values)
-      );
-      tableData = mappedItems.items
+      tableData = _.map(items, item => _.map([..._.values(item)], item => item.toString()));
+
+      // orderBy
+      // tableData = _.orderBy(tableData, item => _.toInteger(item[0]), "desc");
     }
 
     return (
-      <Table
+      <EditTable
         tableHeaderColor="primary"
-        tableHead={["ID", "Name"]}
+        tableHead={["#", "Name"]}
         tableData={tableData}
+        handleRemove={this.handleRemove}
       />
     )
   }

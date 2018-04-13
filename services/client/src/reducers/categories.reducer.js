@@ -1,49 +1,43 @@
 import {categoriesConstants} from 'constants/categories.constants';
 
-export function categoriesReducer(state = {}, action) {
+const initialState = {
+  sentRequest: false,
+  items: [],
+};
+
+export function categoriesReducer(state = initialState, action) {
   switch (action.type) {
     case categoriesConstants.GETALL_REQUEST:
       return {
-        loading: true
+        ...state,
+        sentRequest: true
       };
     case categoriesConstants.GETALL_SUCCESS:
       return {
+        ...state,
+        sentRequest: false,
         items: action.categories
       };
     case categoriesConstants.GETALL_FAILURE:
       return {
-        error: action.error
+        ...state,
+        sentRequest: false,
       };
-    // case usersConstants.DELETE_REQUEST:
-    //   // add 'deleting:true' property to user being deleted
-    //   return {
-    //     ...state,
-    //     items: state.items.map(user =>
-    //       user.id === action.id
-    //         ? {...user, deleting: true}
-    //         : user
-    //     )
-    //   };
-    // case usersConstants.DELETE_SUCCESS:
-    //   // remove deleted user from state
-    //   return {
-    //     items: state.items.filter(user => user.id !== action.id)
-    //   };
-    // case usersConstants.DELETE_FAILURE:
-    //   // remove 'deleting:true' property and add 'deleteError:[error]' property to user
-    //   return {
-    //     ...state,
-    //     items: state.items.map(user => {
-    //       if (user.id === action.id) {
-    //         // make copy of user without 'deleting:true' property
-    //         const {deleting, ...userCopy} = user;
-    //         // return copy of user with 'deleteError:[error]' property
-    //         return {...userCopy, deleteError: action.error};
-    //       }
-    //
-    //       return user;
-    //     })
-    //   };
+    case categoriesConstants.ADD_REQUEST:
+      return {
+        ...state,
+        sentRequest: true
+      };
+    case categoriesConstants.ADD_SUCCESS:
+      return {
+        ...state,
+        sentRequest: false,
+      };
+    case categoriesConstants.ADD_FAILURE:
+      return {
+        ...state,
+        sentRequest: false,
+      };
     default:
       return state
   }

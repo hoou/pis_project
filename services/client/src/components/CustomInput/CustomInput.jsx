@@ -20,8 +20,6 @@ function CustomInput({...props}) {
     type
   } = props;
 
-  console.log("error", error);
-
   const labelClasses = cx({
     [" " + classes.labelRootError]: error,
     [" " + classes.labelRootSuccess]: success && !error

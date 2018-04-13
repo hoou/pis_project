@@ -1,7 +1,5 @@
 import {authConstants} from 'constants/auth.constants';
 
-let access_token = JSON.parse(localStorage.getItem('access_token'));
-
 const initialState = {
   checkedStatus: false,
   loggedIn: false,
@@ -35,16 +33,13 @@ export function authReducer(state = initialState, action) {
       return {
         ...state,
         loggedIn: true,
-        error: false,
         tokens: action.tokens,
         loggingIn: false
       };
     case authConstants.LOGIN_FAILURE:
       return {
         ...state,
-        loggingIn: false,
-        error: true,
-        errorMessage: action.error
+        loggingIn: false
       };
     case authConstants.LOGOUT:
       return {

@@ -1,6 +1,7 @@
 import {authConstants} from 'constants/auth.constants';
 import {authService} from 'services/auth.service';
 import {history} from 'helpers';
+import {alertActions} from "actions/alert.actions";
 
 const authActions = {
   status,
@@ -22,7 +23,7 @@ function status() {
           if (role === "admin" || role === "worker") {
             dispatch(success(role))
           } else {
-            dispatch(failure())
+            dispatch(failure());
           }
         })
         .catch(() => {
@@ -47,10 +48,12 @@ function login(email, password) {
       .then(
         tokens => {
           dispatch(success(tokens));
+          dispatch(alertActions.clear());
           history.push('/');
         },
         error => {
           dispatch(failure(error));
+          dispatch(alertActions.error(error));
         }
       );
   };
@@ -69,6 +72,7 @@ function login(email, password) {
 }
 
 function logout() {
+  console.log("akcia logout");
   authService.logout();
   return {type: authConstants.LOGOUT};
 }

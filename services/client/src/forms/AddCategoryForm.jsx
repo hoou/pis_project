@@ -1,9 +1,11 @@
 import React from 'react'
 import {Field, reduxForm} from 'redux-form'
-import {TextField, withStyles} from "material-ui";
+import {withStyles} from "material-ui";
 import RegularButton from "components/CustomButtons/Button"
 import PropTypes from "prop-types"
-import CustomInput from "../../components/CustomInput/CustomInput";
+import CustomInput from "../components/CustomInput/CustomInput";
+import {connect} from "react-redux";
+import {categoriesActions} from "../actions/categories.actions";
 
 const styles = theme => ({
   button: {
@@ -16,19 +18,14 @@ const styles = theme => ({
 
 const validate = values => {
   const errors = {};
-  const requiredFields = ['email', 'password'];
+  const requiredFields = ['name'];
   requiredFields.forEach(field => {
     if (!values[field]) {
       errors[field] = 'Required'
     }
   });
-  if (values.email && !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
-    errors.email = 'Invalid email address'
-  }
   return errors
 };
-
-// const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 // const asyncValidate = (values /*, dispatch */) => {
 // 	return sleep(1000).then(() => {
@@ -46,8 +43,6 @@ const renderTextField = ({input, label, meta: {touched, error}, ...custom}) => {
   //          {...input}
   //         {...custom}
   // />
-
-  console.log("render custom", custom);
 
   return <CustomInput
     labelText={label}
@@ -72,33 +67,47 @@ const renderTextField = ({input, label, meta: {touched, error}, ...custom}) => {
 
 };
 
-let LoginForm = props => {
-  const {handleSubmit, classes, loggingIn} = props;
+function submit(values, dispatch, props) {
+  dispatch(categoriesActions.add(values.name));
+}
+
+let AddCategoryForm = props => {
+  const {classes, sentRequest, dontRenderSubmit} = props;
+
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={(e) => e.preventDefault()}>
       <div>
-        {/*<Field name="email" component={renderTextField} label="Email"/>*/}
-        <Field name="email" component={renderTextField} label="Email"/>
+        <Field name="name" component={renderTextField} label="Name"/>
       </div>
       <div>
-        <Field name="password" type="password" component={renderTextField} label="Password"/>
-      </div>
-      <div>
-        <RegularButton variant="raised" color="primary" className={classes.button}
-                       type="submit">{loggingIn ? 'Logging in...' : 'Log in'}</RegularButton>
+        {dontRenderSubmit
+          ? null
+          : <RegularButton variant="raised" color="primary" className={classes.button} type="submit">
+            {sentRequest ? 'Adding new category...' : 'Add new category'}
+          </RegularButton>
+        }
       </div>
     </form>
   )
 };
 
-LoginForm.propTypes = {
+AddCategoryForm.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
+function mapStateToProps(state) {
+  const {sentRequest} = state.categories;
+  return {
+    sentRequest
+  };
+}
+
+
 export default reduxForm({
-  form: 'LoginForm',  // a unique identifier for this form
+  form: 'AddCategoryForm',  // a unique identifier for this form
+  onSubmit: submit,
   validate
   // asyncValidate
 })(
-  withStyles(styles)(LoginForm)
+  connect(mapStateToProps)(withStyles(styles)(AddCategoryForm))
 )

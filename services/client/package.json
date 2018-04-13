@@ -22,7 +22,8 @@
 		"redux-promise": "^0.5.3",
 		"redux-logger": "^3.0.6",
 		"redux-thunk": "^2.2.0",
-		"lodash": "^4.17.5"
+		"lodash": "^4.17.5",
+		"jwt-decode": "^2.2.0"
 	},
 	"scripts": {
 		"start": "react-scripts start",
