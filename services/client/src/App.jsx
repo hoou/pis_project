@@ -1,59 +1,56 @@
-import React, {Component} from 'react';
-import axios from 'axios';
-import {Route, Switch} from 'react-router-dom'
+import React from 'react';
+import {Router, Route, Switch} from 'react-router-dom';
+import {connect} from 'react-redux';
 
-import ProductsList from "./components/ProductsList";
-import About from "./components/About";
-import NavBar from "./components/Navbar";
+import {history} from 'helpers';
+import {PrivateRoute} from 'routes/PrivateRoute';
+import {LoginPage} from 'views/LoginPage';
+import Admin from "containers/Admin/Admin"
+import authActions from "actions/auth.actions";
 
-class App extends Component {
-	constructor() {
-		super();
-		this.state = {
-			products: [],
-			title: 'E-shop',
-		};
-	};
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.props.dispatch(authActions.status());
 
-	componentDidMount() {
-		this.getProducts();
-	};
+    this.handleLogout = this.handleLogout.bind(this);
+  }
 
-	getProducts() {
-		axios.get(`${process.env.REACT_APP_API_SERVICE_URL}/products`)
-			.then((res) => {
-				this.setState({products: res.data});
-			})
-			.catch((err) => {
-				console.log(err);
-			});
-	};
+  handleLogout() {
+    console.log("handle logout", this.props);
+    this.props.dispatch(authActions.logout())
+  }
 
-	render() {
-		return (
-			<div>
-				<NavBar title={this.state.title}/>
-				<div className="container">
-					<div className="row">
-						<div className="col-md-6">
-							<br/>
-							<Switch>
-								<Route exact path='/' render={() => (
-									<div>
-										<h1>All Products</h1>
-										<hr/>
-										<br/>
-										<ProductsList products={this.state.products}/>
-									</div>
-								)}/>
-								<Route exact path='/about' component={About}/>
-							</Switch>
-						</div>
-					</div>
-				</div>
-			</div>
-		)
-	};
+  render() {
+    return this.props.checkedStatus ? (
+      <div className="jumbotron">
+        <div className="container">
+          <div className="col-sm-8 col-sm-offset-2">
+            <Router history={history}>
+              <Switch>
+                <Route exact path="/login" component={LoginPage}/>
+                <PrivateRoute
+                  loggedIn={this.props.loggedIn}
+                  path="/"
+                  component={Admin}
+                  handleLogout={this.handleLogout}
+                />
+              </Switch>
+            </Router>
+          </div>
+        </div>
+      </div>
+    ) : (<div/>);
+  }
 }
 
-export default App;
+function mapStateToProps(state) {
+  const {auth} = state;
+  return {
+    loggedIn: auth.loggedIn,
+    checkedStatus: auth.checkedStatus
+  };
+}
+
+const connectedApp = connect(mapStateToProps)(App);
+export {connectedApp as App};
