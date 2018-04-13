@@ -33,7 +33,7 @@ import {
 
 import dashboardStyle from "variables/styles/dashboardStyle";
 
-class Dashboard extends React.Component {
+class DashboardPage extends React.Component {
   state = {
     value: 0
   };
@@ -188,8 +188,8 @@ class Dashboard extends React.Component {
   }
 }
 
-Dashboard.propTypes = {
+DashboardPage.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-export default withStyles(dashboardStyle)(Dashboard);
+export default withStyles(dashboardStyle)(DashboardPage);
