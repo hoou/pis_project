@@ -13,13 +13,11 @@ import {dialogsActions} from "actions/dialogs.actions";
 const FormDialog = props => {
   const {title, contentText, form, dispatch, open} = props;
 
-  const handleOpen = () => dispatch(dialogsActions.open());
   const handleClose = () => dispatch(dialogsActions.close());
   const handleSubmit = () => dispatch(submit(form.type.Naked.name));
 
   return (
     <div>
-      <Button color="primary" onClick={handleOpen}>{title}</Button>
       <Dialog
         open={open}
         onClose={handleClose}

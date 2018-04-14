@@ -3,8 +3,11 @@ import {Grid, withStyles} from "material-ui";
 
 import {RegularCard, ItemGrid} from "components/index";
 import {CategoriesTable} from "./CategoriesTable";
-import FormDialog from "../../components/FormDialog/FormDialog";
-import AddCategoryForm from "../../forms/AddCategoryForm";
+import FormDialog from "components/FormDialog/FormDialog";
+import {dialogsActions} from "actions/dialogs.actions";
+import AddCategoryForm from "forms/AddCategoryForm";
+import {connect} from "react-redux";
+import Button from "components/CustomButtons/Button";
 
 const styles = theme => ({
   button: {
@@ -22,20 +25,27 @@ const styles = theme => ({
 });
 
 
-const TableListPage = () => (
-  <Grid container>
-    <ItemGrid xs={12} sm={12} md={12}>
-      <RegularCard
-        cardTitle="Categories"
-        content={
-          <CategoriesTable/>
-        }
-        footer={
-          <FormDialog title="Add new category" form={<AddCategoryForm dontRenderSubmit/>}/>
-        }
-      />
-    </ItemGrid>
-  </Grid>
-);
+const TableListPage = (props) => {
+  const handleOpen = () => props.dispatch(dialogsActions.open());
 
-export default withStyles(styles)(TableListPage);
+  return (
+    <Grid container>
+      <ItemGrid xs={12} sm={12} md={12}>
+        <RegularCard
+          cardTitle="Categories"
+          content={
+            <CategoriesTable/>
+          }
+          footer={
+            <div>
+              <Button color="primary" onClick={handleOpen}>Add new category</Button>
+              <FormDialog title="Add new category" form={<AddCategoryForm dontRenderSubmit/>}/>
+            </div>
+          }
+        />
+      </ItemGrid>
+    </Grid>
+  )
+};
+
+export default connect()(withStyles(styles)(TableListPage));
