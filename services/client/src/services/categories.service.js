@@ -1,6 +1,7 @@
 // import fetch from 'cross-fetch'
 import {authHeader} from 'helpers';
 import {apiConstants} from 'constants/api.constants'
+import {handleResponse} from "./helpers/handleResponse";
 
 export const categoriesService = {
   add,
@@ -55,12 +56,4 @@ function remove(id) {
   };
 
   return fetch(apiConstants.URL + '/categories/' + id, requestOptions).then(handleResponse);
-}
-
-function handleResponse(response) {
-  if (!response.ok) {
-    return Promise.reject(response.statusText);
-  }
-
-  return response.json();
 }

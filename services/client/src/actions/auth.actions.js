@@ -19,7 +19,8 @@ function status() {
       dispatch(failure());
     else
       authService.status()
-        .then(role => {
+        .then(data => {
+          const role = data["role"];
           if (role === "admin" || role === "worker") {
             dispatch(success(role))
           } else {
