@@ -2,6 +2,7 @@ import React from "react";
 import EditTable from "components/Table/EditTable";
 import {connect} from "react-redux";
 import {categoriesActions} from "actions/categories.actions";
+import {dialogsActions} from "actions/dialogs.actions";
 import _ from "lodash"
 
 class CategoriesTable extends React.Component {
@@ -11,10 +12,15 @@ class CategoriesTable extends React.Component {
     this.props.dispatch(categoriesActions.getAll());
 
     this.handleRemove = this.handleRemove.bind(this);
+    this.handleEdit = this.handleEdit.bind(this);
   }
 
   handleRemove(id) {
     this.props.dispatch(categoriesActions.remove(id))
+  }
+
+  handleEdit(id) {
+    this.props.dispatch(dialogsActions.showEdit("category", id))
   }
 
   render() {
@@ -29,7 +35,7 @@ class CategoriesTable extends React.Component {
       tableData = _.map(items, item => _.map([..._.values(item)], item => item.toString()));
 
       // orderBy
-      // tableData = _.orderBy(tableData, item => _.toInteger(item[0]), "desc");
+      tableData = _.orderBy(tableData, item => _.toInteger(item[0]), "asc");
     }
 
     return (
@@ -38,6 +44,7 @@ class CategoriesTable extends React.Component {
         tableHead={["#", "Name"]}
         tableData={tableData}
         handleRemove={this.handleRemove}
+        handleEdit={this.handleEdit}
       />
     )
   }

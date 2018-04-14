@@ -68,46 +68,55 @@ const renderTextField = ({input, label, meta: {touched, error}, ...custom}) => {
 };
 
 function submit(values, dispatch, props) {
-  dispatch(categoriesActions.add(values.name));
+  if (props.data) {
+    dispatch(categoriesActions.update(props.id, values))
+  } else {
+    dispatch(categoriesActions.add(values.name));
+  }
 }
 
-let AddCategoryForm = props => {
-  const {classes, sentRequest, dontRenderSubmit} = props;
+class CategoryForm extends React.Component {
+  componentWillMount() {
+    const {data, change} = this.props;
 
-  return (
-    <form onSubmit={(e) => e.preventDefault()}>
-      <div>
-        <Field name="name" component={renderTextField} label="Name"/>
-      </div>
-      <div>
-        {dontRenderSubmit
-          ? null
-          : <RegularButton variant="raised" color="primary" className={classes.button} type="submit">
-            {sentRequest ? 'Adding new category...' : 'Add new category'}
-          </RegularButton>
-        }
-      </div>
-    </form>
-  )
-};
+    if (data) {
+      change("name", data.name)
+    }
+  }
 
-AddCategoryForm.propTypes = {
+  render() {
+    const {classes, dontRenderSubmit} = this.props;
+
+    return (
+      <form onSubmit={(e) => e.preventDefault()}>
+        <div>
+          <Field name="name" component={renderTextField} label="Name"/>
+        </div>
+        <div>
+          {dontRenderSubmit
+            ? null
+            : (
+              <RegularButton variant="raised" color="primary" className={classes.button} type="submit">
+                Send
+              </RegularButton>
+            )
+          }
+        </div>
+      </form>
+    )
+  }
+}
+
+CategoryForm.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-function mapStateToProps(state) {
-  const {sentRequest} = state.categories;
-  return {
-    sentRequest
-  };
-}
-
+const form = 'CategoryForm';
 
 export default reduxForm({
-  form: 'AddCategoryForm',  // a unique identifier for this form
+  form,  // a unique identifier for this form
   onSubmit: submit,
   validate
   // asyncValidate
-})(
-  connect(mapStateToProps)(withStyles(styles)(AddCategoryForm))
-)
+})
+(connect()(withStyles(styles)(CategoryForm)))

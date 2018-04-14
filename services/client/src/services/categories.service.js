@@ -7,7 +7,7 @@ export const categoriesService = {
   add,
   getAll,
   // getById,
-  // update,
+  update,
   remove
 };
 
@@ -39,15 +39,15 @@ function getAll() {
 //   return fetch('/users/' + id, requestOptions).then(handleResponse);
 // }
 
-// function update(user) {
-//   const requestOptions = {
-//     method: 'PUT',
-//     headers: {...authHeader(), 'Content-Type': 'application/json'},
-//     body: JSON.stringify(user)
-//   };
-//
-//   return fetch('/users/' + user.id, requestOptions).then(handleResponse);
-// }
+function update(id, values) {
+  const requestOptions = {
+    method: 'PUT',
+    headers: {...authHeader(), 'Content-Type': 'application/json'},
+    body: JSON.stringify(values)
+  };
+
+  return fetch(apiConstants.URL + '/categories/' + id, requestOptions).then(handleResponse);
+}
 
 function remove(id) {
   const requestOptions = {

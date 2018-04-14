@@ -1,4 +1,5 @@
 export const dialogsConstants = {
-    OPEN: 'MODALS_OPEN',
-    CLOSE: 'MODALS_CLOSE',
+    SHOW_NEW: 'DIALOGS_SHOW_NEW',
+    SHOW_EDIT: 'DIALOGS_SHOW_EDIT',
+    CLOSE: 'DIALOGS_CLOSE',
 };

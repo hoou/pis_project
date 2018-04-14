@@ -11,10 +11,11 @@ import {connect} from "react-redux";
 import {dialogsActions} from "actions/dialogs.actions";
 
 const FormDialog = props => {
-  const {title, contentText, form, dispatch, open} = props;
+  const {title, edit, contentText, form, dispatch, open} = props;
 
   const handleClose = () => dispatch(dialogsActions.close());
-  const handleSubmit = () => dispatch(submit(form.type.Naked.name));
+  const handleClickCancel = handleClose;
+  const handleClickSend = () => dispatch(submit(form.type.Naked.name));
 
   return (
     <div>
@@ -23,7 +24,7 @@ const FormDialog = props => {
         onClose={handleClose}
         aria-labelledby="form-dialog-title"
       >
-        <DialogTitle id="form-dialog-title">{title}</DialogTitle>
+        <DialogTitle id="form-dialog-title">{edit ? "Edit " : "Add new "}{title}</DialogTitle>
         <DialogContent>
           <DialogContentText>
             {contentText}
@@ -31,10 +32,10 @@ const FormDialog = props => {
           {form}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="primary">
+          <Button onClick={handleClickCancel} color="primary">
             Cancel
           </Button>
-          <Button onClick={handleSubmit} color="primary">
+          <Button onClick={handleClickSend} color="primary">
             Send
           </Button>
         </DialogActions>
@@ -44,9 +45,9 @@ const FormDialog = props => {
 };
 
 function mapStateToProps(state) {
-  const {open} = state.dialogs;
+  const {open, title, edit} = state.dialogs;
   return {
-    open
+    open, title, edit
   }
 }
 

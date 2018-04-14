@@ -1,11 +1,12 @@
 import React from "react";
 import {Grid, withStyles} from "material-ui";
+import _ from "lodash"
 
 import {RegularCard, ItemGrid} from "components/index";
 import {CategoriesTable} from "./CategoriesTable";
 import FormDialog from "components/FormDialog/FormDialog";
 import {dialogsActions} from "actions/dialogs.actions";
-import AddCategoryForm from "forms/AddCategoryForm";
+import CategoryForm from "forms/CategoryForm";
 import {connect} from "react-redux";
 import Button from "components/CustomButtons/Button";
 
@@ -26,7 +27,9 @@ const styles = theme => ({
 
 
 const TableListPage = (props) => {
-  const handleOpen = () => props.dispatch(dialogsActions.open());
+  const {dispatch, edit, editId, categories} = props;
+
+  const handleClickAddNewCategory = () => dispatch(dialogsActions.showNew("category"));
 
   return (
     <Grid container>
@@ -38,8 +41,14 @@ const TableListPage = (props) => {
           }
           footer={
             <div>
-              <Button color="primary" onClick={handleOpen}>Add new category</Button>
-              <FormDialog title="Add new category" form={<AddCategoryForm dontRenderSubmit/>}/>
+              <Button color="primary" onClick={handleClickAddNewCategory}>Add new category</Button>
+              <FormDialog form={
+                <CategoryForm
+                  dontRenderSubmit
+                  data={edit ? _.find(categories, o => o.id === editId) : null}
+                  id={editId}
+                />
+              }/>
             </div>
           }
         />
@@ -48,4 +57,12 @@ const TableListPage = (props) => {
   )
 };
 
-export default connect()(withStyles(styles)(TableListPage));
+const mapStateToProps = state => {
+  const {edit, editId} = state.dialogs;
+  const {items} = state.categories;
+  return {
+    edit, editId, categories: items
+  }
+};
+
+export default connect(mapStateToProps)(withStyles(styles)(TableListPage));

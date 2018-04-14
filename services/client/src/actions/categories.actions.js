@@ -6,7 +6,8 @@ import {dialogsActions} from "./dialogs.actions";
 export const categoriesActions = {
   getAll,
   add,
-  remove
+  remove,
+  update
 };
 
 function getAll() {
@@ -43,14 +44,13 @@ function add(name) {
           dispatch(success());
           dispatch(alertActions.success(data.message));
           dispatch(categoriesActions.getAll());
-          dispatch(dialogsActions.close())
         },
         error => {
           dispatch(failure(error));
           dispatch(alertActions.error(error));
-          dispatch(dialogsActions.close());
         }
-      );
+      )
+      .finally(() => dispatch(dialogsActions.close()));
   };
 
   function request() {
@@ -68,31 +68,27 @@ function add(name) {
 
 function remove(id) {
   return dispatch => {
-    // dispatch(request(id));
-
     categoriesService.remove(id)
       .then(
         data => {
           dispatch(alertActions.success(data["message"]));
           dispatch(categoriesActions.getAll())
-          // dispatch(success(data["message"]));
         },
-        error => {
-          dispatch(alertActions.error(error));
-          // dispatch(failure(error));
-        }
+        error => dispatch(alertActions.error(error))
       );
   };
+}
 
-  // function request() {
-  //   return {type: categoriesConstants.DELETE_REQUEST}
-  // }
-  //
-  // function success(message) {
-  //   return {type: categoriesConstants.DELETE_SUCCESS, message}
-  // }
-  //
-  // function failure(error) {
-  //   return {type: categoriesConstants.DELETE_FAILURE, error}
-  // }
+function update(id, values) {
+  return dispatch => {
+    categoriesService.update(id, values)
+      .then(
+        data => {
+          dispatch(alertActions.success(data["message"]));
+          dispatch(categoriesActions.getAll())
+        },
+        error => dispatch(alertActions.error(error))
+      )
+      .finally(() => dispatch(dialogsActions.close()))
+  }
 }

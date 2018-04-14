@@ -53,7 +53,7 @@ class App extends React.Component {
 }
 
 function mapStateToProps(state) {
-  const {auth, categories} = state;
+  const {auth} = state;
   return {
     loggedIn: auth.loggedIn,
     checkedStatus: auth.checkedStatus

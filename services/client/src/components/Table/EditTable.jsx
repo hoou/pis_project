@@ -17,7 +17,7 @@ import {Close, Edit} from "material-ui-icons";
 
 
 function EditTable({...props}) {
-  const {classes, tableHead, tableData, tableHeaderColor, handleRemove} = props;
+  const {classes, tableHead, tableData, tableHeaderColor, handleRemove, handleEdit} = props;
   return (
     <div className={classes.tableResponsive}>
       <Table className={classes.table}>
@@ -64,6 +64,7 @@ function EditTable({...props}) {
                     <IconButton
                       aria-label="Edit"
                       className={classes.tableActionButton}
+                      onClick={() => handleEdit(_.toInteger(prop[0]))}
                     >
                       <Edit
                         className={
