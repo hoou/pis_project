@@ -12,57 +12,48 @@ export const categoriesActions = {
 
 function getAll() {
   return dispatch => {
-    dispatch(request());
-
     categoriesService.getAll()
       .then(
         categories => dispatch(success(categories)),
-        error => dispatch(failure(error))
+        error => {
+          dispatch(alertActions.error(error));
+          dispatch(failure())
+        }
       );
   };
-
-  function request() {
-    return {type: categoriesConstants.GETALL_REQUEST}
-  }
 
   function success(categories) {
     return {type: categoriesConstants.GETALL_SUCCESS, categories}
   }
 
-  function failure(error) {
-    return {type: categoriesConstants.GETALL_FAILURE, error}
+  function failure() {
+    return {type: categoriesConstants.GETALL_FAILURE}
   }
 }
 
 function add(name) {
   return dispatch => {
-    dispatch(request(name));
-
     categoriesService.add(name)
       .then(
         data => {
-          dispatch(success());
           dispatch(alertActions.success(data.message));
           dispatch(categoriesActions.getAll());
+          dispatch(success());
         },
         error => {
-          dispatch(failure(error));
           dispatch(alertActions.error(error));
+          dispatch(failure());
         }
       )
       .finally(() => dispatch(dialogsActions.close()));
   };
 
-  function request() {
-    return {type: categoriesConstants.ADD_REQUEST}
-  }
-
   function success() {
     return {type: categoriesConstants.ADD_SUCCESS}
   }
 
-  function failure(error) {
-    return {type: categoriesConstants.ADD_FAILURE, error}
+  function failure() {
+    return {type: categoriesConstants.ADD_FAILURE}
   }
 }
 
@@ -72,11 +63,23 @@ function remove(id) {
       .then(
         data => {
           dispatch(alertActions.success(data["message"]));
-          dispatch(categoriesActions.getAll())
+          dispatch(categoriesActions.getAll());
+          dispatch(success());
         },
-        error => dispatch(alertActions.error(error))
+        error => {
+          dispatch(alertActions.error(error));
+          dispatch(failure());
+        }
       );
   };
+
+  function success() {
+    return {type: categoriesConstants.REMOVE_SUCCESS}
+  }
+
+  function failure() {
+    return {type: categoriesConstants.REMOVE_FAILURE}
+  }
 }
 
 function update(id, values) {
@@ -85,10 +88,22 @@ function update(id, values) {
       .then(
         data => {
           dispatch(alertActions.success(data["message"]));
-          dispatch(categoriesActions.getAll())
+          dispatch(categoriesActions.getAll());
+          dispatch(success());
         },
-        error => dispatch(alertActions.error(error))
+        error => {
+          dispatch(alertActions.error(error));
+          dispatch(failure());
+        }
       )
       .finally(() => dispatch(dialogsActions.close()))
+  };
+
+  function success() {
+    return {type: categoriesConstants.UPDATE_SUCCESS}
+  }
+
+  function failure() {
+    return {type: categoriesConstants.UPDATE_FAILURE}
   }
 }

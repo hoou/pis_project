@@ -43,37 +43,30 @@ function status() {
 
 function login(email, password) {
   return dispatch => {
-    dispatch(request());
-
     authService.login(email, password)
       .then(
         tokens => {
-          dispatch(success(tokens));
           dispatch(alertActions.clear());
           history.push('/');
+          dispatch(success(tokens));
         },
         error => {
-          dispatch(failure(error));
           dispatch(alertActions.error(error));
+          dispatch(failure());
         }
       );
   };
-
-  function request() {
-    return {type: authConstants.LOGIN_REQUEST}
-  }
 
   function success(tokens) {
     return {type: authConstants.LOGIN_SUCCESS, tokens: tokens}
   }
 
-  function failure(error) {
-    return {type: authConstants.LOGIN_FAILURE, error}
+  function failure() {
+    return {type: authConstants.LOGIN_FAILURE}
   }
 }
 
 function logout() {
-  console.log("akcia logout");
   authService.logout();
   return {type: authConstants.LOGOUT};
 }

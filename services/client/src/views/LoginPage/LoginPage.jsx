@@ -35,7 +35,7 @@ class LoginPage extends React.Component {
   };
 
   render() {
-    const {loggingIn, alert, loggedIn, classes} = this.props;
+    const {alert, loggedIn, classes} = this.props;
     // const {email, password, submitted} = this.state;
     if (loggedIn) {
       return (
@@ -52,7 +52,7 @@ class LoginPage extends React.Component {
                 cardTitle="Please, log in."
                 content={<Grid justify="center" container className={classes.formGridContainer}>
                   <ItemGrid xs={12}>
-                    <LoginForm onSubmit={this.submit} loggingIn={loggingIn}/>
+                    <LoginForm onSubmit={this.submit}/>
                   </ItemGrid>
                   {alert.message &&
                   (
@@ -80,10 +80,10 @@ LoginPage.propTypes = {
 };
 
 function mapStateToProps(state) {
-  const {loggingIn, loggedIn} = state.auth;
+  const {loggedIn} = state.auth;
   const {alert} = state;
   return {
-    loggingIn, loggedIn, alert
+    loggedIn, alert
   };
 }
 
