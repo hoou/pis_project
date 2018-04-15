@@ -4,20 +4,28 @@ import {connect} from 'react-redux';
 
 import {history} from 'helpers';
 import {PrivateRoute} from 'routes/PrivateRoute';
-import {LoginPage} from 'views/LoginPage';
-import Admin from "containers/Admin/Admin"
+import {LoginPage} from 'views/LoginPage/LoginPage';
+import {Admin} from "containers/Admin/Admin"
 import authActions from "actions/auth.actions";
+import {alertActions} from "actions/alert.actions";
 
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.props.dispatch(authActions.status());
+
+    const {dispatch} = props;
+
+    dispatch(authActions.status());
 
     this.handleLogout = this.handleLogout.bind(this);
+
+    history.listen((location, action) => {
+      // clear alert on location change
+      dispatch(alertActions.clear());
+    });
   }
 
   handleLogout() {
-    console.log("handle logout", this.props);
     this.props.dispatch(authActions.logout())
   }
 

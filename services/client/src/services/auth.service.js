@@ -1,6 +1,7 @@
 // import fetch from 'cross-fetch'
 import {authHeader} from 'helpers';
 import {apiConstants} from "constants/api.constants"
+import {handleResponse} from "./helpers/handleResponse";
 
 export const authService = {
   login,
@@ -14,18 +15,7 @@ function status() {
     headers: authHeader()
   };
 
-  return fetch(apiConstants.URL + '/auth/status', requestOptions)
-    .then(response => {
-      if (!response.ok) {
-        return Promise.reject(response.statusText);
-      }
-
-      return response.json();
-    })
-    .then(data => {
-        return data.role;
-      }
-    )
+  return fetch(apiConstants.URL + '/auth/status', requestOptions).then(handleResponse)
 }
 
 
@@ -37,28 +27,21 @@ function login(email, password) {
   };
 
   return fetch(apiConstants.URL + '/auth/login', requestOptions)
-    .then(response => {
-      if (!response.ok) {
-        return Promise.reject('Incorrect email or password');
-      }
-
-      return response.json();
-    })
+    .then(handleResponse)
     .then(data => {
-        // login successful if there's a jwt token in the response
         if (data && data['access_token'] && data['refresh_token']) {
-          // store user details and jwt token in local storage to keep user logged in between page refreshes
           localStorage.setItem('access_token', JSON.stringify(data['access_token']));
           localStorage.setItem('refresh_token', JSON.stringify(data['refresh_token']));
+          return data;
+        } else {
+          return Promise.reject("Login failed. Please, try again.")
         }
-
-        return data;
       }
     )
 }
 
 function logout() {
-  // remove user from local storage to log user out
+  console.log("service logout - davam prec tokeny");
   localStorage.removeItem('access_token');
   localStorage.removeItem('refresh_token');
 }

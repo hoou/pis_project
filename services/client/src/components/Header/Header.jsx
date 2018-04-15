@@ -31,7 +31,6 @@ function Header({...props}) {
   const appBarClasses = cx({
     [" " + classes[color]]: color
   });
-  console.log('header props', props);
   return (
     <AppBar className={classes.appBar + appBarClasses}>
       <Toolbar className={classes.container}>

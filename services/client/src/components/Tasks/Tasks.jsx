@@ -46,8 +46,8 @@ class Tasks extends React.Component {
                   checked={this.state.checked.indexOf(value) !== -1}
                   tabIndex={-1}
                   onClick={this.handleToggle(value)}
-                  checkedIcon={<Check className={classes.checkedIcon} />}
-                  icon={<Check className={classes.uncheckedIcon} />}
+                  checkedIcon={<Check className={classes.checkedIcon}/>}
+                  icon={<Check className={classes.uncheckedIcon}/>}
                   classes={{
                     checked: classes.checked
                   }}
@@ -61,7 +61,7 @@ class Tasks extends React.Component {
                   id="tooltip-top"
                   title="Edit Task"
                   placement="top"
-                  classes={{ tooltip: classes.tooltip }}
+                  classes={{tooltip: classes.tooltip}}
                 >
                   <IconButton
                     aria-label="Edit"
@@ -78,7 +78,7 @@ class Tasks extends React.Component {
                   id="tooltip-top-start"
                   title="Remove"
                   placement="top"
-                  classes={{ tooltip: classes.tooltip }}
+                  classes={{tooltip: classes.tooltip}}
                 >
                   <IconButton
                     aria-label="Close"

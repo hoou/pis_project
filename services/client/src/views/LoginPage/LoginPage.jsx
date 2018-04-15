@@ -3,19 +3,19 @@ import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 
 import authActions from 'actions/auth.actions';
-import LoginForm from "forms/LoginForm/LoginForm";
+import LoginForm from "forms/LoginForm";
 import {Redirect} from "react-router-dom";
-import {Button, Grid, withStyles} from "material-ui";
+import {Grid, withStyles} from "material-ui";
 import ItemGrid from "components/Grid/ItemGrid";
-import RegularCard from "../components/Cards/RegularCard";
-import SnackbarContent from "../components/Snackbar/SnackbarContent";
+import RegularCard from "../../components/Cards/RegularCard";
+import SnackbarContent from "../../components/Snackbar/SnackbarContent";
 
 const styles = theme => ({
   root: {
     flexGrow: 1,
     marginTop: 50
   },
-  formGridCntainer: {
+  formGridContainer: {
     padding: 10
   },
   paper: {
@@ -29,47 +29,13 @@ const styles = theme => ({
 
 
 class LoginPage extends React.Component {
-
-  constructor(props) {
-    super(props);
-
-    // reset login status
-    // this.props.dispatch(authActions.logout());
-
-    // this.state = {
-    // 	email: '',
-    // 	password: '',
-    // 	submitted: false
-    // };
-
-    // this.handleChange = this.handleChange.bind(this);
-    // this.handleSubmit = this.handleSubmit.bind(this);
-  }
-
-  // handleChange(e) {
-  // 	const {name, value} = e.target;
-  // 	this.setState({[name]: value});
-  // }
-  //
-
   submit = values => {
     const {dispatch} = this.props;
     dispatch(authActions.login(values.email, values.password))
   };
 
-  // handleSubmit(e) {
-  // 	e.preventDefault();
-  //
-  // 	this.setState({submitted: true});
-  // 	const {email, password} = this.state;
-  // 	const {dispatch} = this.props;
-  // 	if (email && password) {
-  // 		dispatch(usersActions.login(email, password));
-  // 	}
-  // }
-
   render() {
-    const {loggingIn, error, errorMessage, loggedIn, classes} = this.props;
+    const {alert, loggedIn, classes} = this.props;
     // const {email, password, submitted} = this.state;
     if (loggedIn) {
       return (
@@ -86,15 +52,17 @@ class LoginPage extends React.Component {
                 cardTitle="Please, log in."
                 content={<Grid justify="center" container className={classes.formGridContainer}>
                   <ItemGrid xs={12}>
-                    <LoginForm onSubmit={this.submit} loggingIn={loggingIn}/>
+                    <LoginForm onSubmit={this.submit}/>
                   </ItemGrid>
-                  {error ?
+                  {alert.message &&
+                  (
                     <ItemGrid xs={12}>
                       <SnackbarContent
-                        message={errorMessage}
-                        color="danger"
+                        message={alert.message}
+                        color={alert.type}
                       />
-                    </ItemGrid> : null}
+                    </ItemGrid>)
+                  }
                 </Grid>
                 }
               />
@@ -112,9 +80,10 @@ LoginPage.propTypes = {
 };
 
 function mapStateToProps(state) {
-  const {loggingIn, error, errorMessage, loggedIn} = state.auth;
+  const {loggedIn} = state.auth;
+  const {alert} = state;
   return {
-    loggingIn, error, errorMessage, loggedIn
+    loggedIn, alert
   };
 }
 

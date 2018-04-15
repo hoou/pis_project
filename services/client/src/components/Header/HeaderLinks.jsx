@@ -11,12 +11,9 @@ import {
   ClickAwayListener,
   Hidden
 } from "material-ui";
-import {Person, Notifications, Dashboard, Search} from "material-ui-icons";
-
-import {CustomInput, IconButton as SearchButton} from "components";
+import {Person} from "material-ui-icons";
 
 import headerLinksStyle from "variables/styles/headerLinksStyle";
-import authActions from "../../actions/auth.actions";
 
 class HeaderLinks extends React.Component {
   state = {
@@ -34,12 +31,10 @@ class HeaderLinks extends React.Component {
 
   handleLogout = () => {
     this.setState({open: false});
-    console.log('props', this.props);
     this.props.handleLogout();
   };
 
   render() {
-    console.log(this.props);
     const {classes} = this.props;
     const {open} = this.state;
     return (

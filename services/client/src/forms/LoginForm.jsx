@@ -1,9 +1,9 @@
 import React from 'react'
 import {Field, reduxForm} from 'redux-form'
-import {TextField, withStyles} from "material-ui";
+import {withStyles} from "material-ui";
 import RegularButton from "components/CustomButtons/Button"
 import PropTypes from "prop-types"
-import CustomInput from "../../components/CustomInput/CustomInput";
+import CustomInput from "../components/CustomInput/CustomInput";
 
 const styles = theme => ({
   button: {
@@ -28,8 +28,6 @@ const validate = values => {
   return errors
 };
 
-// const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
-
 // const asyncValidate = (values /*, dispatch */) => {
 // 	return sleep(1000).then(() => {
 // 		// simulate server latency
@@ -40,15 +38,6 @@ const validate = values => {
 // };
 
 const renderTextField = ({input, label, meta: {touched, error}, ...custom}) => {
-//  <TextField label={label}
-  //            error={touched && !!error}
-  //           helperText={(touched && !!error) ? error : ''}
-  //          {...input}
-  //         {...custom}
-  // />
-
-  console.log("render custom", custom);
-
   return <CustomInput
     labelText={label}
     formControlProps={{
@@ -73,19 +62,19 @@ const renderTextField = ({input, label, meta: {touched, error}, ...custom}) => {
 };
 
 let LoginForm = props => {
-  const {handleSubmit, classes, loggingIn} = props;
+  const {handleSubmit, classes} = props;
   return (
     <form onSubmit={handleSubmit}>
       <div>
-        {/*<Field name="email" component={renderTextField} label="Email"/>*/}
         <Field name="email" component={renderTextField} label="Email"/>
       </div>
       <div>
         <Field name="password" type="password" component={renderTextField} label="Password"/>
       </div>
       <div>
-        <RegularButton variant="raised" color="primary" className={classes.button}
-                       type="submit">{loggingIn ? 'Logging in...' : 'Log in'}</RegularButton>
+        <RegularButton variant="raised" color="primary" className={classes.button} type="submit">
+          Log in
+        </RegularButton>
       </div>
     </form>
   )

@@ -14,6 +14,8 @@ import appStyle from "variables/styles/appStyle.jsx";
 
 import image from "assets/img/sidebar-3.jpg";
 import logo from "assets/img/reactlogo.png";
+import {connect} from "react-redux";
+import SnackbarContent from "components/Snackbar/SnackbarContent";
 
 const switchRoutes = (
   <Switch>
@@ -46,7 +48,7 @@ class Admin extends React.Component {
   }
 
   render() {
-    const {classes, ...rest} = this.props;
+    const {classes, alert, ...rest} = this.props;
     return (
       <div className={classes.wrapper}>
         <Sidebar
@@ -67,6 +69,12 @@ class Admin extends React.Component {
             {...rest}
           />
           <div className={classes.content}>
+            {alert.message &&
+              <SnackbarContent
+                        message={alert.message}
+                        color={alert.type}
+                      />
+            }
             <div className={classes.container}>{switchRoutes}</div>
           </div>
           <Footer/>
@@ -80,4 +88,12 @@ Admin.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-export default withStyles(appStyle)(Admin);
+function mapStateToProps(state) {
+  const {alert} = state;
+  return {
+    alert
+  };
+}
+
+const connectedAdmin = connect(mapStateToProps)(withStyles(appStyle)(Admin));
+export {connectedAdmin as Admin}
