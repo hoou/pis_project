@@ -17,11 +17,17 @@ user = api.model('User', {
     'date_of_birth': fields.Date()
 })
 
+category = api.model('Category', {
+    'id': fields.Integer(),
+    'name': fields.String(required=True)
+})
+
 product = api.model('Product', {
     'id': fields.Integer(),
     'name': fields.String(required=True),
     'description': fields.String(),
-    'price': fields.Float(required=True)
+    'price': fields.Float(required=True),
+    'category': fields.Nested(category)
 })
 
 product_image = api.model('Product image', {
@@ -34,11 +40,6 @@ product_rating = api.model('Product rating', {
     'user': fields.Nested(user),
     'product': fields.Nested(product),
     'rating': fields.Integer()
-})
-
-category = api.model('Category', {
-    'id': fields.Integer(),
-    'name': fields.String(required=True)
 })
 
 delivery_address = api.model('DeliveryAddress', {

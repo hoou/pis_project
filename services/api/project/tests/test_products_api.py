@@ -48,6 +48,11 @@ def test_get_all_products(client):
     assert sorted_products[1]['description'] is None
     assert sorted_products[2]['description'] is None
 
+    assert sorted_products[0]['category']['name'] == \
+           sorted_products[1]['category']['name'] == \
+           sorted_products[2]['category']['name'] == \
+           "Men"
+
 
 def test_get_single_product(client):
     category = categories.add(Category(name='Men'))

@@ -12,6 +12,7 @@ class Product(db.Model):
     images = db.relationship('ProductImage', backref='product', lazy=True)
     ratings = db.relationship('ProductRating', backref='product', lazy=True)
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=False)
+    category = db.relationship("Category")
 
     def __init__(self, name, price, description=None):
         self.name = name
