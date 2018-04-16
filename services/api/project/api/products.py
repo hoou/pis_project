@@ -27,6 +27,16 @@ class ProductCollection(Resource):
         return products.get_all()
 
 
+@ns.route('/deleted')
+class DeletedProductCollection(Resource):
+    @jwt_required
+    @active_required_if_logged_in
+    @admin_or_worker
+    @api.marshal_list_with(product_serial)
+    def get(self):
+        return products.get_all_deleted()
+
+
 @ns.route('/<int:product_id>')
 class ProductItem(Resource):
     @api.marshal_with(product_serial)

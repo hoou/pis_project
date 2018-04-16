@@ -1629,3 +1629,98 @@ def test_delete_product_rating_not_logged_in(client):
 
     assert r.status_code == status.HTTP_403_FORBIDDEN
     assert payload['message'] == 'You do not have permission to perform this action.'
+
+
+def test_get_all_deleted_products(client):
+    category = categories.add(Category(name='Men'))
+    product1 = Product(name='Product One', price=13.99)
+    product2 = Product(name='Product Two', price=23.99, description='blah')
+    categories.add_product(category, product1)
+    categories.add_product(category, product2)
+    categories.add_product(category, Product(name='Product Three', price=3.99))
+    categories.add_product(category, Product(name='Product Four', price=68.99))
+    products.delete(product1)
+    products.delete(product2)
+
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
+    user.active = True
+    user.role = UserRole.ADMIN
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    r = client.get(
+        '/api/products/deleted',
+        headers={'Authorization': f'Bearer {access_token}'}
+    )
+
+    payload = r.json
+
+    all_deleted_products = payload
+
+    assert r.status_code == status.HTTP_200_OK
+    assert len(all_deleted_products) == 2
+
+    sorted_products = sorted(all_deleted_products, key=lambda product_: product_['id'])
+
+    assert sorted_products[0]['name'] == 'Product One'
+    assert sorted_products[1]['name'] == 'Product Two'
+
+    assert sorted_products[0]['price'] == 13.99
+    assert sorted_products[1]['price'] == 23.99
+
+    assert sorted_products[0]['description'] is None
+    assert sorted_products[1]['description'] == 'blah'
+
+    assert sorted_products[0]['category']['name'] == \
+           sorted_products[1]['category']['name'] == \
+           "Men"
+
+
+def test_get_all_deleted_products_not_logged_in(client):
+    r = client.get('/api/products/deleted')
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_403_FORBIDDEN
+    assert payload['message'] == 'You do not have permission to perform this action.'
+
+
+def test_get_all_deleted_products_not_admin_or_worker(client):
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
+    user.active = True
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    assert user.role != UserRole.ADMIN and user.role != UserRole.WORKER
+
+    r = client.get(
+        '/api/products/deleted',
+        headers={'Authorization': f'Bearer {access_token}'}
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_403_FORBIDDEN
+    assert payload['message'] == 'You do not have permission to perform this action.'

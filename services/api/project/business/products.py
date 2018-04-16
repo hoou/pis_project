@@ -13,6 +13,10 @@ def get_all():
     return Product.query.filter_by(is_deleted=False).all()
 
 
+def get_all_deleted():
+    return Product.query.filter_by(is_deleted=True).all()
+
+
 def get(product_id):
     return Product.query.filter_by(id=product_id, is_deleted=False).first()
 
