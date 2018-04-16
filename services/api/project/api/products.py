@@ -53,25 +53,27 @@ class ProductItem(Resource):
     @jwt_required
     @active_required_if_logged_in
     @admin_or_worker
-    def put(self, product_id):
+    def patch(self, product_id):
         data = request.get_json()
+
+        current_app.logger.info(data)
+
+        if not data:
+            raise InvalidPayload
 
         product = products.get(product_id)
         if not product:
             raise NotFound('Product not found.')
 
-        name = data.get('name')
-        price = data.get('price')
-        description = data.get('description')
-        category_id = data.get('category_id')
+        attributes = {'name', 'price', 'description', 'category_id'}
 
-        if name is None or price is None or category_id is None:
+        if not any(data.get(attribute) for attribute in attributes):
             raise InvalidPayload
 
-        product.name = name
-        product.price = price
-        product.description = description
-        product.category_id = category_id
+        try:
+            products.update(product, attributes, data)
+        except (TypeError, ValueError) as e:
+            raise BadRequest(str(e))
 
         return {'message': 'Product was successfully modified.'}
 

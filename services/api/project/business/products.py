@@ -63,3 +63,16 @@ def get_product_rating_by_user(product: Product, user: User):
 def delete_rating(product: Product, user: User):
     session.delete(ProductRating.query.filter_by(product_id=product.id, user_id=user.id).first())
     session.commit()
+
+
+def update(product, attributes: set, data):
+    sorted_attributes = sorted(attributes)
+    for attribute in sorted_attributes:
+        if data.get(attribute) is not None and hasattr(product, attribute):
+            try:
+                setattr(product, attribute, data[attribute])
+            except (TypeError, ValueError) as e:
+                session.rollback()
+                raise e
+
+    session.commit()
