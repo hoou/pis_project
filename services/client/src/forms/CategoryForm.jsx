@@ -90,7 +90,7 @@ class CategoryForm extends React.Component {
     return (
       <form onSubmit={(e) => e.preventDefault()}>
         <div>
-          <Field name="name" component={renderTextField} label="Name"/>
+          <Field required name="name" component={renderTextField} label="Name"/>
         </div>
         <div>
           {dontRenderSubmit

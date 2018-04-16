@@ -99,17 +99,17 @@ class ProductForm extends React.Component {
     return (
       <form onSubmit={(e) => e.preventDefault()}>
         <div>
-          <Field name="name" component={renderTextField} label="Name"/>
+          <Field required name="name" component={renderTextField} label="Name"/>
         </div>
         <div>
-          <Field name="price" component={renderTextField} label="Price" type="number"
+          <Field required name="price" component={renderTextField} label="Price" type="number"
                  normalize={(val) => twoDecimalPlacesNormalizer(floatNormalizer(val))}/>
         </div>
         <div>
           <Field name="description" component={renderTextField} label="Description"/>
         </div>
         <div>
-          <Field name="category" label="Category" component={renderTextField} select>
+          <Field required name="category" label="Category" component={renderTextField} select>
             {categories.map(category => (
               <MenuItem key={category.id} value={category.id}>
                 {category.name}

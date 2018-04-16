@@ -17,40 +17,28 @@ function CustomInput({...props}) {
     // success,
     type,
     select,
-    children
+    children,
+    required
   } = props;
 
   // console.log("input props", inputProps);
 
   return (
-    select ?
-      <TextField
-        label={labelText}
-        id={id}
-        helperText={error ? errorMessage : ''}
-        error={error}
-        margin="normal"
-        type={type}
-        select
-        fullWidth={true}
-        {...inputProps}
-      >
-        {children}
-      </TextField>
-      :
-      <TextField
-        label={labelText}
-        id={id}
-        helperText={error ? errorMessage : ''}
-        error={error}
-        margin="normal"
-        type={type}
-        fullWidth={true}
-        {...inputProps}
-      >
-        {children}
-      </TextField>
-  );
+    <TextField
+      label={labelText}
+      id={id}
+      helperText={error ? errorMessage : ''}
+      error={error}
+      margin="normal"
+      type={type}
+      select={select}
+      required={required}
+      fullWidth={true}
+      {...inputProps}
+    >
+      {children}
+    </TextField>
+  )
 }
 
 CustomInput.propTypes = {
