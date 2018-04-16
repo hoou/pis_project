@@ -6,12 +6,12 @@ export const dialogsActions = {
   close,
 };
 
-function showNew(title) {
-  return {type: dialogsConstants.SHOW_NEW, title};
+function showNew(form) {
+  return {type: dialogsConstants.SHOW_NEW, form: form};
 }
 
-function showEdit(title, id) {
-  return {type: dialogsConstants.SHOW_EDIT, title, id};
+function showEdit(form, id) {
+  return {type: dialogsConstants.SHOW_EDIT, form: form, id};
 }
 
 function close() {

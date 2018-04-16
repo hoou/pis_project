@@ -1,10 +1,9 @@
-import {categoriesConstants} from 'constants/categories.constants';
-import {categoriesService} from 'services/categories.service';
+import {productsConstants} from 'constants/products.constants';
+import {productsService} from 'services/products.service';
 import {alertActions} from "actions/alert.actions"
 import {dialogsActions} from "./dialogs.actions";
-import {productsActions} from "actions/products.actions";
 
-export const categoriesActions = {
+export const productsActions = {
   getAll,
   add,
   remove,
@@ -13,9 +12,9 @@ export const categoriesActions = {
 
 function getAll() {
   return dispatch => {
-    categoriesService.getAll()
+    productsService.getAll()
       .then(
-        categories => dispatch(success(categories)),
+        products => dispatch(success(products)),
         error => {
           dispatch(alertActions.error(error));
           dispatch(failure())
@@ -23,22 +22,22 @@ function getAll() {
       );
   };
 
-  function success(categories) {
-    return {type: categoriesConstants.GETALL_SUCCESS, categories}
+  function success(products) {
+    return {type: productsConstants.GETALL_SUCCESS, products: products}
   }
 
   function failure() {
-    return {type: categoriesConstants.GETALL_FAILURE}
+    return {type: productsConstants.GETALL_FAILURE}
   }
 }
 
-function add(name) {
+function add(category_id, values) {
   return dispatch => {
-    categoriesService.add(name)
+    productsService.add(category_id, values)
       .then(
         data => {
           dispatch(alertActions.success(data.message));
-          dispatch(categoriesActions.getAll());
+          dispatch(productsActions.getAll());
           dispatch(success());
         },
         error => {
@@ -50,21 +49,21 @@ function add(name) {
   };
 
   function success() {
-    return {type: categoriesConstants.ADD_SUCCESS}
+    return {type: productsConstants.ADD_SUCCESS}
   }
 
   function failure() {
-    return {type: categoriesConstants.ADD_FAILURE}
+    return {type: productsConstants.ADD_FAILURE}
   }
 }
 
 function remove(id) {
   return dispatch => {
-    categoriesService.remove(id)
+    productsService.remove(id)
       .then(
         data => {
           dispatch(alertActions.success(data["message"]));
-          dispatch(categoriesActions.getAll());
+          dispatch(productsActions.getAll());
           dispatch(success());
         },
         error => {
@@ -75,21 +74,20 @@ function remove(id) {
   };
 
   function success() {
-    return {type: categoriesConstants.REMOVE_SUCCESS}
+    return {type: productsConstants.REMOVE_SUCCESS}
   }
 
   function failure() {
-    return {type: categoriesConstants.REMOVE_FAILURE}
+    return {type: productsConstants.REMOVE_FAILURE}
   }
 }
 
 function update(id, values) {
   return dispatch => {
-    categoriesService.update(id, values)
+    productsService.update(id, values)
       .then(
         data => {
           dispatch(alertActions.success(data["message"]));
-          dispatch(categoriesActions.getAll());
           dispatch(productsActions.getAll());
           dispatch(success());
         },
@@ -102,10 +100,10 @@ function update(id, values) {
   };
 
   function success() {
-    return {type: categoriesConstants.UPDATE_SUCCESS}
+    return {type: productsConstants.UPDATE_SUCCESS}
   }
 
   function failure() {
-    return {type: categoriesConstants.UPDATE_FAILURE}
+    return {type: productsConstants.UPDATE_FAILURE}
   }
 }

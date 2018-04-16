@@ -9,6 +9,8 @@ import {dialogsActions} from "actions/dialogs.actions";
 import CategoryForm from "forms/CategoryForm";
 import {connect} from "react-redux";
 import Button from "components/CustomButtons/Button";
+import {ProductsTable} from "./ProductsTable";
+import ProductForm from "forms/ProductForm";
 
 const styles = theme => ({
   button: {
@@ -27,9 +29,25 @@ const styles = theme => ({
 
 
 const TableListPage = (props) => {
-  const {dispatch, edit, editId, categories} = props;
+  const categoryForm = () => {
+    const {edit, editId, categories} = props;
+    return <CategoryForm
+      dontRenderSubmit
+      data={edit ? _.find(categories, o => o.id === editId) : null}
+      id={editId}
+    />
+  };
+  const productForm = () => {
+    const {edit, editId, products} = props;
+    return <ProductForm
+      dontRenderSubmit
+      data={edit ? _.find(products, o => o.id === editId) : null}
+      id={editId}
+    />
+  };
 
-  const handleClickAddNewCategory = () => dispatch(dialogsActions.showNew("category"));
+  const handleClickAddNewCategory = () => props.dispatch(dialogsActions.showNew("category"));
+  const handleClickAddNewProduct = () => props.dispatch(dialogsActions.showNew("product"));
 
   return (
     <Grid container>
@@ -40,28 +58,31 @@ const TableListPage = (props) => {
             <CategoriesTable/>
           }
           footer={
-            <div>
-              <Button color="primary" onClick={handleClickAddNewCategory}>Add new category</Button>
-              <FormDialog form={
-                <CategoryForm
-                  dontRenderSubmit
-                  data={edit ? _.find(categories, o => o.id === editId) : null}
-                  id={editId}
-                />
-              }/>
-            </div>
+            <Button color="primary" onClick={handleClickAddNewCategory}>Add new category</Button>
           }
         />
       </ItemGrid>
+      <ItemGrid xs={12} sm={12} md={12}>
+        <RegularCard
+          cardTitle="Products"
+          content={
+            <ProductsTable/>
+          }
+          footer={
+            <Button color="primary" onClick={handleClickAddNewProduct}>Add new product</Button>
+          }
+        />
+      </ItemGrid>
+      {props.form ? <FormDialog form={props.form === "category" ? categoryForm() : productForm()}/> : null}
     </Grid>
   )
 };
 
 const mapStateToProps = state => {
-  const {edit, editId} = state.dialogs;
-  const {items} = state.categories;
+  const {categories, products} = state;
+  const {edit, editId, form} = state.dialogs;
   return {
-    edit, editId, categories: items
+    edit, editId, categories: categories.items, products: products.items, form
   }
 };
 

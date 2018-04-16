@@ -1,11 +1,14 @@
 import React from 'react'
+import _ from "lodash"
 import {Field, reduxForm} from 'redux-form'
-import {withStyles} from "material-ui";
+import {MenuItem, withStyles} from "material-ui";
 import RegularButton from "components/CustomButtons/Button"
 import PropTypes from "prop-types"
 import CustomInput from "components/CustomInput/CustomInput";
 import {connect} from "react-redux";
-import {categoriesActions} from "actions/categories.actions";
+import {productsActions} from "actions/products.actions";
+import floatNormalizer from "forms/normalizers/float.normalizer";
+import twoDecimalPlacesNormalizer from "./normalizers/twoDecimalPlaces.normalizer";
 
 const styles = theme => ({
   button: {
@@ -18,7 +21,7 @@ const styles = theme => ({
 
 const validate = values => {
   const errors = {};
-  const requiredFields = ['name'];
+  const requiredFields = ['name', 'price', 'category'];
   requiredFields.forEach(field => {
     if (!values[field]) {
       errors[field] = 'Required'
@@ -44,6 +47,9 @@ const renderTextField = ({input, label, meta: {touched, error}, ...custom}) => {
   //         {...custom}
   // />
 
+  // console.log("custom", custom);
+  // console.log("input", input);
+
   return <CustomInput
     labelText={label}
     formControlProps={{
@@ -57,7 +63,7 @@ const renderTextField = ({input, label, meta: {touched, error}, ...custom}) => {
 
 
   // classes,
-  // formControlProps,
+  // formControlProps,-
   // labelText,
   // id,
   // labelProps,
@@ -69,28 +75,47 @@ const renderTextField = ({input, label, meta: {touched, error}, ...custom}) => {
 
 function submit(values, dispatch, props) {
   if (props.data) {
-    dispatch(categoriesActions.update(props.id, values))
+    dispatch(productsActions.update(props.id, _.mapKeys(values, (value, key) => key === "category" ? "category_id" : key)))
   } else {
-    dispatch(categoriesActions.add(values.name));
+    dispatch(productsActions.add(values["category"], _.omit(values, "category")));
   }
 }
 
-class CategoryForm extends React.Component {
+class ProductForm extends React.Component {
   componentWillMount() {
     const {data, change} = this.props;
 
     if (data) {
-      change("name", data.name)
+      change("name", data["name"]);
+      change("price", data["price"]);
+      change("description", data["description"]);
+      change("category", data["category"]["id"]);
     }
   }
 
   render() {
-    const {classes, dontRenderSubmit} = this.props;
+    const {classes, dontRenderSubmit, categories} = this.props;
 
     return (
       <form onSubmit={(e) => e.preventDefault()}>
         <div>
           <Field name="name" component={renderTextField} label="Name"/>
+        </div>
+        <div>
+          <Field name="price" component={renderTextField} label="Price" type="number"
+                 normalize={(val) => twoDecimalPlacesNormalizer(floatNormalizer(val))}/>
+        </div>
+        <div>
+          <Field name="description" component={renderTextField} label="Description"/>
+        </div>
+        <div>
+          <Field name="category" label="Category" component={renderTextField} select>
+            {categories.map(category => (
+              <MenuItem key={category.id} value={category.id}>
+                {category.name}
+              </MenuItem>
+            ))}
+          </Field>
         </div>
         <div>
           {dontRenderSubmit
@@ -107,11 +132,11 @@ class CategoryForm extends React.Component {
   }
 }
 
-CategoryForm.propTypes = {
+ProductForm.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-const form = 'CategoryForm';
+const form = 'ProductForm';
 
 export default reduxForm({
   form,  // a unique identifier for this form
@@ -119,4 +144,4 @@ export default reduxForm({
   validate
   // asyncValidate
 })
-(connect()(withStyles(styles)(CategoryForm)))
+(connect((state) => ({categories: state.categories.items}))(withStyles(styles)(ProductForm)))
