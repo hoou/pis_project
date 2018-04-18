@@ -2,6 +2,7 @@ import {productsConstants} from 'constants/products.constants';
 
 const initialState = {
   items: [],
+  deleted_items: []
 };
 
 export function productsReducer(state = initialState, action) {
@@ -10,6 +11,11 @@ export function productsReducer(state = initialState, action) {
       return {
         ...state,
         items: action.products
+      };
+    case productsConstants.GETALL_DELETED_SUCCESS:
+      return {
+        ...state,
+        deleted_items: action.products
       };
     default:
       return state

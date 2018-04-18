@@ -5,9 +5,11 @@ import {dialogsActions} from "./dialogs.actions";
 
 export const productsActions = {
   getAll,
+  getAllDeleted,
   add,
   remove,
-  update
+  update,
+  restore
 };
 
 function getAll() {
@@ -28,6 +30,27 @@ function getAll() {
 
   function failure() {
     return {type: productsConstants.GETALL_FAILURE}
+  }
+}
+
+function getAllDeleted() {
+  return dispatch => {
+    productsService.getAllDeleted()
+      .then(
+        products => dispatch(success(products)),
+        error => {
+          dispatch(alertActions.error(error));
+          dispatch(failure())
+        }
+      );
+  };
+
+  function success(products) {
+    return {type: productsConstants.GETALL_DELETED_SUCCESS, products: products}
+  }
+
+  function failure() {
+    return {type: productsConstants.GETALL_DELETED_FAILURE}
   }
 }
 
@@ -64,6 +87,7 @@ function remove(id) {
         data => {
           dispatch(alertActions.success(data["message"]));
           dispatch(productsActions.getAll());
+          dispatch(productsActions.getAllDeleted());
           dispatch(success());
         },
         error => {
@@ -79,6 +103,32 @@ function remove(id) {
 
   function failure() {
     return {type: productsConstants.REMOVE_FAILURE}
+  }
+}
+
+function restore(id) {
+  return dispatch => {
+    productsService.restore(id)
+      .then(
+        data => {
+          dispatch(alertActions.success(data["message"]));
+          dispatch(productsActions.getAll());
+          dispatch(productsActions.getAllDeleted());
+          dispatch(success());
+        },
+        error => {
+          dispatch(alertActions.error(error));
+          dispatch(failure());
+        }
+      );
+  };
+
+  function success() {
+    return {type: productsConstants.RESTORE_SUCCESS}
+  }
+
+  function failure() {
+    return {type: productsConstants.RESTORE_FAILURE}
   }
 }
 

@@ -55,8 +55,8 @@ const tableStyle = theme => ({
     verticalAlign: "middle",
   },
   tableCellDeleted: {
-    ...tableStyle.tableCell,
-    backgroundColor: dangerColor
+    backgroundColor: dangerColor,
+    color: "#fff"
   },
   tableResponsive: {
     width: "100%",
@@ -104,6 +104,11 @@ const tableStyle = theme => ({
   edit: {
     backgroundColor: "transparent",
     color: primaryColor,
+    boxShadow: "none"
+  },
+  restore: {
+    backgroundColor: "transparent",
+    color: "#fff",
     boxShadow: "none"
   },
   close: {

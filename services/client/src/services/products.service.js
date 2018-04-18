@@ -6,8 +6,10 @@ import {handleResponse} from "./helpers/handleResponse";
 export const productsService = {
   add,
   getAll,
+  getAllDeleted,
   update,
-  remove
+  remove,
+  restore
 };
 
 function add(category_id, values) {
@@ -22,11 +24,19 @@ function add(category_id, values) {
 
 function getAll() {
   const requestOptions = {
+    method: 'GET'
+  };
+
+  return fetch(apiConstants.URL + '/products/', requestOptions).then(handleResponse);
+}
+
+function getAllDeleted() {
+  const requestOptions = {
     method: 'GET',
     headers: authHeader()
   };
 
-  return fetch(apiConstants.URL + '/products/', requestOptions).then(handleResponse);
+  return fetch(apiConstants.URL + '/products/deleted', requestOptions).then(handleResponse);
 }
 
 function update(id, values) {
@@ -47,4 +57,13 @@ function remove(id) {
   };
 
   return fetch(apiConstants.URL + '/products/' + id, requestOptions).then(handleResponse);
+}
+
+function restore(id) {
+  const requestOptions = {
+    method: 'PATCH',
+    headers: authHeader()
+  };
+
+  return fetch(apiConstants.URL + '/products/' + id + '/restore', requestOptions).then(handleResponse);
 }

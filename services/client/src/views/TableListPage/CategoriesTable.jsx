@@ -32,10 +32,10 @@ class CategoriesTable extends React.Component {
         ===>
       [["1", "Traktory"], ["2", "Kultivatory"]]
        */
-      tableData = _.map(items, item => _.map([..._.values(item)], item => item.toString()));
+      tableData = _.map(items, item => ({deleted: false, data: _.map([..._.values(item)], item => item.toString())}));
 
       // orderBy
-      tableData = _.orderBy(tableData, item => _.toInteger(item[0]), "asc");
+      tableData = _.orderBy(tableData, item => _.toInteger(item.data[0]), "asc");
     }
 
     return (
