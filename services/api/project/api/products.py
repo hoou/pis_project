@@ -88,6 +88,26 @@ class ProductItem(Resource):
         return {'message': 'Product was successfully modified.'}
 
 
+@ns.route('/<int:product_id>/restore')
+class ProductItemRestore(Resource):
+    @jwt_required
+    @active_required_if_logged_in
+    @admin_or_worker
+    def patch(self, product_id):
+        product = products.get(product_id)
+
+        if product:
+            raise BadRequest('Product is not deleted.')
+
+        deleted_product = products.get_deleted(product_id)
+        if deleted_product is None:
+            raise NotFound('Product not found.')
+
+        products.restore(deleted_product)
+
+        return {'message': 'Product was successfully restored.'}
+
+
 @ns.route('/<int:product_id>/images')
 class ProductImageCollection(Resource):
     @api.marshal_list_with(product_image_serial)

@@ -520,6 +520,147 @@ def test_delete_product_not_logged_in(client):
     assert payload['message'] == 'You do not have permission to perform this action.'
 
 
+def test_restore_product(client):
+    category = categories.add(Category(name='Men'))
+    product = Product(name='Super Small Product', price=0.99)
+    products.delete(product)
+    categories.add_product(category, product)
+
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
+    user.active = True
+    user.role = UserRole.ADMIN
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+    payload = r.json
+    access_token = payload['access_token']
+
+    assert product.id
+    assert product.is_deleted
+
+    r = client.patch(
+        f'/api/products/{product.id}/restore',
+        headers={'Authorization': f'Bearer {access_token}'}
+    )
+    payload = r.json
+
+    assert r.status_code == status.HTTP_200_OK
+    assert payload['message'] == 'Product was successfully restored.'
+    assert not product.is_deleted
+
+
+def test_restore_not_existing_product(client):
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
+    user.active = True
+    user.role = UserRole.ADMIN
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+    payload = r.json
+    access_token = payload['access_token']
+
+    not_existing_product_id = 99
+    not_existing_product = products.get(not_existing_product_id)
+    assert not_existing_product is None
+
+    r = client.patch(
+        f'/api/products/{not_existing_product_id}/restore',
+        headers={'Authorization': f'Bearer {access_token}'}
+    )
+    payload = r.json
+
+    assert r.status_code == status.HTTP_404_NOT_FOUND
+    assert payload['message'] == 'Product not found.'
+
+
+def test_restore_not_deleted_product(client):
+    category = categories.add(Category(name='Men'))
+    product = Product(name='Super Small Product', price=0.99)
+    categories.add_product(category, product)
+
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
+    user.active = True
+    user.role = UserRole.ADMIN
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+    payload = r.json
+    access_token = payload['access_token']
+
+    assert product.id
+    assert not product.is_deleted
+
+    r = client.patch(
+        f'/api/products/{product.id}/restore',
+        headers={'Authorization': f'Bearer {access_token}'}
+    )
+    payload = r.json
+
+    assert r.status_code == status.HTTP_400_BAD_REQUEST
+    assert payload['message'] == 'Product is not deleted.'
+
+
+def test_restore_product_not_logged_in(client):
+    category = categories.add(Category(name='Men'))
+    product = Product(name='Super Small Product', price=0.99)
+    products.delete(product)
+    categories.add_product(category, product)
+
+    r = client.patch(f'/api/products/{product.id}/restore')
+    payload = r.json
+
+    assert r.status_code == status.HTTP_403_FORBIDDEN
+    assert payload['message'] == 'You do not have permission to perform this action.'
+
+
+def test_restore_product_not_admin_or_worker(client):
+    category = categories.add(Category(name='Men'))
+    product = Product(name='Super Small Product', price=0.99)
+    products.delete(product)
+    categories.add_product(category, product)
+
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
+    user.active = True
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+    payload = r.json
+    access_token = payload['access_token']
+
+    assert user.role != UserRole.ADMIN and user.role != UserRole.WORKER
+
+    r = client.patch(f'/api/products/{product.id}/restore',
+                     headers={'Authorization': f'Bearer {access_token}'})
+    payload = r.json
+
+    assert r.status_code == status.HTTP_403_FORBIDDEN
+    assert payload['message'] == 'You do not have permission to perform this action.'
+
+
 def test_add_product_image(client):
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True

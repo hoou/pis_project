@@ -21,8 +21,17 @@ def get(product_id):
     return Product.query.filter_by(id=product_id, is_deleted=False).first()
 
 
+def get_deleted(product_id):
+    return Product.query.filter_by(id=product_id, is_deleted=True).first()
+
+
 def delete(product: Product):
     product.is_deleted = True
+    session.commit()
+
+
+def restore(product: Product):
+    product.is_deleted = False
     session.commit()
 
 
