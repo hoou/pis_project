@@ -11,7 +11,8 @@ class OrderItem(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
     product = db.relationship('Product')
 
-    def __init__(self, count: int, price: float, product_id: int):
+    def __init__(self, count: int, price: float, product_id: int, product: Product):
         self.count = count
         self.price = price
         self.product_id = product_id
+        self.product = product

@@ -17,9 +17,9 @@ def test_create_order_logged_in(client):
     user.active = True
 
     category = categories.add(Category(name='Men'))
-    product1 = Product(name='Product One', price=19.99)
-    product2 = Product(name='Product Two', price=29.99)
-    product3 = Product(name='Product Three', price=39.99)
+    product1 = Product(name='Product One', price=19.99, count=1)
+    product2 = Product(name='Product Two', price=29.99, count=1)
+    product3 = Product(name='Product Three', price=39.99, count=2)
     categories.add_product(category, product1)
     categories.add_product(category, product2)
     categories.add_product(category, product3)
@@ -36,6 +36,10 @@ def test_create_order_logged_in(client):
     payload = r.json
 
     access_token = payload['access_token']
+
+    assert product1.count == 1
+    assert product2.count == 1
+    assert product3.count == 2
 
     r = client.post(
         '/api/orders/',
@@ -72,6 +76,10 @@ def test_create_order_logged_in(client):
 
     assert r.status_code == status.HTTP_201_CREATED
     assert payload['message'] == 'Order was successfully created.'
+
+    assert product1.count == 0
+    assert product2.count == 0
+    assert product3.count == 0
 
     last_user_order = orders.get_last_by_user(user)
 
@@ -110,6 +118,76 @@ def test_create_order_logged_in(client):
     assert last_user_order.user_id == user.id
 
 
+def test_create_order_not_enough_products(client):
+    user = users.add(User(email='tibor@mikita.eu', password='blah'))
+    user.active = True
+
+    category = categories.add(Category(name='Men'))
+    product1 = Product(name='Product One', price=19.99, count=1)
+    product2 = Product(name='Product Two', price=29.99, count=1)
+    product3 = Product(name='Product Three', price=39.99, count=2)
+    categories.add_product(category, product1)
+    categories.add_product(category, product2)
+    categories.add_product(category, product3)
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    assert product1.count == 1
+    assert product2.count == 1
+    assert product3.count == 2
+
+    r = client.post(
+        '/api/orders/',
+        data=json.dumps({
+            'items': [
+                {
+                    'product_id': product1.id,
+                    'count': 3
+                },
+                {
+                    'product_id': product2.id,
+                    'count': 1
+                },
+                {
+                    'product_id': product3.id,
+                    'count': 2
+                }
+            ],
+            'delivery_address': {
+                'first_name': 'Tibor',
+                'last_name': 'Mikita',
+                'phone': '+421000111222',
+                'street': 'Kolejni',
+                'zip_code': '00000',
+                'city': 'Brno',
+                'country': 'CZ'
+            }
+        }),
+        content_type='application/json',
+        headers={'Authorization': f'Bearer {access_token}'}
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_400_BAD_REQUEST
+    assert payload['message'] == 'Not enough products.'
+
+    assert product1.count == 1
+    assert product2.count == 1
+    assert product3.count == 2
+
+
 def test_create_order_no_data(client):
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
@@ -140,12 +218,16 @@ def test_create_order_no_data(client):
 
 def test_create_order_logged_out(client):
     category = categories.add(Category(name='Men'))
-    product1 = Product(name='Product One', price=19.99)
-    product2 = Product(name='Product Two', price=29.99)
-    product3 = Product(name='Product Three', price=39.99)
+    product1 = Product(name='Product One', price=19.99, count=1)
+    product2 = Product(name='Product Two', price=29.99, count=1)
+    product3 = Product(name='Product Three', price=39.99, count=2)
     categories.add_product(category, product1)
     categories.add_product(category, product2)
     categories.add_product(category, product3)
+
+    assert product1.count == 1
+    assert product2.count == 1
+    assert product3.count == 2
 
     r = client.post(
         '/api/orders/',
@@ -181,6 +263,10 @@ def test_create_order_logged_out(client):
 
     assert r.status_code == status.HTTP_201_CREATED
     assert payload['message'] == 'Order was successfully created.'
+
+    assert product1.count == 0
+    assert product2.count == 0
+    assert product3.count == 0
 
     last_order = orders.get_last_order()
 
@@ -224,8 +310,8 @@ def test_create_order_not_existing_products(client):
     user.active = True
 
     category = categories.add(Category(name='Men'))
-    product1 = Product(name='Product One', price=19.99)
-    product3 = Product(name='Product Three', price=39.99)
+    product1 = Product(name='Product One', price=19.99, count=1)
+    product3 = Product(name='Product Three', price=39.99, count=2)
     categories.add_product(category, product1)
     categories.add_product(category, product3)
 
@@ -286,9 +372,9 @@ def test_create_order_zero_count(client):
     user.active = True
 
     category = categories.add(Category(name='Men'))
-    product1 = Product(name='Product One', price=19.99)
-    product2 = Product(name='Product Two', price=29.99)
-    product3 = Product(name='Product Three', price=39.99)
+    product1 = Product(name='Product One', price=19.99, count=1)
+    product2 = Product(name='Product Two', price=29.99, count=1)
+    product3 = Product(name='Product Three', price=39.99, count=2)
     categories.add_product(category, product1)
     categories.add_product(category, product2)
     categories.add_product(category, product3)
@@ -348,9 +434,9 @@ def test_create_order_negative_count(client):
     user.active = True
 
     category = categories.add(Category(name='Men'))
-    product1 = Product(name='Product One', price=19.99)
-    product2 = Product(name='Product Two', price=29.99)
-    product3 = Product(name='Product Three', price=39.99)
+    product1 = Product(name='Product One', price=19.99, count=1)
+    product2 = Product(name='Product Two', price=29.99, count=1)
+    product3 = Product(name='Product Three', price=39.99, count=2)
     categories.add_product(category, product1)
     categories.add_product(category, product2)
     categories.add_product(category, product3)
@@ -410,9 +496,9 @@ def test_create_order_count_not_int(client):
     user.active = True
 
     category = categories.add(Category(name='Men'))
-    product1 = Product(name='Product One', price=19.99)
-    product2 = Product(name='Product Two', price=29.99)
-    product3 = Product(name='Product Three', price=39.99)
+    product1 = Product(name='Product One', price=19.99, count=1)
+    product2 = Product(name='Product Two', price=29.99, count=1)
+    product3 = Product(name='Product Three', price=39.99, count=2)
     categories.add_product(category, product1)
     categories.add_product(category, product2)
     categories.add_product(category, product3)
@@ -471,14 +557,6 @@ def test_create_order_no_items(client):
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
 
-    category = categories.add(Category(name='Men'))
-    product1 = Product(name='Product One', price=19.99)
-    product2 = Product(name='Product Two', price=29.99)
-    product3 = Product(name='Product Three', price=39.99)
-    categories.add_product(category, product1)
-    categories.add_product(category, product2)
-    categories.add_product(category, product3)
-
     r = client.post(
         '/api/auth/login',
         data=json.dumps({
@@ -518,14 +596,6 @@ def test_create_order_no_items(client):
 def test_create_order_empty_items(client):
     user = users.add(User(email='tibor@mikita.eu', password='blah'))
     user.active = True
-
-    category = categories.add(Category(name='Men'))
-    product1 = Product(name='Product One', price=19.99)
-    product2 = Product(name='Product Two', price=29.99)
-    product3 = Product(name='Product Three', price=39.99)
-    categories.add_product(category, product1)
-    categories.add_product(category, product2)
-    categories.add_product(category, product3)
 
     r = client.post(
         '/api/auth/login',
@@ -569,9 +639,9 @@ def test_create_order_item_missing_product_id(client):
     user.active = True
 
     category = categories.add(Category(name='Men'))
-    product1 = Product(name='Product One', price=19.99)
-    product2 = Product(name='Product Two', price=29.99)
-    product3 = Product(name='Product Three', price=39.99)
+    product1 = Product(name='Product One', price=19.99, count=1)
+    product2 = Product(name='Product Two', price=29.99, count=1)
+    product3 = Product(name='Product Three', price=39.99, count=2)
     categories.add_product(category, product1)
     categories.add_product(category, product2)
     categories.add_product(category, product3)
@@ -630,9 +700,9 @@ def test_create_order_item_missing_count(client):
     user.active = True
 
     category = categories.add(Category(name='Men'))
-    product1 = Product(name='Product One', price=19.99)
-    product2 = Product(name='Product Two', price=29.99)
-    product3 = Product(name='Product Three', price=39.99)
+    product1 = Product(name='Product One', price=19.99, count=1)
+    product2 = Product(name='Product Two', price=29.99, count=1)
+    product3 = Product(name='Product Three', price=39.99, count=2)
     categories.add_product(category, product1)
     categories.add_product(category, product2)
     categories.add_product(category, product3)
@@ -691,9 +761,9 @@ def test_create_order_no_delivery_address(client):
     user.active = True
 
     category = categories.add(Category(name='Men'))
-    product1 = Product(name='Product One', price=19.99)
-    product2 = Product(name='Product Two', price=29.99)
-    product3 = Product(name='Product Three', price=39.99)
+    product1 = Product(name='Product One', price=19.99, count=1)
+    product2 = Product(name='Product Two', price=29.99, count=1)
+    product3 = Product(name='Product Three', price=39.99, count=2)
     categories.add_product(category, product1)
     categories.add_product(category, product2)
     categories.add_product(category, product3)
@@ -744,9 +814,9 @@ def test_create_order_delivery_address_missing_required_field(client):
     user.active = True
 
     category = categories.add(Category(name='Men'))
-    product1 = Product(name='Product One', price=19.99)
-    product2 = Product(name='Product Two', price=29.99)
-    product3 = Product(name='Product Three', price=39.99)
+    product1 = Product(name='Product One', price=19.99, count=1)
+    product2 = Product(name='Product Two', price=29.99, count=1)
+    product3 = Product(name='Product Three', price=39.99, count=2)
     categories.add_product(category, product1)
     categories.add_product(category, product2)
     categories.add_product(category, product3)
@@ -805,9 +875,9 @@ def test_create_order_same_product_different_items(client):
     user.active = True
 
     category = categories.add(Category(name='Men'))
-    product1 = Product(name='Product One', price=19.99)
-    product2 = Product(name='Product Two', price=29.99)
-    product3 = Product(name='Product Three', price=39.99)
+    product1 = Product(name='Product One', price=19.99, count=1)
+    product2 = Product(name='Product Two', price=29.99, count=1)
+    product3 = Product(name='Product Three', price=39.99, count=2)
     categories.add_product(category, product1)
     categories.add_product(category, product2)
     categories.add_product(category, product3)
@@ -868,16 +938,16 @@ def test_update_order_status(client):
     user.role = UserRole.ADMIN
 
     category = categories.add(Category(name='Men'))
-    product1 = Product(name='Product One', price=19.99)
-    product2 = Product(name='Product Two', price=29.99)
-    product3 = Product(name='Product Three', price=39.99)
+    product1 = Product(name='Product One', price=19.99, count=1)
+    product2 = Product(name='Product Two', price=29.99, count=1)
+    product3 = Product(name='Product Three', price=39.99, count=2)
     categories.add_product(category, product1)
     categories.add_product(category, product2)
     categories.add_product(category, product3)
 
-    order_item1 = OrderItem(1, product1.price, product1.id)
-    order_item2 = OrderItem(1, product2.price, product2.id)
-    order_item3 = OrderItem(2, product3.price, product3.id)
+    order_item1 = OrderItem(1, product1.price, product1.id, product1)
+    order_item2 = OrderItem(1, product2.price, product2.id, product2)
+    order_item3 = OrderItem(2, product3.price, product3.id, product3)
 
     delivery_address = DeliveryAddress('Tibor', 'Mikita', '+421000111222', 'Kolejni', '00000', 'Brno', 'CZ')
 
@@ -917,16 +987,16 @@ def test_update_order_status(client):
 
 def test_update_order_status_not_logged_in(client):
     category = categories.add(Category(name='Men'))
-    product1 = Product(name='Product One', price=19.99)
-    product2 = Product(name='Product Two', price=29.99)
-    product3 = Product(name='Product Three', price=39.99)
+    product1 = Product(name='Product One', price=19.99, count=1)
+    product2 = Product(name='Product Two', price=29.99, count=1)
+    product3 = Product(name='Product Three', price=39.99, count=2)
     categories.add_product(category, product1)
     categories.add_product(category, product2)
     categories.add_product(category, product3)
 
-    order_item1 = OrderItem(1, product1.price, product1.id)
-    order_item2 = OrderItem(1, product2.price, product2.id)
-    order_item3 = OrderItem(2, product3.price, product3.id)
+    order_item1 = OrderItem(1, product1.price, product1.id, product1)
+    order_item2 = OrderItem(1, product2.price, product2.id, product2)
+    order_item3 = OrderItem(2, product3.price, product3.id, product3)
 
     delivery_address = DeliveryAddress('Tibor', 'Mikita', '+421000111222', 'Kolejni', '00000', 'Brno', 'CZ')
 
@@ -951,16 +1021,16 @@ def test_update_order_status_not_admin_or_worker(client):
     user.active = True
 
     category = categories.add(Category(name='Men'))
-    product1 = Product(name='Product One', price=19.99)
-    product2 = Product(name='Product Two', price=29.99)
-    product3 = Product(name='Product Three', price=39.99)
+    product1 = Product(name='Product One', price=19.99, count=1)
+    product2 = Product(name='Product Two', price=29.99, count=1)
+    product3 = Product(name='Product Three', price=39.99, count=2)
     categories.add_product(category, product1)
     categories.add_product(category, product2)
     categories.add_product(category, product3)
 
-    order_item1 = OrderItem(1, product1.price, product1.id)
-    order_item2 = OrderItem(1, product2.price, product2.id)
-    order_item3 = OrderItem(2, product3.price, product3.id)
+    order_item1 = OrderItem(1, product1.price, product1.id, product1)
+    order_item2 = OrderItem(1, product2.price, product2.id, product2)
+    order_item3 = OrderItem(2, product3.price, product3.id, product3)
 
     delivery_address = DeliveryAddress('Tibor', 'Mikita', '+421000111222', 'Kolejni', '00000', 'Brno', 'CZ')
 
@@ -1037,16 +1107,16 @@ def test_update_order_status_empty_json(client):
     user.role = UserRole.ADMIN
 
     category = categories.add(Category(name='Men'))
-    product1 = Product(name='Product One', price=19.99)
-    product2 = Product(name='Product Two', price=29.99)
-    product3 = Product(name='Product Three', price=39.99)
+    product1 = Product(name='Product One', price=19.99, count=1)
+    product2 = Product(name='Product Two', price=29.99, count=1)
+    product3 = Product(name='Product Three', price=39.99, count=2)
     categories.add_product(category, product1)
     categories.add_product(category, product2)
     categories.add_product(category, product3)
 
-    order_item1 = OrderItem(1, product1.price, product1.id)
-    order_item2 = OrderItem(1, product2.price, product2.id)
-    order_item3 = OrderItem(2, product3.price, product3.id)
+    order_item1 = OrderItem(1, product1.price, product1.id, product1)
+    order_item2 = OrderItem(1, product2.price, product2.id, product2)
+    order_item3 = OrderItem(2, product3.price, product3.id, product3)
 
     delivery_address = DeliveryAddress('Tibor', 'Mikita', '+421000111222', 'Kolejni', '00000', 'Brno', 'CZ')
 
@@ -1086,16 +1156,16 @@ def test_update_order_status_missing_status(client):
     user.role = UserRole.ADMIN
 
     category = categories.add(Category(name='Men'))
-    product1 = Product(name='Product One', price=19.99)
-    product2 = Product(name='Product Two', price=29.99)
-    product3 = Product(name='Product Three', price=39.99)
+    product1 = Product(name='Product One', price=19.99, count=1)
+    product2 = Product(name='Product Two', price=29.99, count=1)
+    product3 = Product(name='Product Three', price=39.99, count=2)
     categories.add_product(category, product1)
     categories.add_product(category, product2)
     categories.add_product(category, product3)
 
-    order_item1 = OrderItem(1, product1.price, product1.id)
-    order_item2 = OrderItem(1, product2.price, product2.id)
-    order_item3 = OrderItem(2, product3.price, product3.id)
+    order_item1 = OrderItem(1, product1.price, product1.id, product1)
+    order_item2 = OrderItem(1, product2.price, product2.id, product2)
+    order_item3 = OrderItem(2, product3.price, product3.id, product3)
 
     delivery_address = DeliveryAddress('Tibor', 'Mikita', '+421000111222', 'Kolejni', '00000', 'Brno', 'CZ')
 
@@ -1137,16 +1207,16 @@ def test_update_order_status_invalid_status(client):
     user.role = UserRole.ADMIN
 
     category = categories.add(Category(name='Men'))
-    product1 = Product(name='Product One', price=19.99)
-    product2 = Product(name='Product Two', price=29.99)
-    product3 = Product(name='Product Three', price=39.99)
+    product1 = Product(name='Product One', price=19.99, count=1)
+    product2 = Product(name='Product Two', price=29.99, count=1)
+    product3 = Product(name='Product Three', price=39.99, count=2)
     categories.add_product(category, product1)
     categories.add_product(category, product2)
     categories.add_product(category, product3)
 
-    order_item1 = OrderItem(1, product1.price, product1.id)
-    order_item2 = OrderItem(1, product2.price, product2.id)
-    order_item3 = OrderItem(2, product3.price, product3.id)
+    order_item1 = OrderItem(1, product1.price, product1.id, product1)
+    order_item2 = OrderItem(1, product2.price, product2.id, product2)
+    order_item3 = OrderItem(2, product3.price, product3.id, product3)
 
     delivery_address = DeliveryAddress('Tibor', 'Mikita', '+421000111222', 'Kolejni', '00000', 'Brno', 'CZ')
 
@@ -1189,16 +1259,16 @@ def test_cancel_order(client):
     user.active = True
 
     category = categories.add(Category(name='Men'))
-    product1 = Product(name='Product One', price=19.99)
-    product2 = Product(name='Product Two', price=29.99)
-    product3 = Product(name='Product Three', price=39.99)
+    product1 = Product(name='Product One', price=19.99, count=1)
+    product2 = Product(name='Product Two', price=29.99, count=1)
+    product3 = Product(name='Product Three', price=39.99, count=2)
     categories.add_product(category, product1)
     categories.add_product(category, product2)
     categories.add_product(category, product3)
 
-    order_item1 = OrderItem(1, product1.price, product1.id)
-    order_item2 = OrderItem(1, product2.price, product2.id)
-    order_item3 = OrderItem(2, product3.price, product3.id)
+    order_item1 = OrderItem(1, product1.price, product1.id, product1)
+    order_item2 = OrderItem(1, product2.price, product2.id, product2)
+    order_item3 = OrderItem(2, product3.price, product3.id, product3)
 
     delivery_address = DeliveryAddress('Tibor', 'Mikita', '+421000111222', 'Kolejni', '00000', 'Brno', 'CZ')
 
@@ -1237,16 +1307,16 @@ def test_cancel_order_not_logged_in(client):
     user.active = True
 
     category = categories.add(Category(name='Men'))
-    product1 = Product(name='Product One', price=19.99)
-    product2 = Product(name='Product Two', price=29.99)
-    product3 = Product(name='Product Three', price=39.99)
+    product1 = Product(name='Product One', price=19.99, count=1)
+    product2 = Product(name='Product Two', price=29.99, count=1)
+    product3 = Product(name='Product Three', price=39.99, count=2)
     categories.add_product(category, product1)
     categories.add_product(category, product2)
     categories.add_product(category, product3)
 
-    order_item1 = OrderItem(1, product1.price, product1.id)
-    order_item2 = OrderItem(1, product2.price, product2.id)
-    order_item3 = OrderItem(2, product3.price, product3.id)
+    order_item1 = OrderItem(1, product1.price, product1.id, product1)
+    order_item2 = OrderItem(1, product2.price, product2.id, product2)
+    order_item3 = OrderItem(2, product3.price, product3.id, product3)
 
     delivery_address = DeliveryAddress('Tibor', 'Mikita', '+421000111222', 'Kolejni', '00000', 'Brno', 'CZ')
 
@@ -1265,16 +1335,16 @@ def test_cancel_already_cancelled_order(client):
     user.active = True
 
     category = categories.add(Category(name='Men'))
-    product1 = Product(name='Product One', price=19.99)
-    product2 = Product(name='Product Two', price=29.99)
-    product3 = Product(name='Product Three', price=39.99)
+    product1 = Product(name='Product One', price=19.99, count=1)
+    product2 = Product(name='Product Two', price=29.99, count=1)
+    product3 = Product(name='Product Three', price=39.99, count=2)
     categories.add_product(category, product1)
     categories.add_product(category, product2)
     categories.add_product(category, product3)
 
-    order_item1 = OrderItem(1, product1.price, product1.id)
-    order_item2 = OrderItem(1, product2.price, product2.id)
-    order_item3 = OrderItem(2, product3.price, product3.id)
+    order_item1 = OrderItem(1, product1.price, product1.id, product1)
+    order_item2 = OrderItem(1, product2.price, product2.id, product2)
+    order_item3 = OrderItem(2, product3.price, product3.id, product3)
 
     delivery_address = DeliveryAddress('Tibor', 'Mikita', '+421000111222', 'Kolejni', '00000', 'Brno', 'CZ')
 
@@ -1345,16 +1415,16 @@ def test_cancel_not_mine_order(client):
     user.active = True
 
     category = categories.add(Category(name='Men'))
-    product1 = Product(name='Product One', price=19.99)
-    product2 = Product(name='Product Two', price=29.99)
-    product3 = Product(name='Product Three', price=39.99)
+    product1 = Product(name='Product One', price=19.99, count=1)
+    product2 = Product(name='Product Two', price=29.99, count=1)
+    product3 = Product(name='Product Three', price=39.99, count=2)
     categories.add_product(category, product1)
     categories.add_product(category, product2)
     categories.add_product(category, product3)
 
-    order_item1 = OrderItem(1, product1.price, product1.id)
-    order_item2 = OrderItem(1, product2.price, product2.id)
-    order_item3 = OrderItem(2, product3.price, product3.id)
+    order_item1 = OrderItem(1, product1.price, product1.id, product1)
+    order_item2 = OrderItem(1, product2.price, product2.id, product2)
+    order_item3 = OrderItem(2, product3.price, product3.id, product3)
 
     delivery_address = DeliveryAddress('Tibor', 'Mikita', '+421000111222', 'Kolejni', '00000', 'Brno', 'CZ')
 
@@ -1392,21 +1462,21 @@ def test_get_all_orders(client):
     user.role = UserRole.ADMIN
 
     category = categories.add(Category(name='Men'))
-    product1 = Product(name='Product One', price=19.99)
-    product2 = Product(name='Product Two', price=29.99)
-    product3 = Product(name='Product Three', price=39.99)
+    product1 = Product(name='Product One', price=19.99, count=2)
+    product2 = Product(name='Product Two', price=29.99, count=1)
+    product3 = Product(name='Product Three', price=39.99, count=15)
     categories.add_product(category, product1)
     categories.add_product(category, product2)
     categories.add_product(category, product3)
 
-    order1_item1 = OrderItem(1, product1.price, product1.id)
-    order1_item2 = OrderItem(1, product2.price, product2.id)
-    order1_item3 = OrderItem(2, product3.price, product3.id)
+    order1_item1 = OrderItem(1, product1.price, product1.id, product1)
+    order1_item2 = OrderItem(1, product2.price, product2.id, product2)
+    order1_item3 = OrderItem(2, product3.price, product3.id, product3)
 
-    order2_item1 = OrderItem(1, product1.price, product1.id)
-    order2_item2 = OrderItem(3, product3.price, product3.id)
+    order2_item1 = OrderItem(1, product1.price, product1.id, product1)
+    order2_item2 = OrderItem(3, product3.price, product3.id, product3)
 
-    order3_item1 = OrderItem(5, product3.price, product3.id)
+    order3_item1 = OrderItem(5, product3.price, product3.id, product3)
 
     delivery_address1 = DeliveryAddress('Tibor', 'Mikita', '+421000111222', 'Kolejni', '00000', 'Brno', 'CZ')
     delivery_address2 = DeliveryAddress('Peter', 'Hnat', '+421999999999', 'Ecerova', '11111', 'Bratislava', 'SK')
@@ -1536,16 +1606,16 @@ def test_get_order(client):
     user.active = True
 
     category = categories.add(Category(name='Men'))
-    product1 = Product(name='Product One', price=19.99)
-    product2 = Product(name='Product Two', price=29.99)
-    product3 = Product(name='Product Three', price=39.99)
+    product1 = Product(name='Product One', price=19.99, count=1)
+    product2 = Product(name='Product Two', price=29.99, count=1)
+    product3 = Product(name='Product Three', price=39.99, count=2)
     categories.add_product(category, product1)
     categories.add_product(category, product2)
     categories.add_product(category, product3)
 
-    order_item1 = OrderItem(1, product1.price, product1.id)
-    order_item2 = OrderItem(1, product2.price, product2.id)
-    order_item3 = OrderItem(2, product3.price, product3.id)
+    order_item1 = OrderItem(1, product1.price, product1.id, product1)
+    order_item2 = OrderItem(1, product2.price, product2.id, product2)
+    order_item3 = OrderItem(2, product3.price, product3.id, product3)
 
     delivery_address = DeliveryAddress('Tibor', 'Mikita', '+421000111222', 'Kolejni', '00000', 'Brno', 'CZ')
 
@@ -1603,16 +1673,16 @@ def test_get_not_mine_order(client):
     user.active = True
 
     category = categories.add(Category(name='Men'))
-    product1 = Product(name='Product One', price=19.99)
-    product2 = Product(name='Product Two', price=29.99)
-    product3 = Product(name='Product Three', price=39.99)
+    product1 = Product(name='Product One', price=19.99, count=1)
+    product2 = Product(name='Product Two', price=29.99, count=1)
+    product3 = Product(name='Product Three', price=39.99, count=2)
     categories.add_product(category, product1)
     categories.add_product(category, product2)
     categories.add_product(category, product3)
 
-    order_item1 = OrderItem(1, product1.price, product1.id)
-    order_item2 = OrderItem(1, product2.price, product2.id)
-    order_item3 = OrderItem(2, product3.price, product3.id)
+    order_item1 = OrderItem(1, product1.price, product1.id, product1)
+    order_item2 = OrderItem(1, product2.price, product2.id, product2)
+    order_item3 = OrderItem(2, product3.price, product3.id, product3)
 
     delivery_address = DeliveryAddress('Tibor', 'Mikita', '+421000111222', 'Kolejni', '00000', 'Brno', 'CZ')
 
@@ -1644,16 +1714,16 @@ def test_get_not_mine_order(client):
 
 def test_get_order_not_logged_in(client):
     category = categories.add(Category(name='Men'))
-    product1 = Product(name='Product One', price=19.99)
-    product2 = Product(name='Product Two', price=29.99)
-    product3 = Product(name='Product Three', price=39.99)
+    product1 = Product(name='Product One', price=19.99, count=1)
+    product2 = Product(name='Product Two', price=29.99, count=1)
+    product3 = Product(name='Product Three', price=39.99, count=2)
     categories.add_product(category, product1)
     categories.add_product(category, product2)
     categories.add_product(category, product3)
 
-    order_item1 = OrderItem(1, product1.price, product1.id)
-    order_item2 = OrderItem(1, product2.price, product2.id)
-    order_item3 = OrderItem(2, product3.price, product3.id)
+    order_item1 = OrderItem(1, product1.price, product1.id, product1)
+    order_item2 = OrderItem(1, product2.price, product2.id, product2)
+    order_item3 = OrderItem(2, product3.price, product3.id, product3)
 
     delivery_address = DeliveryAddress('Tibor', 'Mikita', '+421000111222', 'Kolejni', '00000', 'Brno', 'CZ')
 

@@ -70,9 +70,12 @@ class OrderCollection(Resource):
             if not isinstance(item['count'], int) or item['count'] <= 0:
                 raise BadRequest('Item count must be positive int.')
 
-            order_items.append(OrderItemModel(item['count'], product.price, product.id))
+            order_items.append(OrderItemModel(item['count'], product.price, product.id, product))
 
-        orders.add(order_items, delivery_address, user_id)
+        new_order = orders.add(order_items, delivery_address, user_id)
+
+        if not new_order:
+            return {'message': 'Not enough products.'}, status.HTTP_400_BAD_REQUEST
 
         return {'message': 'Order was successfully created.'}, status.HTTP_201_CREATED
 

@@ -1,3 +1,5 @@
+from sqlalchemy import CheckConstraint
+
 from project import db
 from project.models.product_image import ProductImage
 
@@ -14,6 +16,7 @@ class Product(db.Model):
     ratings = db.relationship('ProductRating', backref='product', lazy=True)
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=False)
     category = db.relationship("Category")
+    __table_args__ = (CheckConstraint(count >= 0, name='check_count_geq_zero'),)
 
     def __init__(self, name, price, count=0, description=None):
         self.name = name

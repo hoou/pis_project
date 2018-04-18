@@ -1,7 +1,7 @@
-from typing import List
+from typing import List, Union
 
 from sqlalchemy import desc
-from sqlalchemy.exc import StatementError
+from sqlalchemy.exc import StatementError, IntegrityError
 from sqlalchemy.orm import Session
 
 from project import db
@@ -29,7 +29,7 @@ def get_last_by_user(user: User) -> Order:
     return Order.query.filter_by(user_id=user.id).order_by(desc(Order.created)).first()
 
 
-def add(items: List[OrderItem], delivery_address: DeliveryAddress, user_id: int = None) -> Order:
+def add(items: List[OrderItem], delivery_address: DeliveryAddress, user_id: int = None) -> Union[bool, Order]:
     session.begin_nested()
 
     session.add(delivery_address)
@@ -42,7 +42,14 @@ def add(items: List[OrderItem], delivery_address: DeliveryAddress, user_id: int 
 
     order.items.extend(items)
 
-    session.commit()
+    for item in items:
+        item.product.count -= item.count
+
+    try:
+        session.commit()
+    except IntegrityError:
+        session.rollback()
+        return False
 
     return order
 
