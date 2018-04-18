@@ -11,16 +11,14 @@ import {
   ClickAwayListener,
   Hidden
 } from "material-ui";
-import {Person} from "material-ui-icons";
+import {Person, Notifications, Dashboard, Search} from "@material-ui/icons";
 
-import headerLinksStyle from "variables/styles/headerLinksStyle";
+import headerLinksStyle from "assets/jss/material-dashboard-react/headerLinksStyle";
 
 class HeaderLinks extends React.Component {
   state = {
-    open: false,
-    userDropdownOpen: false
+    open: false
   };
-
   handleClick = () => {
     this.setState({open: !this.state.open});
   };

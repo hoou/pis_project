@@ -11,7 +11,7 @@ import {
   roseColor,
   grayColor,
   defaultFont
-} from "variables/styles";
+} from "../material-dashboard-react";
 
 const tableStyle = theme => ({
   warningTableHeader: {

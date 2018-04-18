@@ -7,13 +7,16 @@ import {
   dangerColor,
   primaryColor,
   primaryBoxShadow
-} from "variables/styles";
+} from "assets/jss/material-dashboard-react.jsx";
 
 const headerLinksStyle = theme => ({
   popperClose: {
     pointerEvents: "none"
   },
   search: {
+    "& > div": {
+      marginTop: "0"
+    },
     [theme.breakpoints.down("sm")]: {
       margin: "10px 15px",
       float: "none !important",
@@ -27,11 +30,9 @@ const headerLinksStyle = theme => ({
   linkText: {
     zIndex: "4",
     ...defaultFont,
-    fontSize: "14px",
-    color: "#a9afbb"
+    fontSize: "14px"
   },
   buttonLink: {
-    top: "-6px",
     [theme.breakpoints.down("sm")]: {
       display: "flex",
       marginLeft: "30px",
@@ -45,9 +46,9 @@ const headerLinksStyle = theme => ({
       float: "right"
     }
   },
-  top: {
-    top: "-6px",
-    zIndex: "4"
+  margin: {
+    zIndex: "4",
+    margin: "0",
   },
   searchIcon: {
     width: "17px",

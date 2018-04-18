@@ -16,7 +16,7 @@ import {
   // BubbleChart,
   // LocationOn,
   // Notifications
-} from "material-ui-icons";
+} from "@material-ui/icons";
 
 const appRoutes = [
   {

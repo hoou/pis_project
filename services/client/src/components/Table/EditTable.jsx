@@ -11,10 +11,8 @@ import {
 
 import PropTypes from "prop-types";
 
-import editTableStyle from "variables/styles/editTableStyle";
-
-import {Close, Edit} from "material-ui-icons";
-
+import editTableStyle from "assets/jss/material-dashboard-react/editTableStyle";
+import {Edit, Close} from "@material-ui/icons";
 
 function EditTable({...props}) {
   const {classes, tableHead, tableData, tableHeaderColor, handleRemove, handleEdit} = props;

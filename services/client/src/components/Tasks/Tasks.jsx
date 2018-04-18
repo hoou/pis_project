@@ -9,18 +9,18 @@ import {
   TableRow,
   Tooltip
 } from "material-ui";
-import { Edit, Close, Check } from "material-ui-icons";
+import {Edit, Close, Check} from "@material-ui/icons";
 
 import PropTypes from "prop-types";
 
-import tasksStyle from "variables/styles/tasksStyle.jsx";
+import tasksStyle from "assets/jss/material-dashboard-react/tasksStyle.jsx";
 
 class Tasks extends React.Component {
   state = {
     checked: this.props.checkedIndexes
   };
   handleToggle = value => () => {
-    const { checked } = this.state;
+    const {checked} = this.state;
     const currentIndex = checked.indexOf(value);
     const newChecked = [...checked];
 
@@ -34,8 +34,9 @@ class Tasks extends React.Component {
       checked: newChecked
     });
   };
+
   render() {
-    const { classes, tasksIndexes, tasks } = this.props;
+    const {classes, tasksIndexes, tasks} = this.props;
     return (
       <Table className={classes.table}>
         <TableBody>

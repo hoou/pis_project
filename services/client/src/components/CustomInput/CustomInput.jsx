@@ -2,7 +2,7 @@ import React from "react";
 import {withStyles, TextField} from "material-ui";
 import PropTypes from "prop-types";
 
-import customInputStyle from "variables/styles/customInputStyle";
+import customInputStyle from "assets/jss/material-dashboard-react/customInputStyle";
 
 function CustomInput({...props}) {
   const {

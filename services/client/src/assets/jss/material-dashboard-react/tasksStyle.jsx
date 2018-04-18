@@ -2,11 +2,12 @@
 // // // Tasks styles
 // #############################
 
-import { defaultFont, primaryColor, dangerColor } from "variables/styles";
+import { defaultFont, primaryColor, dangerColor } from "assets/jss/material-dashboard-react.jsx";
 
 const tasksStyle = {
   table: {
-    marginBottom: "0"
+    marginBottom: "0",
+    overflow: "visible",
   },
   tableRow: {
     position: "relative",

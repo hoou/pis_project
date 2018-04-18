@@ -10,7 +10,7 @@ import {Header, Footer, Sidebar} from "components";
 
 import appRoutes from "routes/app.jsx";
 
-import appStyle from "variables/styles/appStyle.jsx";
+import appStyle from "assets/jss/material-dashboard-react/appStyle";
 
 import image from "assets/img/sidebar-3.jpg";
 import logo from "assets/img/reactlogo.png";
