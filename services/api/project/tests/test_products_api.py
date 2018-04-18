@@ -21,7 +21,7 @@ def test_get_all_products(client):
     categories.add_product(category, Product(name='Product One', price=13.99))
     product = Product(name='Product Two', price=23.99, description='blah')
     categories.add_product(category, product)
-    categories.add_product(category, Product(name='Product Three', price=3.99))
+    categories.add_product(category, Product(name='Product Three', price=3.99, count=5))
     categories.add_product(category, Product(name='Product Four', price=68.99))
     products.delete(product)
 
@@ -44,6 +44,10 @@ def test_get_all_products(client):
     assert sorted_products[1]['price'] == 3.99
     assert sorted_products[2]['price'] == 68.99
 
+    assert sorted_products[0]['count'] == 0
+    assert sorted_products[1]['count'] == 5
+    assert sorted_products[2]['count'] == 0
+
     assert sorted_products[0]['description'] is None
     assert sorted_products[1]['description'] is None
     assert sorted_products[2]['description'] is None
@@ -51,12 +55,12 @@ def test_get_all_products(client):
     assert sorted_products[0]['category']['name'] == \
            sorted_products[1]['category']['name'] == \
            sorted_products[2]['category']['name'] == \
-           "Men"
+           'Men'
 
 
 def test_get_single_product(client):
     category = categories.add(Category(name='Men'))
-    product = Product(name='Super Product', price=99.99)
+    product = Product(name='Super Product', price=99.99, count=5)
     categories.add_product(category, product)
 
     r = client.get(f'/api/products/{product.id}')
@@ -66,6 +70,7 @@ def test_get_single_product(client):
     assert r.status_code == status.HTTP_200_OK
     assert payload['name'] == 'Super Product'
     assert payload['price'] == 99.99
+    assert payload['count'] == 5
     assert payload['description'] is None
 
 
@@ -121,7 +126,8 @@ def test_add_product(client):
         data=json.dumps({
             'name': 'New Super Product',
             'price': 213.99,
-            'description': 'blah blah blah'
+            'description': 'blah blah blah',
+            'count': 5
         }),
         headers={'Authorization': f'Bearer {access_token}'},
         content_type='application/json'
@@ -131,6 +137,13 @@ def test_add_product(client):
 
     assert r.status_code == status.HTTP_201_CREATED
     assert payload['message'] == 'Product was successfully added.'
+
+    product = products.get_all()[0]
+
+    assert product.name == 'New Super Product'
+    assert product.price == 213.99
+    assert product.description == 'blah blah blah'
+    assert product.count == 5
 
 
 def test_add_product_not_existing_category(client):
@@ -1198,13 +1211,13 @@ def test_update_product(client):
     access_token = payload['access_token']
 
     assert product.name == 'Super Small Product'
+    assert product.count == 0
 
     r = client.patch(
         f'/api/products/{product.id}',
         data=json.dumps({
             'name': 'Super Big Product',
-            'price': 0.99,
-            'category_id': category.id
+            'count': 5
         }),
         headers={'Authorization': f'Bearer {access_token}'},
         content_type='application/json'
@@ -1215,7 +1228,7 @@ def test_update_product(client):
     assert r.status_code == status.HTTP_200_OK
     assert payload['message'] == 'Product was successfully modified.'
     assert product.name == 'Super Big Product'
-    assert product.price == 0.99
+    assert product.count == 5
 
 
 def test_update_no_data(client):
@@ -1825,7 +1838,7 @@ def test_get_all_deleted_products(client):
 
     assert sorted_products[0]['category']['name'] == \
            sorted_products[1]['category']['name'] == \
-           "Men"
+           'Men'
 
 
 def test_get_all_deleted_products_not_logged_in(client):

@@ -75,7 +75,7 @@ class ProductItem(Resource):
         if not product:
             raise NotFound('Product not found.')
 
-        attributes = {'name', 'price', 'description', 'category_id'}
+        attributes = {'name', 'price', 'count', 'description', 'category_id'}
 
         if not any(data.get(attribute) for attribute in attributes):
             raise InvalidPayload

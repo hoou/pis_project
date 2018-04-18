@@ -25,6 +25,7 @@ category = api.model('Category', {
 product = api.model('Product', {
     'id': fields.Integer(),
     'name': fields.String(required=True),
+    'count': fields.Integer(),
     'description': fields.String(),
     'price': fields.Float(required=True),
     'category': fields.Nested(category)

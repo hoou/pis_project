@@ -90,6 +90,7 @@ class CategoryProductCollection(Resource):
 
         name = data.get('name')
         price = data.get('price')
+        count = data.get('count')
         description = data.get('description')
 
         if name is None or price is None:
@@ -100,7 +101,7 @@ class CategoryProductCollection(Resource):
         if category is None:
             raise NotFound('Category not found.')
 
-        product = Product(name=name, price=price, description=description)
+        product = Product(name=name, price=price, description=description, count=count or 0)
         categories.add_product(category, product)
 
         return {'message': 'Product was successfully added.'}, status.HTTP_201_CREATED
