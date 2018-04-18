@@ -31,24 +31,18 @@ class App extends React.Component {
 
   render() {
     return this.props.checkedStatus ? (
-      <div className="jumbotron">
-        <div className="container">
-          <div className="col-sm-8 col-sm-offset-2">
-            <Router history={history}>
-              <Switch>
-                <Route exact path="/login" component={LoginPage}/>
-                <PrivateRoute
-                  loggedIn={this.props.loggedIn}
-                  path="/"
-                  component={Admin}
-                  handleLogout={this.handleLogout}
-                />
-              </Switch>
-            </Router>
-          </div>
-        </div>
-      </div>
-    ) : (<div/>);
+      <Router history={history}>
+        <Switch>
+          <Route exact path="/login" component={LoginPage}/>
+          <PrivateRoute
+            loggedIn={this.props.loggedIn}
+            path="/"
+            component={Admin}
+            handleLogout={this.handleLogout}
+          />
+        </Switch>
+      </Router>
+    ) : null;
   }
 }
 
