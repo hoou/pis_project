@@ -7,7 +7,7 @@ import IconButton from 'material-ui/IconButton';
 import Typography from 'material-ui/Typography';
 import red from 'material-ui/colors/red';
 
-import traktorImage from "modules/front/assets/img/traktor.jpg"
+import placeholder from "modules/front/assets/img/placeholder.png"
 import {AddShoppingCart} from "@material-ui/icons";
 
 const styles = theme => ({
@@ -45,7 +45,7 @@ const styles = theme => ({
 class ProductCard extends React.Component {
   state = {expanded: false};
   render() {
-    const {classes, title, price, description} = this.props;
+    const {classes, title, price, description, count, image} = this.props;
 
     return (
       <div>
@@ -56,7 +56,7 @@ class ProductCard extends React.Component {
               subheader: classes.cardSubHeader
             }}
             title={title}
-            subheader={price}
+            subheader={price + " EUR"}
             action={
               <IconButton aria-label="Add to cart">
                 <AddShoppingCart/>
@@ -65,10 +65,13 @@ class ProductCard extends React.Component {
           />
           <CardMedia
             className={classes.media}
-            image={traktorImage}
-            title="Contemplative Reptile"
+            image={image ? image : placeholder}
+            title={title}
           />
           <CardContent>
+            <Typography variant="caption" align="right" noWrap={true}>
+              Na sklade: {count}
+            </Typography>
             <Typography component="p" noWrap={true}>
               {description}
             </Typography>

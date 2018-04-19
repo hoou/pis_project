@@ -40,7 +40,13 @@ class HomePage extends React.Component {
         <Grid container className={this.props.classes.root} spacing={16}>
           {products.map((product) => (
             <Grid item xs={12} sm={6} md={4} lg={2} key={product['id']}>
-              <ProductCard title={product['name']} price={product['price']} description={product['description']}/>
+              <ProductCard
+                title={product['name']}
+                price={product['price']}
+                description={product['description']}
+                count={product["count"]}
+                image={product["image"]}
+              />
             </Grid>
           ))}
         </Grid>
