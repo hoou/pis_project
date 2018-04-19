@@ -44,11 +44,6 @@ const styles = theme => ({
 
 class ProductCard extends React.Component {
   state = {expanded: false};
-
-  handleExpandClick = () => {
-    this.setState({expanded: !this.state.expanded});
-  };
-
   render() {
     const {classes, title, price, description} = this.props;
 

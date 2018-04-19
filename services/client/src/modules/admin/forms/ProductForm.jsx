@@ -9,6 +9,7 @@ import {connect} from "react-redux";
 import {productsActions} from "actions/products.actions";
 import floatNormalizer from "modules/admin/forms/normalizers/float.normalizer";
 import twoDecimalPlacesNormalizer from "./normalizers/twoDecimalPlaces.normalizer";
+import greaterThan from "./normalizers/greaterOrEqualThan.normalizer";
 
 const styles = theme => ({
   button: {
@@ -90,6 +91,7 @@ class ProductForm extends React.Component {
       change("price", data["price"]);
       change("description", data["description"]);
       change("category", data["category"]["id"]);
+      change("count", data["count"]);
     }
   }
 
@@ -102,11 +104,15 @@ class ProductForm extends React.Component {
           <Field required name="name" component={renderTextField} label="Name"/>
         </div>
         <div>
-          <Field required name="price" component={renderTextField} label="Price" type="number"
-                 normalize={(val) => twoDecimalPlacesNormalizer(floatNormalizer(val))}/>
+          <Field name="count" component={renderTextField} label="Count" type="number" required
+                 normalize={greaterThan(0)}/>
         </div>
         <div>
           <Field name="description" component={renderTextField} label="Description"/>
+        </div>
+        <div>
+          <Field required name="price" component={renderTextField} label="Price" type="number"
+                 normalize={(val) => twoDecimalPlacesNormalizer(floatNormalizer(val))}/>
         </div>
         <div>
           <Field required name="category" label="Category" component={renderTextField} select>

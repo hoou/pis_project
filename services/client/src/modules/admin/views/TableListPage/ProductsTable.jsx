@@ -43,7 +43,7 @@ class ProductsTable extends React.Component {
   render() {
     let {items, deleted_items} = this.props.products;
     let tableData = [];
-    let tableHead = ["#", "Name", "Description", "Price", "Category"];
+    let tableHead = ["#", "Name", "Count", "Description", "Price", "Category"];
     let items_to_show = [];
 
     items = _.map(items, item => ({deleted: false, data: item}));
@@ -56,6 +56,7 @@ class ProductsTable extends React.Component {
     }
 
     if (items_to_show) {
+      console.log("items to show", items_to_show);
       /*
       [{id: 1, name: "Traktory"}, {id: 2, name: "Kultivatory"}]
         ===>
@@ -63,7 +64,7 @@ class ProductsTable extends React.Component {
        */
       tableData = _.map(items_to_show, item => ({
         deleted: item.deleted, data: _.map([..._.values(item.data)], item => {
-          if (item) {
+          if (item != null) {
             if (item instanceof Object) {
               return item["name"];
             } else {
