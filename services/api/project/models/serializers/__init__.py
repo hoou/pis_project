@@ -22,18 +22,19 @@ category = api.model('Category', {
     'name': fields.String(required=True)
 })
 
+product_image = api.model('Product image', {
+    'id': fields.Integer(),
+    'url': fields.String(required=True)
+})
+
 product = api.model('Product', {
     'id': fields.Integer(),
     'name': fields.String(required=True),
     'count': fields.Integer(),
     'description': fields.String(),
     'price': fields.Float(required=True),
-    'category': fields.Nested(category)
-})
-
-product_image = api.model('Product image', {
-    'id': fields.Integer(),
-    'url': fields.String(required=True)
+    'category': fields.Nested(category),
+    'image': fields.Nested(product_image)
 })
 
 product_rating = api.model('Product rating', {
