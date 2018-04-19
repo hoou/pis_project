@@ -47,7 +47,7 @@ function login(email, password) {
       .then(
         tokens => {
           dispatch(alertActions.clear());
-          history.push('/');
+          history.push('/admin');
           dispatch(success(tokens));
         },
         error => {
