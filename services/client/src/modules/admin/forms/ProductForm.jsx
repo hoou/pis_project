@@ -1,7 +1,7 @@
 import React from 'react'
 import _ from "lodash"
 import {Field, reduxForm} from 'redux-form'
-import {MenuItem, withStyles} from "material-ui";
+import {Button, MenuItem, withStyles} from "material-ui";
 import RegularButton from "modules/admin/components/CustomButtons/Button"
 import PropTypes from "prop-types"
 import CustomInput from "modules/admin/components/CustomInput/CustomInput";
@@ -21,6 +21,8 @@ const styles = theme => ({
 });
 
 const validate = values => {
+  console.log(values);
+
   const errors = {};
   const requiredFields = ['name', 'price', 'category'];
   requiredFields.forEach(field => {
@@ -41,13 +43,6 @@ const validate = values => {
 // };
 
 const renderTextField = ({input, label, meta: {touched, error}, ...custom}) => {
-//  <TextField label={label}
-  //            error={touched && !!error}
-  //           helperText={(touched && !!error) ? error : ''}
-  //          {...input}
-  //         {...custom}
-  // />
-
   // console.log("custom", custom);
   // console.log("input", input);
 
@@ -61,20 +56,63 @@ const renderTextField = ({input, label, meta: {touched, error}, ...custom}) => {
     inputProps={input}
     {...custom}
   />
-
-
-  // classes,
-  // formControlProps,-
-  // labelText,
-  // id,
-  // labelProps,
-  // inputProps,
-  // error,
-  // success
-
 };
 
+class FieldFileInput extends React.Component {
+  constructor(props) {
+    super(props);
+    this.onChange = this.onChange.bind(this);
+
+    this.fileInput = React.createRef();
+    this.clickFileInput = this.clickFileInput.bind(this)
+
+    this.state = {
+      file: null
+    }
+  }
+
+  clickFileInput() {
+    this.fileInput.current.click();
+  }
+
+  onChange(e) {
+    const {input: {onChange}} = this.props;
+    onChange(e.target.files[0]);
+
+    this.setState({
+      file: e.target.files[0].name
+    })
+  }
+
+  render() {
+    const {input: {value}} = this.props;
+    const {input, label} = this.props;
+    const {file} = this.state;
+    return (
+      <div>
+        <Button
+          style={{marginRight: 5}}
+          onClick={this.clickFileInput}
+          variant="raised"
+          color="primary"
+        >
+          Upload image
+          <input
+            ref={this.fileInput}
+            type='file'
+            accept='.jpg, .png, .jpeg'
+            onChange={this.onChange}
+            style={{display: 'none'}}
+          />
+        </Button>
+        {file}
+      </div>
+    )
+  }
+}
+
 function submit(values, dispatch, props) {
+  console.log("values to submit", values);
   if (props.data) {
     dispatch(productsActions.update(props.id, _.mapKeys(values, (value, key) => key === "category" ? "category_id" : key)))
   } else {
@@ -122,6 +160,16 @@ class ProductForm extends React.Component {
               </MenuItem>
             ))}
           </Field>
+        </div>
+        <div>
+          <Field name="image" label="Image" component={FieldFileInput}/>
+          {/*<Button*/}
+          {/*variant="raised"*/}
+          {/*component="label"*/}
+          {/*color="primary">*/}
+          {/*Upload*/}
+          {/*<input type="file" style={{"display": "none"}} onChange={this.handleFileUploadChange}/>*/}
+          {/*</Button>*/}
         </div>
         <div>
           {dontRenderSubmit
