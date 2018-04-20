@@ -11,10 +11,11 @@ import Divider from 'material-ui/Divider';
 import IconButton from 'material-ui/IconButton';
 import {Menu, ChevronLeft, ChevronRight, ShoppingCart} from '@material-ui/icons';
 import {NavLink, Redirect, Route, Switch} from "react-router-dom";
-import {ListItem, ListItemIcon, ListItemText} from "material-ui";
+import {Badge, ListItem, ListItemIcon, ListItemText} from "material-ui";
 import mainRoutes from "./routes/mainRoutes"
 import userRoutes from "./routes/userRoutes"
 import ProductDetailPage from "./views/ProductDetailPage/ProductDetailPage";
+import {connect} from "react-redux";
 
 const drawerWidth = 240;
 
@@ -91,6 +92,9 @@ const styles = theme => ({
   },
   flex: {
     flex: 1
+  },
+  shoppingCartIconButton: {
+    marginRight: 20
   }
 });
 
@@ -148,7 +152,7 @@ class Front extends React.Component {
   };
 
   render() {
-    const {classes, theme} = this.props;
+    const {classes, theme, cartItems} = this.props;
 
     return (
       <div className={classes.root}>
@@ -170,8 +174,16 @@ class Front extends React.Component {
             </Typography>
             <IconButton
               color="inherit"
+              className={classes.shoppingCartIconButton}
             >
-              <ShoppingCart/>
+              {
+                cartItems && cartItems.length > 0 ?
+                  <Badge badgeContent={cartItems.length} color="error">
+                    <ShoppingCart/>
+                  </Badge>
+                  :
+                  <ShoppingCart/>
+              }
             </IconButton>
           </Toolbar>
         </AppBar>
@@ -218,4 +230,4 @@ Front.propTypes = {
   theme: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles, {withTheme: true})(Front);
+export default connect(state => ({cartItems: state.shoppingCart.items}))(withStyles(styles, {withTheme: true})(Front));

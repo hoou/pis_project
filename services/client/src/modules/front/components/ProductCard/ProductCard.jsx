@@ -9,6 +9,8 @@ import red from 'material-ui/colors/red';
 import placeholder from "modules/front/assets/img/placeholder.png"
 import {AddShoppingCart} from "@material-ui/icons";
 import {Link} from "react-router-dom";
+import {shoppingCartActions} from "../../../../actions/shoppingCart.actions";
+import {connect} from "react-redux";
 
 const styles = theme => ({
   card: {
@@ -45,6 +47,11 @@ const styles = theme => ({
 class ProductCard extends React.Component {
   state = {expanded: false};
 
+  handleClickAddShoppingCart = id => () => {
+    const {dispatch} = this.props;
+    dispatch(shoppingCartActions.add(id))
+  };
+
   render() {
     const {classes} = this.props;
     const {price, id, name, images, description, count} = this.props.product;
@@ -60,7 +67,7 @@ class ProductCard extends React.Component {
             title={name}
             subheader={price + " EUR"}
             action={
-              <IconButton aria-label="Add to cart">
+              <IconButton onClick={this.handleClickAddShoppingCart(id)} aria-label="Add to cart">
                 <AddShoppingCart/>
               </IconButton>
             }
@@ -90,4 +97,4 @@ ProductCard.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(ProductCard);
+export default connect()(withStyles(styles)(ProductCard));
