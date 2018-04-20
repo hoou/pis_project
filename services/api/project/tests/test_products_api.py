@@ -57,8 +57,9 @@ def test_get_all_products(client):
            sorted_products[2]['category']['name'] == \
            'Men'
 
-    assert sorted_products[0]['image']['id'] == sorted_products[1]['image']['id'] == sorted_products[2]['image']['id'] \
-           is None
+    assert len(sorted_products[0]['images']) == \
+           len(sorted_products[1]['images']) == \
+           len(sorted_products[2]['images']) == 0
 
 
 def test_get_single_product(client):
@@ -715,7 +716,7 @@ def test_add_product_image(client):
     payload = r.json
 
     assert r.status_code == status.HTTP_201_CREATED
-    assert payload['message'] == 'Image was successfully uploaded.'
+    assert payload['message'] == 'Images were successfully uploaded.'
     assert len(product.images) == 1
     assert isinstance(product.images[0], ProductImage)
     assert product.images[0].url

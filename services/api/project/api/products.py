@@ -7,6 +7,7 @@ from flask import request, current_app
 from flask_api import status
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restplus import Resource
+from werkzeug.datastructures import ImmutableMultiDict
 
 from project.api import api
 from project.api.errors import InvalidPayload, NotFound, BadRequest, ProductRatingError
@@ -123,33 +124,36 @@ class ProductImageCollection(Resource):
         if product is None:
             raise NotFound('Product not found.')
 
-        file = request.files.get('file')
-
-        if file is None:
+        files: ImmutableMultiDict = request.files
+        if len(files) == 0:
             raise InvalidPayload
 
-        if not is_uploaded_file_allowed(file.filename):
-            raise BadRequest('File extension not allowed.')
+        for file_key in files:
+            file = files.get(file_key)
+            current_app.logger.info(file)
 
-        # TODO move this shit to util function or something
-        basedir = os.path.abspath(os.path.dirname(__file__))
+            if not is_uploaded_file_allowed(file.filename):
+                raise BadRequest('File extension not allowed.')
 
-        product_dir = os.path.join(basedir, '..', current_app.config.get('UPLOAD_FOLDER'), str(product_id))
+            # TODO move this shit to util function or something
+            basedir = os.path.abspath(os.path.dirname(__file__))
 
-        pathlib.Path(product_dir).mkdir(parents=True, exist_ok=True)
+            product_dir = os.path.join(basedir, '..', current_app.config.get('UPLOAD_FOLDER'), str(product_id))
 
-        current_timestamp = int(time.time())
+            pathlib.Path(product_dir).mkdir(parents=True, exist_ok=True)
 
-        from werkzeug.utils import secure_filename
-        secured_filename = secure_filename(ntpath.basename(file.filename))
+            current_timestamp = int(time.time())
 
-        filename = f'{current_timestamp}_{secured_filename}'
-        file_path = os.path.join(product_dir, filename)
-        file.save(file_path)
+            from werkzeug.utils import secure_filename
+            secured_filename = secure_filename(ntpath.basename(file.filename))
 
-        products.add_image(product, url=file_path)
+            filename = f'{current_timestamp}_{secured_filename}'
+            file_path = os.path.join(product_dir, filename)
+            file.save(file_path)
 
-        return {'message': 'Image was successfully uploaded.'}, status.HTTP_201_CREATED
+            products.add_image(product, url=file_path)
+
+        return {'message': 'Images were successfully uploaded.'}, status.HTTP_201_CREATED
 
 
 @ns.route('/<int:product_id>/images/<int:image_id>')
