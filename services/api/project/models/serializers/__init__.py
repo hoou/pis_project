@@ -34,7 +34,7 @@ product = api.model('Product', {
     'description': fields.String(),
     'price': fields.Float(required=True),
     'category': fields.Nested(category),
-    'image': fields.Nested(product_image)
+    'images': fields.List(fields.Nested(product_image))
 })
 
 product_rating = api.model('Product rating', {
