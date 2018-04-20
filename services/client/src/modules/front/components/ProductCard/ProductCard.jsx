@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {withStyles} from 'material-ui/styles';
-import Card, {CardHeader, CardMedia, CardContent, CardActions} from 'material-ui/Card';
-import Collapse from 'material-ui/transitions/Collapse';
+import Card, {CardHeader, CardMedia, CardContent} from 'material-ui/Card';
 import IconButton from 'material-ui/IconButton';
 import Typography from 'material-ui/Typography';
 import red from 'material-ui/colors/red';
@@ -45,7 +44,7 @@ const styles = theme => ({
 class ProductCard extends React.Component {
   state = {expanded: false};
   render() {
-    const {classes, title, price, description, count, image} = this.props;
+    const {classes, title, price, description, count, images} = this.props;
 
     return (
       <div>
@@ -65,7 +64,7 @@ class ProductCard extends React.Component {
           />
           <CardMedia
             className={classes.media}
-            image={image ? image : placeholder}
+            image={images[0] ? images[0].url : placeholder}
             title={title}
           />
           <CardContent>

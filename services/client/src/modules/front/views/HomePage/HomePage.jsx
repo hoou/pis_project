@@ -43,7 +43,7 @@ class HomePage extends React.Component {
                 price={product['price']}
                 description={product['description']}
                 count={product["count"]}
-                image={product["images"][0] ? product["images"][0]["url"] : null}
+                images={product["images"]}
               />
             </Grid>
           ))}
