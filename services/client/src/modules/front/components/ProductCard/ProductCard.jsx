@@ -8,6 +8,7 @@ import red from 'material-ui/colors/red';
 
 import placeholder from "modules/front/assets/img/placeholder.png"
 import {AddShoppingCart} from "@material-ui/icons";
+import {Link} from "react-router-dom";
 
 const styles = theme => ({
   card: {
@@ -43,8 +44,10 @@ const styles = theme => ({
 
 class ProductCard extends React.Component {
   state = {expanded: false};
+
   render() {
-    const {classes, title, price, description, count, images} = this.props;
+    const {classes} = this.props;
+    const {price, id, name, images, description, count} = this.props.product;
 
     return (
       <div>
@@ -54,7 +57,7 @@ class ProductCard extends React.Component {
               title: classes.cardHeaderTitle,
               subheader: classes.cardSubHeader
             }}
-            title={title}
+            title={name}
             subheader={price + " EUR"}
             action={
               <IconButton aria-label="Add to cart">
@@ -62,14 +65,16 @@ class ProductCard extends React.Component {
               </IconButton>
             }
           />
-          <CardMedia
-            className={classes.media}
-            image={images[0] ? images[0].url : placeholder}
-            title={title}
-          />
+          <Link to={"/product/" + id}>
+            <CardMedia
+              className={classes.media}
+              image={images[0] ? images[0].url : placeholder}
+              title={name}
+            />
+          </Link>
           <CardContent>
             <Typography variant="caption" align="right" noWrap={true}>
-              Na sklade: {count}
+              available: {count}
             </Typography>
             <Typography component="p" noWrap={true}>
               {description}

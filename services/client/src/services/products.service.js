@@ -6,6 +6,7 @@ import {handleResponse} from "./helpers/handleResponse";
 export const productsService = {
   add,
   addImages,
+  get,
   getAll,
   getAllDeleted,
   update,
@@ -36,6 +37,14 @@ function addImages(product_id, files) {
   };
 
   return fetch(apiConstants.URL + '/products/' + product_id + '/images', requestOptions).then(handleResponse);
+}
+
+function get(id) {
+  const requestOptions = {
+    method: 'GET'
+  };
+
+  return fetch(apiConstants.URL + '/products/' + id, requestOptions).then(handleResponse);
 }
 
 function getAll() {

@@ -16,6 +16,9 @@ const styles = theme => ({
   control: {
     padding: theme.spacing.unit * 2,
   },
+  carousel: {
+    margin: theme.spacing.unit * 20
+  }
 });
 
 class HomePage extends React.Component {
@@ -31,20 +34,14 @@ class HomePage extends React.Component {
 
     return (
       <div>
-        <Carousel/>
-        <Typography variant="headline" gutterBottom>
+        <Carousel className={this.props.classes.carousel}/>
+        <Typography variant="display1" gutterBottom>
           Featured items
         </Typography>
         <Grid container className={this.props.classes.root} spacing={16}>
           {products.map((product) => (
             <Grid item xs={12} sm={6} md={4} lg={2} key={product['id']}>
-              <ProductCard
-                title={product['name']}
-                price={product['price']}
-                description={product['description']}
-                count={product["count"]}
-                images={product["images"]}
-              />
+              <ProductCard product={product}/>
             </Grid>
           ))}
         </Grid>

@@ -16,9 +16,6 @@ function SupportTouch(props) {
       <NoSSR>
         {!supportsTouch && (
           <span>
-            You need a touch device to swipe between the slides.
-            <br />
-            <br />
           </span>
         )}
       </NoSSR>

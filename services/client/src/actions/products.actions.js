@@ -5,6 +5,7 @@ import {alertActions} from "actions/alert.actions"
 import {dialogsActions} from "./dialogs.actions";
 
 export const productsActions = {
+  get,
   getAll,
   getAllDeleted,
   add,
@@ -13,6 +14,25 @@ export const productsActions = {
   restore,
   addImage
 };
+
+function get(id) {
+  return dispatch => {
+    productsService.get(id)
+      .then(
+        product => dispatch(success(product)),
+        error => dispatch(failure(dispatch, error))
+      );
+  };
+
+  function success(product) {
+    return {type: productsConstants.GET_SUCCESS, product: product}
+  }
+
+  function failure(dispatch, error) {
+    dispatch(alertActions.error(error));
+    return {type: productsConstants.GET_FAILURE}
+  }
+}
 
 function getAll() {
   return dispatch => {

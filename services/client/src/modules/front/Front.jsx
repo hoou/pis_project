@@ -16,6 +16,7 @@ import {NavLink, Redirect, Route, Switch} from "react-router-dom";
 import {ListItem, ListItemIcon, ListItemText} from "material-ui";
 import mainRoutes from "./routes/mainRoutes"
 import userRoutes from "./routes/userRoutes"
+import ProductDetailPage from "./views/ProductDetailPage/ProductDetailPage";
 
 const drawerWidth = 240;
 
@@ -82,6 +83,7 @@ const styles = theme => ({
     flexGrow: 1,
     backgroundColor: theme.palette.background.default,
     padding: theme.spacing.unit * 3,
+    paddingTop: theme.spacing.unit * 10
   },
   listItem: {
     color: "blue",
@@ -90,17 +92,6 @@ const styles = theme => ({
     },
   }
 });
-
-const switchRoutes = (
-  <Switch>
-    {mainRoutes.map((prop, key) => {
-      return <Route path={prop.path} component={prop.component} key={key}/>;
-    })}
-    {userRoutes.map((prop, key) => {
-      return <Route path={prop.path} component={prop.component} key={key}/>;
-    })}
-  </Switch>
-);
 
 class Front extends React.Component {
   state = {
@@ -199,8 +190,16 @@ class Front extends React.Component {
         </Drawer>
         <main className={classes.content}>
           <div>
-            {switchRoutes}
-            <Redirect from="/" to="/home"/>
+            <Switch>
+              {mainRoutes.map((prop, key) => {
+                return <Route path={prop.path} component={prop.component} key={key}/>;
+              })}
+              {userRoutes.map((prop, key) => {
+                return <Route path={prop.path} component={prop.component} key={key}/>;
+              })}
+              <Route path='/product/:id' component={ProductDetailPage}/>
+              <Redirect from="/" to="/home"/>
+            </Switch>
           </div>
         </main>
       </div>
