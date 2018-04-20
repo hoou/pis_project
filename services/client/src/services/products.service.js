@@ -5,7 +5,7 @@ import {handleResponse} from "./helpers/handleResponse";
 
 export const productsService = {
   add,
-  addImage,
+  addImages,
   getAll,
   getAllDeleted,
   update,
@@ -23,9 +23,11 @@ function add(category_id, values) {
   return fetch(apiConstants.URL + '/categories/' + category_id + '/products', requestOptions).then(handleResponse);
 }
 
-function addImage(product_id, file) {
+function addImages(product_id, files) {
   let formData = new FormData();
-  formData.append("file", file);
+  for (let i = 0; i < files.length; i++) {
+    formData.append("file" + i, files[i]);
+  }
 
   const requestOptions = {
     method: 'POST',

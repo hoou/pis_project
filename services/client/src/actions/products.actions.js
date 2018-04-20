@@ -58,12 +58,12 @@ function getAllDeleted() {
 
 function add(category_id, values) {
   return dispatch => {
-    productsService.add(category_id, _.omit(values, "image"))
+    productsService.add(category_id, _.omit(values, "images"))
       .then(
         data => {
-          if (values["image"]) {
+          if (values["images"]) {
             const new_product_id = data.data.id;
-            productsService.addImage(new_product_id, values["image"])
+            productsService.addImages(new_product_id, values["images"])
               .then(
                 () => dispatch(success(dispatch, data.message)),
                 error => dispatch(failure(dispatch, error))
@@ -89,7 +89,7 @@ function add(category_id, values) {
 
 function addImage(product_id, file) {
   return dispatch => {
-    productsService.addImage(product_id, file)
+    productsService.addImages(product_id, file)
       .then(
         data => {
           dispatch(alertActions.success(data.message));

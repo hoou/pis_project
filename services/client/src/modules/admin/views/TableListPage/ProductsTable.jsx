@@ -56,7 +56,6 @@ class ProductsTable extends React.Component {
     }
 
     if (items_to_show) {
-      console.log("items to show", items_to_show);
       /*
       [{id: 1, name: "Traktory"}, {id: 2, name: "Kultivatory"}]
         ===>
@@ -66,10 +65,8 @@ class ProductsTable extends React.Component {
         deleted: item.deleted, data: _.map([..._.values(item.data)], item => {
           if (item != null) {
             if (item instanceof Array) {
-              console.log("je to pole!");
               return item[0] ? item[0].url : ''
             } else if (item instanceof Object) {
-              console.log("je to objekt!");
               return item["name"];
             }
             else {

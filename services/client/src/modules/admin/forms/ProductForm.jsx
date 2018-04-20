@@ -65,7 +65,7 @@ class FieldFileInput extends React.Component {
     this.clickFileInput = this.clickFileInput.bind(this);
 
     this.state = {
-      file: null
+      files: null
     }
   }
 
@@ -75,16 +75,16 @@ class FieldFileInput extends React.Component {
 
   onChange(e) {
     const {input: {onChange}} = this.props;
-    onChange(e.target.files[0]);
+    onChange(e.target.files);
 
     this.setState({
-      file: e.target.files[0].name
+      files: e.target.files
     })
   }
 
   render() {
     const {input} = this.props;
-    const {file} = this.state;
+    const {files} = this.state;
     return (
       <div>
         <Button
@@ -93,16 +93,17 @@ class FieldFileInput extends React.Component {
           variant="raised"
           color="primary"
         >
-          Upload image
+          Upload images
           <input
             ref={this.fileInput}
             type='file'
             accept='.jpg, .png, .jpeg'
             onChange={this.onChange}
             style={{display: 'none'}}
+            multiple
           />
         </Button>
-        {file}
+        {_.join(_.map(files, file => file.name), ", ")}
       </div>
     )
   }
@@ -158,7 +159,7 @@ class ProductForm extends React.Component {
           </Field>
         </div>
         <div>
-          <Field name="image" label="Image" component={FieldFileInput}/>
+          <Field name="images" label="Images" component={FieldFileInput}/>
           {/*<Button*/}
           {/*variant="raised"*/}
           {/*component="label"*/}
