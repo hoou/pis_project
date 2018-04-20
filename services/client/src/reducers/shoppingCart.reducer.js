@@ -15,11 +15,13 @@ export function shoppingCartReducer(state = initialState, action) {
         items: newItems
       };
     case shoppingCartConstants.REMOVE:
-      let index = _.findIndex(state.items, action.id);
+      let index = _.findIndex(state.items, item => item === action.id);
       if (index !== -1) {
+        let newItems = state.items.slice();
+        newItems.splice(index, 1);
         return {
           ...state,
-          items: state.items.splice(index, 1)
+          items: newItems
         };
       } else {
         return state;

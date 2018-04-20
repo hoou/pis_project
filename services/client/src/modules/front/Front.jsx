@@ -10,12 +10,13 @@ import Typography from 'material-ui/Typography';
 import Divider from 'material-ui/Divider';
 import IconButton from 'material-ui/IconButton';
 import {Menu, ChevronLeft, ChevronRight, ShoppingCart} from '@material-ui/icons';
-import {NavLink, Redirect, Route, Switch} from "react-router-dom";
+import {Link, NavLink, Redirect, Route, Switch} from "react-router-dom";
 import {Badge, ListItem, ListItemIcon, ListItemText} from "material-ui";
 import mainRoutes from "./routes/mainRoutes"
 import userRoutes from "./routes/userRoutes"
 import ProductDetailPage from "./views/ProductDetailPage/ProductDetailPage";
 import {connect} from "react-redux";
+import ShoppingCartPage from "./views/ShoppingCartPage/ShoppingCartPage";
 
 const drawerWidth = 240;
 
@@ -94,7 +95,8 @@ const styles = theme => ({
     flex: 1
   },
   shoppingCartIconButton: {
-    marginRight: 20
+    marginRight: 20,
+    color: '#fff'
   }
 });
 
@@ -172,19 +174,21 @@ class Front extends React.Component {
             <Typography variant="title" color="inherit" noWrap className={classes.flex}>
               Title
             </Typography>
-            <IconButton
-              color="inherit"
-              className={classes.shoppingCartIconButton}
-            >
-              {
-                cartItems && cartItems.length > 0 ?
-                  <Badge badgeContent={cartItems.length} color="error">
+            <Link to='/shopping-cart'>
+              <IconButton
+                color='inherit'
+                className={classes.shoppingCartIconButton}
+              >
+                {
+                  cartItems && cartItems.length > 0 ?
+                    <Badge badgeContent={cartItems.length} color="error">
+                      <ShoppingCart/>
+                    </Badge>
+                    :
                     <ShoppingCart/>
-                  </Badge>
-                  :
-                  <ShoppingCart/>
-              }
-            </IconButton>
+                }
+              </IconButton>
+            </Link>
           </Toolbar>
         </AppBar>
         <Drawer
@@ -215,6 +219,7 @@ class Front extends React.Component {
               {userRoutes.map((prop, key) => {
                 return <Route path={prop.path} component={prop.component} key={key}/>;
               })}
+              <Route path='/shopping-cart' component={ShoppingCartPage}/>
               <Route path='/product/:id' component={ProductDetailPage}/>
               <Redirect from="/" to="/home"/>
             </Switch>
