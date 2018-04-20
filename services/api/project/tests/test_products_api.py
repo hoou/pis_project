@@ -140,6 +140,7 @@ def test_add_product(client):
 
     assert r.status_code == status.HTTP_201_CREATED
     assert payload['message'] == 'Product was successfully added.'
+    assert payload['data']['id']
 
     product = products.get_all()[0]
 

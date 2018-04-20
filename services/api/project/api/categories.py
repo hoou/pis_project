@@ -104,4 +104,4 @@ class CategoryProductCollection(Resource):
         product = Product(name=name, price=price, description=description, count=count or 0)
         categories.add_product(category, product)
 
-        return {'message': 'Product was successfully added.'}, status.HTTP_201_CREATED
+        return {'message': 'Product was successfully added.', 'data': {'id': product.id}}, status.HTTP_201_CREATED
