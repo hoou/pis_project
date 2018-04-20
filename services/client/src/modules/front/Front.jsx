@@ -9,9 +9,7 @@ import List from 'material-ui/List';
 import Typography from 'material-ui/Typography';
 import Divider from 'material-ui/Divider';
 import IconButton from 'material-ui/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import {Menu, ChevronLeft, ChevronRight, ShoppingCart} from '@material-ui/icons';
 import {NavLink, Redirect, Route, Switch} from "react-router-dom";
 import {ListItem, ListItemIcon, ListItemText} from "material-ui";
 import mainRoutes from "./routes/mainRoutes"
@@ -90,6 +88,9 @@ const styles = theme => ({
     '&:hover': {
       color: "blue",
     },
+  },
+  flex: {
+    flex: 1
   }
 });
 
@@ -162,11 +163,16 @@ class Front extends React.Component {
               onClick={this.handleDrawerOpen}
               className={classNames(classes.menuButton, this.state.open && classes.hide)}
             >
-              <MenuIcon/>
+              <Menu/>
             </IconButton>
             <Typography variant="title" color="inherit" noWrap className={classes.flex}>
               Title
             </Typography>
+            <IconButton
+              color="inherit"
+            >
+              <ShoppingCart/>
+            </IconButton>
           </Toolbar>
         </AppBar>
         <Drawer
@@ -178,7 +184,7 @@ class Front extends React.Component {
         >
           <div className={classes.toolbar}>
             <IconButton onClick={this.handleDrawerClose}>
-              {theme.direction === 'rtl' ? <ChevronRightIcon/> : <ChevronLeftIcon/>}
+              {theme.direction === 'rtl' ? <ChevronRight/> : <ChevronLeft/>}
             </IconButton>
           </div>
           <Divider/>
