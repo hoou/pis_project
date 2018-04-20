@@ -29,8 +29,6 @@ class HomePage extends React.Component {
   render() {
     const {products} = this.props;
 
-    console.log(products);
-
     return (
       <div>
         <Carousel/>
@@ -45,7 +43,7 @@ class HomePage extends React.Component {
                 price={product['price']}
                 description={product['description']}
                 count={product["count"]}
-                image={product["image"]}
+                image={product["images"][0] ? product["images"][0]["url"] : null}
               />
             </Grid>
           ))}
