@@ -39,6 +39,7 @@ def add_image(product: Product, **kwargs):
     image = ProductImage(**kwargs)
     image.product_id = product.id
     product.images += [image]
+    session.commit()
     return image
 
 
