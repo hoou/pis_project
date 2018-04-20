@@ -21,8 +21,6 @@ const styles = theme => ({
 });
 
 const validate = values => {
-  console.log(values);
-
   const errors = {};
   const requiredFields = ['name', 'price', 'category'];
   requiredFields.forEach(field => {
@@ -64,7 +62,7 @@ class FieldFileInput extends React.Component {
     this.onChange = this.onChange.bind(this);
 
     this.fileInput = React.createRef();
-    this.clickFileInput = this.clickFileInput.bind(this)
+    this.clickFileInput = this.clickFileInput.bind(this);
 
     this.state = {
       file: null
@@ -85,8 +83,7 @@ class FieldFileInput extends React.Component {
   }
 
   render() {
-    const {input: {value}} = this.props;
-    const {input, label} = this.props;
+    const {input} = this.props;
     const {file} = this.state;
     return (
       <div>
@@ -112,7 +109,6 @@ class FieldFileInput extends React.Component {
 }
 
 function submit(values, dispatch, props) {
-  console.log("values to submit", values);
   if (props.data) {
     dispatch(productsActions.update(props.id, _.mapKeys(values, (value, key) => key === "category" ? "category_id" : key)))
   } else {

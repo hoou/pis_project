@@ -65,9 +65,14 @@ class ProductsTable extends React.Component {
       tableData = _.map(items_to_show, item => ({
         deleted: item.deleted, data: _.map([..._.values(item.data)], item => {
           if (item != null) {
-            if (item instanceof Object) {
-              return item["name"] ? item["name"] : item["url"];
-            } else {
+            if (item instanceof Array) {
+              console.log("je to pole!");
+              return item[0] ? item[0].url : ''
+            } else if (item instanceof Object) {
+              console.log("je to objekt!");
+              return item["name"];
+            }
+            else {
               return item.toString();
             }
           } else {

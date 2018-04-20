@@ -1,3 +1,4 @@
+import _ from "lodash"
 import {productsConstants} from 'constants/products.constants';
 import {productsService} from 'services/products.service';
 import {alertActions} from "actions/alert.actions"
@@ -9,7 +10,8 @@ export const productsActions = {
   add,
   remove,
   update,
-  restore
+  restore,
+  addImage
 };
 
 function getAll() {
@@ -56,7 +58,38 @@ function getAllDeleted() {
 
 function add(category_id, values) {
   return dispatch => {
-    productsService.add(category_id, values)
+    productsService.add(category_id, _.omit(values, "image"))
+      .then(
+        data => {
+          if (values["image"]) {
+            const new_product_id = data.data.id;
+            productsService.addImage(new_product_id, values["image"])
+              .then(
+                () => dispatch(success(dispatch, data.message)),
+                error => dispatch(failure(dispatch, error))
+              );
+          } else dispatch(success(dispatch, data.message));
+        },
+        error => dispatch(failure(dispatch, error))
+      )
+      .finally(() => dispatch(dialogsActions.close()));
+  };
+
+  function success(dispatch, message) {
+    dispatch(alertActions.success(message));
+    dispatch(productsActions.getAll());
+    return {type: productsConstants.ADD_SUCCESS}
+  }
+
+  function failure(dispatch, error) {
+    dispatch(alertActions.error(error));
+    return {type: productsConstants.ADD_FAILURE}
+  }
+}
+
+function addImage(product_id, file) {
+  return dispatch => {
+    productsService.addImage(product_id, file)
       .then(
         data => {
           dispatch(alertActions.success(data.message));
@@ -72,13 +105,14 @@ function add(category_id, values) {
   };
 
   function success() {
-    return {type: productsConstants.ADD_SUCCESS}
+    return {type: productsConstants.ADD_IMAGE_SUCCESS}
   }
 
   function failure() {
-    return {type: productsConstants.ADD_FAILURE}
+    return {type: productsConstants.ADD_IMAGE_FAILURE}
   }
 }
+
 
 function remove(id) {
   return dispatch => {
