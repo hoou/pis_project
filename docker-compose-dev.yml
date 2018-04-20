@@ -9,6 +9,7 @@ services:
       dockerfile: Dockerfile-dev
     volumes:
       - './services/api:/usr/src/app'
+      - './services/api/public:/public'
     ports:
       - 5001:5000
     environment:
@@ -18,7 +19,7 @@ services:
       - DATABASE_TEST_URL=postgresql://postgres:postgres@db:5432/pis_test
       - SECRET_KEY=my_precious
       - JWT_SECRET_KEY=super_secret
-      - UPLOAD_FOLDER=../public/uploads
+      - UPLOAD_FOLDER=/public/uploads
     depends_on:
       - db
     links:
@@ -37,6 +38,8 @@ services:
 
   nginx:
     container_name: nginx
+    volumes:
+      - './services/api/public:/public'
     build:
       context: services/nginx
       dockerfile: Dockerfile-dev
