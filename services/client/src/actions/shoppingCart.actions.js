@@ -18,4 +18,3 @@ function loadFromLocalStorage() {
   let items = localStorage.getItem("shoppingCartItems");
   return {type: shoppingCartConstants.LOAD_FROM_LOCAL_STORAGE, items: items ? JSON.parse(items) : []};
 }
-

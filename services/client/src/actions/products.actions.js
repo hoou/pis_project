@@ -20,7 +20,10 @@ function get(id) {
     productsService.get(id)
       .then(
         product => dispatch(success(product)),
-        error => dispatch(failure(dispatch, error))
+        error => {
+          dispatch(alertActions.error(error));
+          dispatch(failure());
+        }
       );
   };
 
@@ -28,8 +31,7 @@ function get(id) {
     return {type: productsConstants.GET_SUCCESS, product: product}
   }
 
-  function failure(dispatch, error) {
-    dispatch(alertActions.error(error));
+  function failure() {
     return {type: productsConstants.GET_FAILURE}
   }
 }
@@ -85,24 +87,35 @@ function add(category_id, values) {
             const new_product_id = data.data.id;
             productsService.addImages(new_product_id, values["images"])
               .then(
-                () => dispatch(success(dispatch, data.message)),
-                error => dispatch(failure(dispatch, error))
+                () => {
+                  dispatch(productsActions.getAll());
+                  dispatch(alertActions.data.message);
+                  dispatch(success());
+                },
+                error => {
+                  dispatch(alertActions.error(error));
+                  dispatch(failure())
+                }
               );
-          } else dispatch(success(dispatch, data.message));
+          } else {
+            dispatch(productsActions.getAll());
+            dispatch(alertActions.data.message);
+            dispatch(success());
+          }
         },
-        error => dispatch(failure(dispatch, error))
+        error => {
+          dispatch(alertActions.error(error));
+          dispatch(failure())
+        }
       )
       .finally(() => dispatch(dialogsActions.close()));
   };
 
-  function success(dispatch, message) {
-    dispatch(alertActions.success(message));
-    dispatch(productsActions.getAll());
+  function success() {
     return {type: productsConstants.ADD_SUCCESS}
   }
 
-  function failure(dispatch, error) {
-    dispatch(alertActions.error(error));
+  function failure() {
     return {type: productsConstants.ADD_FAILURE}
   }
 }
