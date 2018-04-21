@@ -1,4 +1,5 @@
 import React from 'react';
+import _ from "lodash"
 import PropTypes from 'prop-types';
 import {withStyles} from 'material-ui/styles';
 import classNames from 'classnames';
@@ -19,6 +20,7 @@ import {connect} from "react-redux";
 import ShoppingCartPage from "./views/ShoppingCartPage/ShoppingCartPage";
 import {shoppingCartActions} from "actions/shoppingCart.actions";
 import CheckoutPage from "./views/CheckoutPage/CheckoutPage";
+import {productsActions} from "actions/products.actions";
 
 const drawerWidth = 240;
 
@@ -111,7 +113,8 @@ class Front extends React.Component {
     super(props);
     const {dispatch} = props;
 
-    dispatch(shoppingCartActions.loadFromLocalStorage())
+    dispatch(shoppingCartActions.loadFromLocalStorage());
+    dispatch(productsActions.getAll());
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -168,7 +171,7 @@ class Front extends React.Component {
   };
 
   render() {
-    const {classes, theme, cartItems} = this.props;
+    const {classes, theme, products, cartItems} = this.props;
 
     return (
       <div className={classes.root}>
@@ -235,7 +238,14 @@ class Front extends React.Component {
               })}
               <Route exact path='/shopping-cart' render={() => <ShoppingCartPage items={cartItems}/>}/>
               <Route exact path='/checkout' component={CheckoutPage}/>
-              <Route exact path='/product/:id' component={ProductDetailPage}/>
+              <Route
+                exact
+                path='/product/:id'
+                render={
+                  (props) =>
+                    <ProductDetailPage product={_.find(products, o => (o.id === _.toInteger(props.match.params.id)))}/>
+                }
+              />
               <Redirect from="/" to="/home"/>
             </Switch>
           </div>
@@ -250,4 +260,8 @@ Front.propTypes = {
   theme: PropTypes.object.isRequired,
 };
 
-export default connect(state => ({cartItems: state.shoppingCart.items}))(withStyles(styles, {withTheme: true})(Front));
+const mapStateToProps = state => ({
+  cartItems: state.shoppingCart.items,
+  products: state.products.items
+});
+export default connect(mapStateToProps)(withStyles(styles, {withTheme: true})(Front));
