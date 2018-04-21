@@ -2,14 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {withStyles} from 'material-ui/styles';
 import Card, {CardHeader, CardMedia, CardContent} from 'material-ui/Card';
-import IconButton from 'material-ui/IconButton';
 import Typography from 'material-ui/Typography';
 import red from 'material-ui/colors/red';
 
 import placeholder from "modules/front/assets/img/placeholder.png"
-import {AddShoppingCart} from "@material-ui/icons";
+import AddShoppingCartButton from "modules/front/components/ShoppingCart/AddShoppingCartButton/AddShoppingCartButton";
 import {Link} from "react-router-dom";
-import {shoppingCartActions} from "../../../../actions/shoppingCart.actions";
 import {connect} from "react-redux";
 
 const styles = theme => ({
@@ -47,11 +45,6 @@ const styles = theme => ({
 class ProductCard extends React.Component {
   state = {expanded: false};
 
-  handleClickAddShoppingCart = id => () => {
-    const {dispatch} = this.props;
-    dispatch(shoppingCartActions.add(id))
-  };
-
   render() {
     const {classes} = this.props;
     const {price, id, name, images, description, count} = this.props.product;
@@ -67,9 +60,7 @@ class ProductCard extends React.Component {
             title={name}
             subheader={price + " EUR"}
             action={
-              <IconButton onClick={this.handleClickAddShoppingCart(id)} aria-label="Add to cart">
-                <AddShoppingCart/>
-              </IconButton>
+              <AddShoppingCartButton id={id}/>
             }
           />
           <Link to={"/product/" + id}>
