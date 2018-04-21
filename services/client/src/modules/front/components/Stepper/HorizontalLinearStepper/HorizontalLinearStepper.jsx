@@ -52,6 +52,12 @@ function getStepContent(step) {
 }
 
 class HorizontalLinearStepper extends React.Component {
+  componentWillMount() {
+    const {dispatch} = this.props;
+
+    dispatch(checkoutActions.loadFromLocalStorage());
+  }
+
   handleNext = () => {
     const {dispatch, activeStep} = this.props;
 

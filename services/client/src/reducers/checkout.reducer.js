@@ -20,6 +20,7 @@ export function checkoutReducer(state = initialState, action) {
         ...state,
         activeStep: state.activeStep > 0 ? state.activeStep - 1 : 0
       };
+
     case checkoutConstants.RESET:
       return {
         ...initialState
@@ -34,6 +35,12 @@ export function checkoutReducer(state = initialState, action) {
       return {
         ...state,
         shippingAndPayment: action.values
+      };
+    case checkoutConstants.LOAD_FROM_LOCAL_STORAGE:
+      return {
+        ...state,
+        address: action.address,
+        shippingAndPayment: action.shippingAndPayment
       };
     default:
       return state

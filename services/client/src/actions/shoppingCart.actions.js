@@ -29,5 +29,6 @@ function checkItems(products) {
 }
 
 function reset() {
+  localStorage.removeItem("shoppingCartItems");
   return {type: shoppingCartConstants.RESET}
 }
