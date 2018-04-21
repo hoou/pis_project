@@ -1,7 +1,5 @@
 import React from "react";
 import {Button, Paper, withStyles} from "material-ui";
-import {connect} from "react-redux";
-import {productsActions} from "actions/products.actions";
 import CustomTable from "modules/front/components/ShoppingCart/CustomTable/CustomTable";
 import {Link} from "react-router-dom";
 
@@ -17,28 +15,18 @@ const styles = theme => ({
   }
 });
 
-class ShoppingCartPage extends React.Component {
-  constructor(props) {
-    super(props);
-    const {dispatch} = props;
+const ShoppingCartPage = (props) => {
+  const {classes, items} = props;
+  return (
+    <Paper className={classes.root}>
+      <CustomTable items={items}/>
+      <Link to="/checkout">
+        <Button color="primary" className={classes.checkoutButton} variant="raised">
+          Checkout
+        </Button>
+      </Link>
+    </Paper>
+  );
+};
 
-    dispatch(productsActions.getAll());
-  }
-
-  render() {
-    const {classes, items} = this.props;
-
-    return (
-      <Paper className={classes.root}>
-        <CustomTable items={items}/>
-        <Link to="/checkout">
-          <Button color="primary" className={classes.checkoutButton} variant="raised">
-            Checkout
-          </Button>
-        </Link>
-      </Paper>
-    );
-  }
-}
-
-export default connect()(withStyles(styles)(ShoppingCartPage));
+export default (withStyles(styles)(ShoppingCartPage));
