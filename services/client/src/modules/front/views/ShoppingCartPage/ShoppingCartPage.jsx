@@ -1,8 +1,9 @@
 import React from "react";
-import {Paper, withStyles} from "material-ui";
+import {Button, Paper, withStyles} from "material-ui";
 import {connect} from "react-redux";
 import {productsActions} from "actions/products.actions";
 import CustomTable from "modules/front/components/ShoppingCart/CustomTable/CustomTable";
+import {Link} from "react-router-dom";
 
 const styles = theme => ({
   root: {
@@ -10,6 +11,10 @@ const styles = theme => ({
     marginTop: theme.spacing.unit * 3,
     overflowX: 'auto',
   },
+  checkoutButton: {
+    float: "right",
+    margin: 20
+  }
 });
 
 class ShoppingCartPage extends React.Component {
@@ -26,6 +31,11 @@ class ShoppingCartPage extends React.Component {
     return (
       <Paper className={classes.root}>
         <CustomTable/>
+        <Link to="/checkout">
+          <Button color="primary" className={classes.checkoutButton} variant="raised">
+            Checkout
+          </Button>
+        </Link>
       </Paper>
     );
   }

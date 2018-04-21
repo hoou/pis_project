@@ -17,7 +17,8 @@ import userRoutes from "./routes/userRoutes"
 import ProductDetailPage from "./views/ProductDetailPage/ProductDetailPage";
 import {connect} from "react-redux";
 import ShoppingCartPage from "./views/ShoppingCartPage/ShoppingCartPage";
-import {shoppingCartActions} from "../../actions/shoppingCart.actions";
+import {shoppingCartActions} from "actions/shoppingCart.actions";
+import CheckoutPage from "./views/CheckoutPage/CheckoutPage";
 
 const drawerWidth = 240;
 
@@ -227,8 +228,9 @@ class Front extends React.Component {
               {userRoutes.map((prop, key) => {
                 return <Route path={prop.path} component={prop.component} key={key}/>;
               })}
-              <Route path='/shopping-cart' component={ShoppingCartPage}/>
-              <Route path='/product/:id' component={ProductDetailPage}/>
+              <Route exact path='/shopping-cart' component={ShoppingCartPage}/>
+              <Route exact path='/checkout' component={CheckoutPage}/>
+              <Route exact path='/product/:id' component={ProductDetailPage}/>
               <Redirect from="/" to="/home"/>
             </Switch>
           </div>
