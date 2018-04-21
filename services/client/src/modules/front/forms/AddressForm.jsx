@@ -32,12 +32,12 @@ function submit(values, dispatch) {
 }
 
 class AddressForm extends React.Component {
-  componentWillMount() {
-    const {data, change} = this.props;
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const {address, change} = this.props;
 
-    if (data) {
-      Object.keys(data).forEach(key => {
-        change(key, data[key]);
+    if (address) {
+      Object.keys(address).forEach(key => {
+        change(key, address[key]);
       })
     }
   }
@@ -170,4 +170,4 @@ export default reduxForm({
   onSubmit: submit,
   validate
 })
-(connect(state => ({data: state.checkout.address}))(AddressForm))
+(connect()(AddressForm))

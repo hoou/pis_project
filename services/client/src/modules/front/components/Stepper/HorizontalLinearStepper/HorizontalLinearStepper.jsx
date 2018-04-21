@@ -9,6 +9,7 @@ import {connect} from "react-redux";
 import {checkoutActions} from "actions/checkout.actions";
 import {submit} from "redux-form"
 import ShippingAndPaymentForm from "modules/front/forms/ShippingAndPaymentForm";
+import Summary from "modules/front/views/CheckoutPage/Summary";
 
 const styles = theme => ({
   root: {
@@ -36,19 +37,6 @@ const styles = theme => ({
 
 function getSteps() {
   return ['Address', 'Shipping and payment', 'Summary'];
-}
-
-function getStepContent(step) {
-  switch (step) {
-    case 0:
-      return <AddressForm/>;
-    case 1:
-      return <ShippingAndPaymentForm/>;
-    case 2:
-      return 'This is the bit I really care about!';
-    default:
-      return 'Unknown step';
-  }
 }
 
 class HorizontalLinearStepper extends React.Component {
@@ -82,6 +70,29 @@ class HorizontalLinearStepper extends React.Component {
     dispatch(checkoutActions.reset())
   };
 
+  getStepContent = step => {
+    const {products, address, cartItems, shippingAndPayment} = this.props;
+
+    switch (step) {
+      case 0:
+        return <AddressForm address={address}/>;
+      case 1:
+        return <ShippingAndPaymentForm/>;
+      case 2:
+        return (
+          <Summary
+            products={products}
+            cartItems={cartItems}
+            address={address}
+            shipping={shippingAndPayment["shipping"]}
+            payment={shippingAndPayment["payment"]}
+          />
+        );
+      default:
+        return 'Unknown step';
+    }
+  };
+
   render() {
     const {classes, activeStep} = this.props;
     const steps = getSteps();
@@ -112,7 +123,7 @@ class HorizontalLinearStepper extends React.Component {
           ) : (
             <div>
               <Paper className={classes.stepContent}>
-                {getStepContent(activeStep)}
+                {this.getStepContent(activeStep)}
               </Paper>
               <div className={classes.buttons}>
                 <Button
@@ -140,6 +151,8 @@ class HorizontalLinearStepper extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  activeStep: state.checkout.activeStep
+  activeStep: state.checkout.activeStep,
+  address: state.checkout.address,
+  shippingAndPayment: state.checkout.shippingAndPayment
 });
 export default connect(mapStateToProps)(withStyles(styles)(HorizontalLinearStepper));

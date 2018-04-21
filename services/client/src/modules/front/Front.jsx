@@ -241,7 +241,7 @@ class Front extends React.Component {
                 path='/shopping-cart'
                 render={() => <ShoppingCartPage products={products} items={cartItems}/>}
               />
-              <Route exact path='/checkout' component={CheckoutPage}/>
+              <Route exact path='/checkout' render={() => <CheckoutPage products={products} cartItems={cartItems}/>}/>
               <Route
                 exact
                 path='/product/:id'

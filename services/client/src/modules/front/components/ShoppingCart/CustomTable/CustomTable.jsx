@@ -89,7 +89,7 @@ class CustomTable extends React.Component {
           </TableRow>
         </TableBody>
       </Table>
-    )
+    );
   }
 }
 
