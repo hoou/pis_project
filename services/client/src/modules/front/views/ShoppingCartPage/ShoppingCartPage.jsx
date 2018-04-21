@@ -16,10 +16,10 @@ const styles = theme => ({
 });
 
 const ShoppingCartPage = (props) => {
-  const {classes, items} = props;
+  const {classes, products, items} = props;
   return (
     <Paper className={classes.root}>
-      <CustomTable items={items}/>
+      <CustomTable products={products} items={items}/>
       <Link to="/checkout">
         <Button color="primary" className={classes.checkoutButton} variant="raised">
           Checkout

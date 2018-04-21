@@ -4,13 +4,10 @@ import {
   FormControlLabel, FormHelperText,
   FormLabel,
   Grid, Radio,
-  withStyles
 } from "material-ui";
 import {connect} from "react-redux";
 import {checkoutActions} from "actions/checkout.actions";
 import {RadioGroup} from "redux-form-material-ui"
-
-const styles = theme => ({});
 
 const validate = values => {
   const errors = {};
@@ -24,7 +21,7 @@ const validate = values => {
   return errors
 };
 
-function submit(values, dispatch, props) {
+function submit(values, dispatch) {
   dispatch(checkoutActions.submitShippingAndPayment(values));
   dispatch(checkoutActions.next());
 }
@@ -87,4 +84,4 @@ export default reduxForm({
   onSubmit: submit,
   validate
 })
-(connect(state => ({data: state.checkout.shippingAndPayment}))(withStyles(styles)(ShippingAndPaymentForm)))
+(connect(state => ({data: state.checkout.shippingAndPayment}))(ShippingAndPaymentForm))

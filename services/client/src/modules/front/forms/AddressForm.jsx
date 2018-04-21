@@ -1,12 +1,10 @@
 import React from 'react'
 import {Field, reduxForm} from 'redux-form'
-import {Grid, MenuItem, TextField, withStyles} from "material-ui";
+import {Grid, MenuItem, TextField} from "material-ui";
 import {connect} from "react-redux";
 import {checkoutActions} from "actions/checkout.actions";
 import MaskedInput from 'react-text-mask';
 import {isPhoneNumber, isZipCode} from "helpers/strings";
-
-const styles = theme => ({});
 
 const validate = values => {
   const errors = {};
@@ -28,7 +26,7 @@ const validate = values => {
   return errors
 };
 
-function submit(values, dispatch, props) {
+function submit(values, dispatch) {
   dispatch(checkoutActions.submitAddress(values));
   dispatch(checkoutActions.next());
 }
@@ -44,9 +42,7 @@ class AddressForm extends React.Component {
     }
   }
 
-  renderTextField = ({type, select, required, children, input, id, label, meta: {touched, error}, ...custom}) => {
-    const {classes} = this.props;
-
+  renderTextField = ({type, select, required, children, input, id, label, meta: {touched, error}}) => {
     return <TextField
       fullWidth={true}
       label={label}
@@ -93,7 +89,6 @@ class AddressForm extends React.Component {
   };
 
   renderPhone = ({input, label, id, required, meta: {touched, error}}) => {
-    const {classes} = this.props;
     const isError = touched && !!error;
     return (
       <TextField
@@ -112,7 +107,6 @@ class AddressForm extends React.Component {
   };
 
   renderZipCode = ({input, label, id, required, meta: {touched, error}}) => {
-    const {classes} = this.props;
     const isError = touched && !!error;
     return (
       <TextField
@@ -176,4 +170,4 @@ export default reduxForm({
   onSubmit: submit,
   validate
 })
-(connect(state => ({data: state.checkout.address}))(withStyles(styles)(AddressForm)))
+(connect(state => ({data: state.checkout.address}))(AddressForm))

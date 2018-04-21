@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import {withStyles} from 'material-ui/styles';
 import Stepper, {Step, StepLabel} from 'material-ui/Stepper';
 import Button from 'material-ui/Button';
@@ -53,10 +52,6 @@ function getStepContent(step) {
 }
 
 class HorizontalLinearStepper extends React.Component {
-  static propTypes = {
-    classes: PropTypes.object,
-  };
-
   handleNext = () => {
     const {dispatch, activeStep} = this.props;
 
@@ -138,9 +133,7 @@ class HorizontalLinearStepper extends React.Component {
   }
 }
 
-
 const mapStateToProps = state => ({
-  address: state.checkout.address,
   activeStep: state.checkout.activeStep
 });
 export default connect(mapStateToProps)(withStyles(styles)(HorizontalLinearStepper));

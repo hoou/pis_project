@@ -1,6 +1,5 @@
 import React from 'react';
 import _ from "lodash"
-import PropTypes from 'prop-types';
 import {withStyles} from 'material-ui/styles';
 import classNames from 'classnames';
 import Drawer from 'material-ui/Drawer';
@@ -237,7 +236,11 @@ class Front extends React.Component {
               {userRoutes.map((prop, key) => {
                 return <Route path={prop.path} component={prop.component} key={key}/>;
               })}
-              <Route exact path='/shopping-cart' render={() => <ShoppingCartPage items={cartItems}/>}/>
+              <Route
+                exact
+                path='/shopping-cart'
+                render={() => <ShoppingCartPage products={products} items={cartItems}/>}
+              />
               <Route exact path='/checkout' component={CheckoutPage}/>
               <Route
                 exact
@@ -255,11 +258,6 @@ class Front extends React.Component {
     );
   }
 }
-
-Front.propTypes = {
-  classes: PropTypes.object.isRequired,
-  theme: PropTypes.object.isRequired,
-};
 
 const mapStateToProps = state => ({
   cartItems: state.shoppingCart.items,

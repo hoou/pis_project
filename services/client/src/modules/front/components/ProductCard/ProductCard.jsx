@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import {withStyles} from 'material-ui/styles';
 import Card, {CardHeader, CardMedia, CardContent} from 'material-ui/Card';
 import Typography from 'material-ui/Typography';
@@ -8,7 +7,6 @@ import red from 'material-ui/colors/red';
 import placeholder from "modules/front/assets/img/placeholder.png"
 import AddShoppingCartButton from "modules/front/components/ShoppingCart/AddShoppingCartButton/AddShoppingCartButton";
 import {Link} from "react-router-dom";
-import {connect} from "react-redux";
 
 const styles = theme => ({
   card: {
@@ -84,8 +82,4 @@ class ProductCard extends React.Component {
   }
 }
 
-ProductCard.propTypes = {
-  classes: PropTypes.object.isRequired,
-};
-
-export default connect()(withStyles(styles)(ProductCard));
+export default withStyles(styles)(ProductCard);
