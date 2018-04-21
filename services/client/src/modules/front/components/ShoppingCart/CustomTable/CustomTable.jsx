@@ -33,8 +33,6 @@ class CustomTable extends React.Component {
   render() {
     const {classes, items, products} = this.props;
 
-    console.log("custom table products", products);
-
     const countedItems = _.countBy(items);
 
     let sum = 0;
@@ -53,7 +51,6 @@ class CustomTable extends React.Component {
         <TableBody>
           {_.map(_.keys(countedItems), key => {
               const product = _.find(products, product => product['id'] === _.toInteger(key));
-              console.log("product", product);
               const count = countedItems[key];
               if (product) {
                 sum += count * product['price'];
