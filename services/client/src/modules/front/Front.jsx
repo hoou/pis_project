@@ -114,6 +114,11 @@ class Front extends React.Component {
     dispatch(shoppingCartActions.loadFromLocalStorage())
   }
 
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const {cartItems} = this.props;
+    localStorage.setItem('shoppingCartItems', JSON.stringify(cartItems));
+  }
+
   mainRoutesListItems = (
     <div>
       {mainRoutes.map((prop, key) => {
