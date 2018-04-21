@@ -3,6 +3,7 @@ import {productsConstants} from 'constants/products.constants';
 import {productsService} from 'services/products.service';
 import {alertActions} from "actions/alert.actions"
 import {dialogsActions} from "./dialogs.actions";
+import {shoppingCartActions} from "./shoppingCart.actions";
 
 export const productsActions = {
   get,
@@ -40,8 +41,12 @@ function getAll() {
   return dispatch => {
     productsService.getAll()
       .then(
-        products => dispatch(success(products)),
+        products => {
+          dispatch(shoppingCartActions.checkItems(products));
+          dispatch(success(products))
+        },
         error => {
+          dispatch(shoppingCartActions.reset());
           dispatch(alertActions.error(error));
           dispatch(failure())
         }

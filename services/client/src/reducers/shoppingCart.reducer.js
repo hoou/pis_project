@@ -31,6 +31,16 @@ export function shoppingCartReducer(state = initialState, action) {
         ...state,
         items: action.items
       };
+    case shoppingCartConstants.CHECK_ITEMS:
+      return {
+        ...state,
+        items: action.items
+      };
+    case shoppingCartConstants.RESET:
+      return {
+        ...state,
+        items: []
+      };
     default:
       return state
   }
