@@ -1,9 +1,8 @@
 import React from "react";
+import _ from "lodash"
 import Carousel from "modules/front/components/Carousel/Carousel";
 import {Grid, Typography, withStyles} from "material-ui";
 import ProductCard from "modules/front/components/ProductCard/ProductCard";
-import {productsActions} from "actions/products.actions";
-import {connect} from "react-redux";
 
 const styles = theme => ({
   root: {
@@ -21,33 +20,23 @@ const styles = theme => ({
   }
 });
 
-class HomePage extends React.Component {
-  constructor(props) {
-    super(props);
-    const {dispatch} = props;
+const HomePage = (props) => {
+  const {classes, products} = props;
+  return (
+    <div>
+      <Carousel className={classes.carousel}/>
+      <Typography variant="display1" gutterBottom>
+        Featured items
+      </Typography>
+      <Grid container className={classes.root} spacing={16}>
+        {_.map(products, product => (
+          <Grid item xs={12} sm={6} md={4} lg={2} key={product['id']}>
+            <ProductCard product={product}/>
+          </Grid>
+        ))}
+      </Grid>
+    </div>
+  )
+};
 
-    dispatch(productsActions.getAll());
-  }
-
-  render() {
-    const {products} = this.props;
-
-    return (
-      <div>
-        <Carousel className={this.props.classes.carousel}/>
-        <Typography variant="display1" gutterBottom>
-          Featured items
-        </Typography>
-        <Grid container className={this.props.classes.root} spacing={16}>
-          {products.map((product) => (
-            <Grid item xs={12} sm={6} md={4} lg={2} key={product['id']}>
-              <ProductCard product={product}/>
-            </Grid>
-          ))}
-        </Grid>
-      </div>
-    )
-  }
-}
-
-export default connect(state => ({products: state.products.items}))(withStyles(styles)(HomePage));
+export default withStyles(styles)(HomePage);

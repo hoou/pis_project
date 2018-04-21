@@ -21,6 +21,8 @@ import ShoppingCartPage from "./views/ShoppingCartPage/ShoppingCartPage";
 import {shoppingCartActions} from "actions/shoppingCart.actions";
 import CheckoutPage from "./views/CheckoutPage/CheckoutPage";
 import {productsActions} from "actions/products.actions";
+import ShopPage from "./views/ShopPage/ShopPage";
+import HomePage from "./views/HomePage/HomePage";
 
 const drawerWidth = 240;
 
@@ -230,9 +232,8 @@ class Front extends React.Component {
         <main className={classes.content}>
           <div>
             <Switch>
-              {mainRoutes.map((prop, key) => {
-                return <Route path={prop.path} component={prop.component} key={key}/>;
-              })}
+              <Route exact path='/home' render={() => <HomePage products={products}/>}/>
+              <Route exact path='/shop' component={ShopPage}/>
               {userRoutes.map((prop, key) => {
                 return <Route path={prop.path} component={prop.component} key={key}/>;
               })}
