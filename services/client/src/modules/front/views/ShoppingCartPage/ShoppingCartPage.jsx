@@ -66,12 +66,15 @@ class ShoppingCartPage extends React.Component {
             {_.map(_.keys(countedItems), key => {
                 const product = _.find(products, product => product['id'] === _.toInteger(key));
                 const count = countedItems[key];
-                sum += count * product['price'];
+                if (product) {
+                  sum += count * product['price'];
+                }
                 return (
                   product ?
                     <TableRow key={key}>
                       <TableCell className={classes.deleteCell}>
-                        <IconButton onClick={this.handleOnClickDelete(product['id'])} className={classes.button} aria-label="Delete">
+                        <IconButton onClick={this.handleOnClickDelete(product['id'])} className={classes.button}
+                                    aria-label="Delete">
                           <Delete/>
                         </IconButton>
                       </TableCell>

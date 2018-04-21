@@ -17,6 +17,7 @@ import userRoutes from "./routes/userRoutes"
 import ProductDetailPage from "./views/ProductDetailPage/ProductDetailPage";
 import {connect} from "react-redux";
 import ShoppingCartPage from "./views/ShoppingCartPage/ShoppingCartPage";
+import {shoppingCartActions} from "../../actions/shoppingCart.actions";
 
 const drawerWidth = 240;
 
@@ -104,6 +105,13 @@ class Front extends React.Component {
   state = {
     open: false
   };
+
+  constructor(props) {
+    super(props);
+    const {dispatch} = props;
+
+    dispatch(shoppingCartActions.loadFromLocalStorage())
+  }
 
   mainRoutesListItems = (
     <div>
