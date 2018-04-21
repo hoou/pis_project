@@ -26,11 +26,11 @@ class ShoppingCartPage extends React.Component {
   }
 
   render() {
-    const {classes} = this.props;
+    const {classes, items} = this.props;
 
     return (
       <Paper className={classes.root}>
-        <CustomTable/>
+        <CustomTable items={items}/>
         <Link to="/checkout">
           <Button color="primary" className={classes.checkoutButton} variant="raised">
             Checkout

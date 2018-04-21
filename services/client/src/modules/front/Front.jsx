@@ -233,7 +233,7 @@ class Front extends React.Component {
               {userRoutes.map((prop, key) => {
                 return <Route path={prop.path} component={prop.component} key={key}/>;
               })}
-              <Route exact path='/shopping-cart' component={ShoppingCartPage}/>
+              <Route exact path='/shopping-cart' render={() => <ShoppingCartPage items={cartItems}/>}/>
               <Route exact path='/checkout' component={CheckoutPage}/>
               <Route exact path='/product/:id' component={ProductDetailPage}/>
               <Redirect from="/" to="/home"/>

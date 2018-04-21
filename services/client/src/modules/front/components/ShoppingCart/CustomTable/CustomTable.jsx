@@ -94,7 +94,6 @@ class CustomTable extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  items: state.shoppingCart.items,
   products: state.products.items
 });
 
