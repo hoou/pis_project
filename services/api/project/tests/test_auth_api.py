@@ -33,6 +33,7 @@ def test_status(client):
 
     assert r.status_code == status.HTTP_200_OK
     assert payload['role'] == 'worker'
+    assert payload['email'] == 'tibor@mikita.eu'
 
 
 def test_status_not_logged_in(client):

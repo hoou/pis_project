@@ -28,7 +28,7 @@ class UserStatus(Resource):
         if not user.active:
             raise UserNotActive
 
-        return {'role': user.role.name.lower()}
+        return {'email': user.email, 'role': user.role.name.lower()}
 
 
 @ns.route('/register')
