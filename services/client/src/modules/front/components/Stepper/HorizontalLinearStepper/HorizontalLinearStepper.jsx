@@ -8,6 +8,7 @@ import AddressForm from "modules/front/forms/AddressForm";
 import {Paper} from "material-ui";
 import {connect} from "react-redux";
 import {checkoutActions} from "actions/checkout.actions";
+import {ordersActions} from "actions/orders.actions";
 import {submit} from "redux-form"
 import ShippingAndPaymentForm from "modules/front/forms/ShippingAndPaymentForm";
 import Summary from "modules/front/views/CheckoutPage/Summary";
@@ -62,12 +63,8 @@ class HorizontalLinearStepper extends React.Component {
       const deliveryAddress = _.mapKeys(address, (value, key) => _.snakeCase(key));
       deliveryAddress["phone"] = deliveryAddress["phone"].replace(/\s/g, "");
       deliveryAddress["zip_code"] = deliveryAddress["zip_code"].replace(/\s/g, "");
-      dispatch(
-        checkoutActions.createOrder(
-          orderItems,
-          deliveryAddress
-        )
-      )
+
+      dispatch(ordersActions.add(orderItems, deliveryAddress));
     }
   };
 

@@ -11,7 +11,6 @@ export const checkoutActions = {
   submitAddress,
   submitShippingAndPayment,
   loadFromLocalStorage,
-  createOrder,
 };
 
 function next() {
@@ -53,35 +52,4 @@ function loadFromLocalStorage() {
     address = null;
   }
   return {type: checkoutConstants.LOAD_FROM_LOCAL_STORAGE, shippingAndPayment, address};
-}
-
-function createOrder(items, address) {
-  return dispatch => {
-    ordersService.add(items, address)
-      .then(
-        data => {
-          dispatch(alertActions.success(data.message));
-          dispatch(shoppingCartActions.reset());
-          dispatch(checkoutActions.reset());
-          dispatch(success())
-        },
-        error => {
-          dispatch(alertActions.error(error));
-          dispatch(failure())
-        }
-      )
-      .finally(
-        () => {
-          history.push('/home');
-        }
-      )
-  };
-
-  function success() {
-    return {type: checkoutConstants.CREATE_ORDER_SUCCESS}
-  }
-
-  function failure() {
-    return {type: checkoutConstants.CREATE_ORDER_FAILURE}
-  }
 }
