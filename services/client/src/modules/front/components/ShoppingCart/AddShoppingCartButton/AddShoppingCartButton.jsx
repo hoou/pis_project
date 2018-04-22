@@ -1,8 +1,14 @@
 import React from "react"
-import {IconButton} from "material-ui";
+import {Button, IconButton, withStyles} from "material-ui";
 import {AddShoppingCart} from "@material-ui/icons";
 import {shoppingCartActions} from "actions/shoppingCart.actions";
 import {connect} from "react-redux";
+
+const styles = {
+  icon: {
+    marginRight: 10
+  }
+};
 
 class AddShoppingCartButton extends React.Component {
   handleClick = () => {
@@ -11,12 +17,20 @@ class AddShoppingCartButton extends React.Component {
   };
 
   render() {
+    const {classes, raised} = this.props;
     return (
-      <IconButton onClick={this.handleClick} aria-label="Add to cart">
-        <AddShoppingCart/>
-      </IconButton>
+      !raised ? (
+        <IconButton onClick={this.handleClick} aria-label="Add to cart">
+          <AddShoppingCart/>
+        </IconButton>
+      ) : (
+        <Button variant="raised">
+          <AddShoppingCart className={classes.icon}/>
+          add to cart
+        </Button>
+      )
     );
   }
 }
 
-export default connect()(AddShoppingCartButton);
+export default connect()(withStyles(styles)(AddShoppingCartButton));
