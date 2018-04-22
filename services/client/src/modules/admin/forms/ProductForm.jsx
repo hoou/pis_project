@@ -53,7 +53,7 @@ const renderTextField = ({input, label, meta: {touched, error}, ...custom}) => {
     errorMessage={error}
     inputProps={input}
     {...custom}
-  />
+  />;
 };
 
 class FieldFileInput extends React.Component {
@@ -118,17 +118,7 @@ function submit(values, dispatch, props) {
 }
 
 class ProductForm extends React.Component {
-  componentWillMount() {
-    const {data, change} = this.props;
 
-    if (data) {
-      change("name", data["name"]);
-      change("price", data["price"]);
-      change("description", data["description"]);
-      change("category", data["category"]["id"]);
-      change("count", data["count"]);
-    }
-  }
 
   render() {
     const {classes, dontRenderSubmit, categories} = this.props;

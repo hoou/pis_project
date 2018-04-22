@@ -4,14 +4,13 @@ import {submit} from "redux-form"
 import Dialog, {
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
 } from 'material-ui/Dialog';
 import {connect} from "react-redux";
 import {dialogsActions} from "actions/dialogs.actions";
 
 const FormDialog = props => {
-  const {title, edit, contentText, form, dispatch, open} = props;
+  const {title, edit, form, dispatch, open} = props;
 
   const handleClose = () => dispatch(dialogsActions.close());
   const handleClickCancel = handleClose;
@@ -27,9 +26,6 @@ const FormDialog = props => {
       >
         <DialogTitle id="form-dialog-title">{edit ? "Edit " : "Add new "}{title}</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            {contentText}
-          </DialogContentText>
           {form}
         </DialogContent>
         <DialogActions>
