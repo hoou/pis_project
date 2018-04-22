@@ -6,7 +6,6 @@ import Drawer from 'material-ui/Drawer';
 import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
 import List from 'material-ui/List';
-import Typography from 'material-ui/Typography';
 import Divider from 'material-ui/Divider';
 import IconButton from 'material-ui/IconButton';
 import {Menu, ChevronLeft, ChevronRight, ShoppingCart} from '@material-ui/icons';
@@ -15,7 +14,6 @@ import {Badge, ListItem, ListItemIcon, ListItemText} from "material-ui";
 import mainRoutes from "./routes/mainRoutes"
 import userRoutes from "./routes/userRoutes"
 import ProductDetailPage from "./views/ProductDetailPage/ProductDetailPage";
-import {connect} from "react-redux";
 import ShoppingCartPage from "./views/ShoppingCartPage/ShoppingCartPage";
 import {shoppingCartActions} from "actions/shoppingCart.actions";
 import CheckoutPage from "./views/CheckoutPage/CheckoutPage";
@@ -23,6 +21,8 @@ import {productsActions} from "actions/products.actions";
 import ShopPage from "./views/ShopPage/ShopPage";
 import HomePage from "./views/HomePage/HomePage";
 import AlertDialog from "./components/Dialog/AlertDialog/AlertDialog";
+import logo from "modules/front/assets/img/logo.png"
+import {connect} from "react-redux";
 
 const drawerWidth = 240;
 
@@ -97,11 +97,15 @@ const styles = theme => ({
     },
   },
   flex: {
-    flex: 1
+    flex: 1,
+    display: "flex",
   },
   shoppingCartIconButton: {
     marginRight: 20,
     color: '#fff'
+  },
+  logo: {
+    height: 64
   }
 });
 
@@ -189,9 +193,9 @@ class Front extends React.Component {
             >
               <Menu/>
             </IconButton>
-            <Typography variant="title" color="inherit" noWrap className={classes.flex}>
-              Title
-            </Typography>
+            <div className={classes.flex}>
+              <img className={classes.logo} src={logo}/>
+            </div>
             <Link to='/shopping-cart'>
               <IconButton
                 color='inherit'
