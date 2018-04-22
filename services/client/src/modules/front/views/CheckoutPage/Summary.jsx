@@ -14,7 +14,7 @@ import {
 } from "material-ui";
 import _ from "lodash";
 
-const styles = (theme) => ({
+const styles = () => ({
   listItem: {
     padding: 0
   },
@@ -70,9 +70,9 @@ const Summary = (props) => {
         <Grid item xs={12} sm={6}>
           <Typography variant="headline">Address</Typography>
           <List>
-            {_.map(_.values(address), value => (
-              <ListItem className={classes.listItem}>
-                <ListItemText>{value}</ListItemText>
+            {_.map(_.keys(address), key => (
+              <ListItem key={key} className={classes.listItem}>
+                <ListItemText>{address[key]}</ListItemText>
               </ListItem>
             ))}
           </List>

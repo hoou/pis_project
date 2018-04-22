@@ -22,6 +22,7 @@ import CheckoutPage from "./views/CheckoutPage/CheckoutPage";
 import {productsActions} from "actions/products.actions";
 import ShopPage from "./views/ShopPage/ShopPage";
 import HomePage from "./views/HomePage/HomePage";
+import AlertDialog from "./components/Dialog/AlertDialog/AlertDialog";
 
 const drawerWidth = 240;
 
@@ -172,7 +173,7 @@ class Front extends React.Component {
   };
 
   render() {
-    const {classes, theme, products, cartItems} = this.props;
+    const {classes, theme, products, cartItems, alert} = this.props;
 
     return (
       <div className={classes.root}>
@@ -254,6 +255,7 @@ class Front extends React.Component {
             </Switch>
           </div>
         </main>
+        {alert.message && <AlertDialog title={alert.type} content={alert.message}/>}
       </div>
     );
   }
@@ -261,6 +263,7 @@ class Front extends React.Component {
 
 const mapStateToProps = state => ({
   cartItems: state.shoppingCart.items,
-  products: state.products.items
+  products: state.products.items,
+  alert: state.alert,
 });
 export default connect(mapStateToProps)(withStyles(styles, {withTheme: true})(Front));
