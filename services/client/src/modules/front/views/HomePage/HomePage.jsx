@@ -3,6 +3,8 @@ import _ from "lodash"
 import Carousel from "modules/front/components/Carousel/Carousel";
 import {Grid, Typography, withStyles} from "material-ui";
 import ProductCard from "modules/front/components/ProductCard/ProductCard";
+import Brands from "./Brands";
+
 
 const styles = theme => ({
   root: {
@@ -25,6 +27,7 @@ const HomePage = (props) => {
   return (
     <div>
       <Carousel className={classes.carousel}/>
+      <Brands/>
       <Typography variant="display1" gutterBottom>
         Featured items
       </Typography>
