@@ -9,9 +9,9 @@ import {
   Grow,
   Paper,
   ClickAwayListener,
-  Hidden
+  Hidden, List, ListItem, Avatar, ListItemText
 } from "material-ui";
-import {Person} from "@material-ui/icons";
+import {Person, Email} from "@material-ui/icons";
 
 import headerLinksStyle from "modules/admin/assets/jss/material-dashboard-react/headerLinksStyle";
 
@@ -33,7 +33,7 @@ class HeaderLinks extends React.Component {
   };
 
   render() {
-    const {classes} = this.props;
+    const {classes, userEmail} = this.props;
     const {open} = this.state;
     return (
       <div>
@@ -71,6 +71,14 @@ class HeaderLinks extends React.Component {
                 style={{transformOrigin: "0 0 0"}}
               >
                 <Paper className={classes.dropdown}>
+                  <List>
+                    <ListItem>
+                      <Avatar>
+                        <Email/>
+                      </Avatar>
+                      <ListItemText>{userEmail}</ListItemText>
+                    </ListItem>
+                  </List>
                   <MenuList role="menu">
                     <MenuItem
                       onClick={this.handleLogout}

@@ -4,6 +4,7 @@ const initialState = {
   checkedStatus: false,
   loggedIn: false,
   role: null,
+  email: null,
   tokens: null
 };
 
@@ -14,7 +15,8 @@ export function authReducer(state = initialState, action) {
         ...state,
         checkedStatus: true,
         loggedIn: true,
-        role: action.role
+        role: action.role,
+        email: action.email
       };
     case authConstants.STATUS_FAILURE:
       return {

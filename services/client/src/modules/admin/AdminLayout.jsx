@@ -48,7 +48,7 @@ class AdminLayout extends React.Component {
   }
 
   render() {
-    const {classes, alert, ...rest} = this.props;
+    const {classes, alert, userEmail, ...rest} = this.props;
     return (
       <div className={classes.wrapper}>
         <Sidebar
@@ -63,6 +63,7 @@ class AdminLayout extends React.Component {
         />
         <div className={classes.mainPanel} ref="mainPanel">
           <Header
+            userEmail={userEmail}
             routes={appRoutes}
             handleDrawerToggle={this.handleDrawerToggle}
             handleLogout={this.props.handleLogout}
@@ -91,7 +92,8 @@ AdminLayout.propTypes = {
 function mapStateToProps(state) {
   const {alert} = state;
   return {
-    alert
+    alert,
+    userEmail: state.auth.email
   };
 }
 

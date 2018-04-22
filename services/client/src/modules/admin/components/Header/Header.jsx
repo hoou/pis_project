@@ -27,7 +27,7 @@ function Header({...props}) {
     return name;
   }
 
-  const {classes, color} = props;
+  const {classes, color, userEmail} = props;
   const appBarClasses = cx({
     [" " + classes[color]]: color
   });
@@ -41,7 +41,7 @@ function Header({...props}) {
           </Button>
         </div>
         <Hidden smDown implementation="css">
-          <HeaderLinks handleLogout={props.handleLogout}/>
+          <HeaderLinks userEmail={userEmail} handleLogout={props.handleLogout}/>
         </Hidden>
         <Hidden mdUp>
           <IconButton

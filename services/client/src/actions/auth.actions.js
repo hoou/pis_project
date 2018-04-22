@@ -19,21 +19,26 @@ function status() {
       dispatch(failure());
     else
       authService.status()
-        .then(data => {
-          const role = data["role"];
-          if (role === "admin" || role === "worker") {
-            dispatch(success(role))
-          } else {
-            dispatch(failure());
+        .then(
+          data => {
+            const role = data["role"];
+            const email = data["email"];
+            if (role === "admin" || role === "worker") {
+              dispatch(success(email, role))
+            } else {
+              dispatch(alertActions.error("Only admin and workers!"));
+              dispatch(failure());
+            }
+          },
+          error => {
+            dispatch(alertActions.error(error));
+            dispatch(failure())
           }
-        })
-        .catch(() => {
-          dispatch(failure());
-        });
+        )
   };
 
-  function success(role) {
-    return {type: authConstants.STATUS_SUCCESS, role}
+  function success(email, role) {
+    return {type: authConstants.STATUS_SUCCESS, email, role}
   }
 
   function failure() {
