@@ -1,4 +1,5 @@
 import React from 'react';
+import _ from "lodash";
 import {withStyles} from 'material-ui/styles';
 import Stepper, {Step, StepLabel} from 'material-ui/Stepper';
 import Button from 'material-ui/Button';
@@ -10,6 +11,7 @@ import {checkoutActions} from "actions/checkout.actions";
 import {submit} from "redux-form"
 import ShippingAndPaymentForm from "modules/front/forms/ShippingAndPaymentForm";
 import Summary from "modules/front/views/CheckoutPage/Summary";
+import {Redirect} from "react-router-dom";
 
 const styles = theme => ({
   root: {
@@ -43,18 +45,32 @@ class HorizontalLinearStepper extends React.Component {
   componentWillMount() {
     const {dispatch} = this.props;
 
+    dispatch(checkoutActions.init());
     dispatch(checkoutActions.loadFromLocalStorage());
   }
 
   handleNext = () => {
-    const {dispatch, activeStep} = this.props;
+    const {dispatch, activeStep, cartItems, address} = this.props;
+    const countedCartItems = _.countBy(cartItems);
 
     if (activeStep === 0) {
       dispatch(submit("AddressForm"))
     } else if (activeStep === 1) {
       dispatch(submit("ShippingAndPaymentForm"))
-    } else {
-      dispatch(checkoutActions.next())
+    } else if (activeStep === 2) {
+      const orderItems = _.map(
+        _.keys(countedCartItems),
+        key => ({"product_id": _.toInteger(key), "count": countedCartItems[key]})
+      );
+      const deliveryAddress = _.mapKeys(address, (value, key) => _.snakeCase(key));
+      deliveryAddress["phone"] = deliveryAddress["phone"].replace(/\s/g, "");
+      deliveryAddress["zip_code"] = deliveryAddress["zip_code"].replace(/\s/g, "");
+      dispatch(
+        checkoutActions.createOrder(
+          orderItems,
+          deliveryAddress
+        )
+      )
     }
   };
 
@@ -94,11 +110,14 @@ class HorizontalLinearStepper extends React.Component {
   };
 
   render() {
-    const {classes, activeStep} = this.props;
+    const {classes, activeStep, finishedCheckout} = this.props;
     const steps = getSteps();
 
     return (
       <div className={classes.root}>
+        {finishedCheckout ? (
+          <Redirect to="/home"/>
+        ) : null}
         <Stepper className={classes.stepper} activeStep={activeStep}>
           {steps.map(label => {
             const props = {};
@@ -153,6 +172,7 @@ class HorizontalLinearStepper extends React.Component {
 const mapStateToProps = state => ({
   activeStep: state.checkout.activeStep,
   address: state.checkout.address,
-  shippingAndPayment: state.checkout.shippingAndPayment
+  shippingAndPayment: state.checkout.shippingAndPayment,
+  finishedCheckout: state.checkout.finished
 });
 export default connect(mapStateToProps)(withStyles(styles)(HorizontalLinearStepper));

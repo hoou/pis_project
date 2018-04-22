@@ -5,7 +5,8 @@ const stepsCount = 3;
 const initialState = {
   activeStep: 0,
   address: null,
-  shippingAndPayment: null
+  shippingAndPayment: null,
+  finished: false
 };
 
 export function checkoutReducer(state = initialState, action) {
@@ -31,7 +32,6 @@ export function checkoutReducer(state = initialState, action) {
         address: action.values
       };
     case checkoutConstants.SUBMIT_SHIPPING_AND_PAYMENT:
-      console.log("shipping and payment v reduceri", action.values);
       return {
         ...state,
         shippingAndPayment: action.values
@@ -42,6 +42,18 @@ export function checkoutReducer(state = initialState, action) {
         address: action.address,
         shippingAndPayment: action.shippingAndPayment
       };
+    case checkoutConstants.INIT: {
+      return {
+        ...state,
+        finished: false
+      }
+    }
+    case checkoutConstants.FINISH: {
+      return {
+        ...state,
+        finished: true
+      }
+    }
     default:
       return state
   }

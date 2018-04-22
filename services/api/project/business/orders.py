@@ -30,8 +30,6 @@ def get_last_by_user(user: User) -> Order:
 
 
 def add(items: List[OrderItem], delivery_address: DeliveryAddress, user_id: int = None) -> Union[bool, Order]:
-    session.begin_nested()
-
     session.add(delivery_address)
     session.flush([delivery_address])
 
