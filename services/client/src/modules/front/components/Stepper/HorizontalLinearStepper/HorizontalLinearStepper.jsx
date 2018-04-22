@@ -11,7 +11,6 @@ import {checkoutActions} from "actions/checkout.actions";
 import {submit} from "redux-form"
 import ShippingAndPaymentForm from "modules/front/forms/ShippingAndPaymentForm";
 import Summary from "modules/front/views/CheckoutPage/Summary";
-import {Redirect} from "react-router-dom";
 
 const styles = theme => ({
   root: {
@@ -42,10 +41,8 @@ function getSteps() {
 }
 
 class HorizontalLinearStepper extends React.Component {
-  componentWillMount() {
+  componentDidMount() {
     const {dispatch} = this.props;
-
-    dispatch(checkoutActions.init());
     dispatch(checkoutActions.loadFromLocalStorage());
   }
 
@@ -110,14 +107,11 @@ class HorizontalLinearStepper extends React.Component {
   };
 
   render() {
-    const {classes, activeStep, finishedCheckout} = this.props;
+    const {classes, activeStep} = this.props;
     const steps = getSteps();
 
     return (
       <div className={classes.root}>
-        {finishedCheckout ? (
-          <Redirect to="/home"/>
-        ) : null}
         <Stepper className={classes.stepper} activeStep={activeStep}>
           {steps.map(label => {
             const props = {};
@@ -173,6 +167,5 @@ const mapStateToProps = state => ({
   activeStep: state.checkout.activeStep,
   address: state.checkout.address,
   shippingAndPayment: state.checkout.shippingAndPayment,
-  finishedCheckout: state.checkout.finished
 });
 export default connect(mapStateToProps)(withStyles(styles)(HorizontalLinearStepper));

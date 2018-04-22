@@ -9,7 +9,6 @@ import Dialog, {
 import {connect} from "react-redux";
 import {alertActions} from "actions/alert.actions";
 import {Error} from "@material-ui/icons";
-import {Typography} from "material-ui";
 
 class AlertDialog extends React.Component {
   handleClose = () => {
@@ -28,9 +27,7 @@ class AlertDialog extends React.Component {
           aria-describedby="alert-dialog-description"
         >
           <DialogTitle id="alert-dialog-title">
-            <Typography variant="title">
-              {title === "success" ? "Success" : <div>Error <Error color="error"/></div>}
-            </Typography>
+            {title === "success" ? "Success" : <div>Error <Error color="error"/></div>}
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">

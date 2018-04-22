@@ -6,7 +6,6 @@ const initialState = {
   activeStep: 0,
   address: null,
   shippingAndPayment: null,
-  finished: false
 };
 
 export function checkoutReducer(state = initialState, action) {
@@ -42,18 +41,6 @@ export function checkoutReducer(state = initialState, action) {
         address: action.address,
         shippingAndPayment: action.shippingAndPayment
       };
-    case checkoutConstants.INIT: {
-      return {
-        ...state,
-        finished: false
-      }
-    }
-    case checkoutConstants.FINISH: {
-      return {
-        ...state,
-        finished: true
-      }
-    }
     default:
       return state
   }

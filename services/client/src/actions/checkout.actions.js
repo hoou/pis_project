@@ -2,6 +2,7 @@ import {checkoutConstants} from 'constants/checkout.constants';
 import {ordersService} from "../services/orders.service";
 import {alertActions} from "./alert.actions";
 import {shoppingCartActions} from "./shoppingCart.actions";
+import {history} from "../helpers";
 
 export const checkoutActions = {
   next,
@@ -11,8 +12,6 @@ export const checkoutActions = {
   submitShippingAndPayment,
   loadFromLocalStorage,
   createOrder,
-  init,
-  finish,
 };
 
 function next() {
@@ -73,7 +72,7 @@ function createOrder(items, address) {
       )
       .finally(
         () => {
-          dispatch(checkoutActions.finish());
+          history.push('/home');
         }
       )
   };
@@ -85,12 +84,4 @@ function createOrder(items, address) {
   function failure() {
     return {type: checkoutConstants.CREATE_ORDER_FAILURE}
   }
-}
-
-function init() {
-  return {type: checkoutConstants.INIT};
-}
-
-function finish() {
-  return {type: checkoutConstants.FINISH};
 }
