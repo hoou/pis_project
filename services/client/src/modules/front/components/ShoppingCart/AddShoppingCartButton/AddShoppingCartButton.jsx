@@ -24,7 +24,7 @@ class AddShoppingCartButton extends React.Component {
           <AddShoppingCart/>
         </IconButton>
       ) : (
-        <Button variant="raised">
+        <Button onClick={this.handleClick} aria-label="Add to cart" variant="raised">
           <AddShoppingCart className={classes.icon}/>
           add to cart
         </Button>
