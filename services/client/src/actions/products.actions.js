@@ -94,7 +94,7 @@ function add(category_id, values) {
               .then(
                 () => {
                   dispatch(productsActions.getAll());
-                  dispatch(alertActions.data.message);
+                  dispatch(alertActions.success(data.message));
                   dispatch(success());
                 },
                 error => {
@@ -104,7 +104,7 @@ function add(category_id, values) {
               );
           } else {
             dispatch(productsActions.getAll());
-            dispatch(alertActions.data.message);
+            dispatch(alertActions.success(data.message));
             dispatch(success());
           }
         },
