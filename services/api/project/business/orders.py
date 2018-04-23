@@ -21,6 +21,10 @@ def get_all() -> List[Order]:
     return Order.query.all()
 
 
+def get_all_by_user(user: User) -> List[Order]:
+    return Order.query.filter_by(user_id=user.id).all()
+
+
 def get_last_order() -> Order:
     return Order.query.order_by(desc(Order.created)).first()
 

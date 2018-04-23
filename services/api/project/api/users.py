@@ -7,8 +7,9 @@ from flask_restplus import Resource
 from project.api import api
 from project.api.errors import NotFound, BadRequest, InvalidPayload
 from project.api.middleware.auth import active_required_if_logged_in
-from project.business import users
+from project.business import users, orders
 from project.models.serializers import user as user_serial
+from project.models.serializers import order as order_serial
 from project.models.user import Country
 
 ns = api.namespace('users')
@@ -68,3 +69,22 @@ class UserItem(Resource):
             raise BadRequest(str(e))
 
         return {'message': 'Profile successfully modified.'}
+
+
+@ns.route('/<int:user_resource_id>/orders')
+class UserOrderCollection(Resource):
+    @jwt_required
+    @active_required_if_logged_in
+    @api.marshal_list_with(order_serial)
+    def get(self, user_resource_id):
+        user_to_get = users.get(user_resource_id)
+
+        if user_to_get is None:
+            raise NotFound('User not found.')
+
+        user_id = get_jwt_identity()
+
+        if user_to_get.id != user_id:
+            raise BadRequest('You cannot get user orders of other person.')
+
+        return orders.get_all_by_user(user_to_get)
