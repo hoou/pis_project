@@ -7,7 +7,8 @@ const authActions = {
   checkLoggedIn,
   status,
   login,
-  logout
+  logout,
+  register
 };
 
 export default authActions;
@@ -111,6 +112,31 @@ function login(email, password, asAdmin = true) {
 
   function failure() {
     return {type: authConstants.LOGIN_FAILURE}
+  }
+}
+
+function register(email, password) {
+  return dispatch => {
+    authService.register(email, password)
+      .then(
+        data => {
+          dispatch(alertActions.success(data["message"]));
+          dispatch(success());
+          history.push('/home');
+        },
+        error => {
+          dispatch(alertActions.error(error));
+          dispatch(failure());
+        }
+      );
+  };
+
+  function success() {
+    return {type: authConstants.REGISTER_SUCCESS}
+  }
+
+  function failure() {
+    return {type: authConstants.REGISTER_FAILURE}
   }
 }
 

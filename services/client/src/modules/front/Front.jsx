@@ -40,6 +40,7 @@ import authActions from "actions/auth.actions";
 import LoginPage from "modules/front/views/LoginPage/LoginPage";
 import {alertActions} from "../../actions/alert.actions";
 import {history} from "../../helpers";
+import RegisterPage from "./views/RegisterPage/RegisterPage";
 
 const drawerWidth = 240;
 
@@ -124,7 +125,7 @@ const styles = theme => ({
   logo: {
     height: 64
   },
-  loginBtn: {
+  button: {
     color: "#fff"
   }
 });
@@ -300,11 +301,18 @@ class Front extends React.Component {
                 </Popper>
               </Manager>
             ) : (
-              <Link to="/login">
-                <Button className={classes.loginBtn}>
-                  Log in
-                </Button>
-              </Link>
+              <div>
+                <Link to="/login">
+                  <Button className={classes.button}>
+                    Log in
+                  </Button>
+                </Link>
+                <Link to="/register">
+                  <Button className={classes.button}>
+                    Register
+                  </Button>
+                </Link>
+              </div>
             )}
             <Link to='/shopping-cart'>
               <IconButton
@@ -351,6 +359,7 @@ class Front extends React.Component {
             <Switch>
               <Route exact path='/home' render={() => <HomePage products={products}/>}/>
               <Route exact path='/login' component={LoginPage}/>
+              <Route exact path='/register' component={RegisterPage}/>
               <Route exact path='/shop' render={() => <ShopPage products={products} categories={categories}/>}/>
               {userRoutes.map((prop, key) => {
                 return <Route path={prop.path} component={prop.component} key={key}/>;

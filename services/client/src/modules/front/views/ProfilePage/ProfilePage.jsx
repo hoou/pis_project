@@ -32,6 +32,7 @@ class ProfilePage extends React.Component {
       if (!_.has(values, attr)) {
         values[attr] = null;
       }
+
     });
 
     const formattedValues = _.mapKeys(values, (value, key) => _.snakeCase(key));

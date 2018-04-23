@@ -6,7 +6,8 @@ import {handleResponse} from "./helpers/handleResponse";
 export const authService = {
   login,
   logout,
-  status
+  status,
+  register
 };
 
 function status() {
@@ -38,6 +39,16 @@ function login(email, password) {
         }
       }
     )
+}
+
+function register(email, password) {
+  const requestOptions = {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({email: email, password: password})
+  };
+
+  return fetch(apiConstants.URL + '/auth/register', requestOptions).then(handleResponse)
 }
 
 function logout() {
