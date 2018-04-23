@@ -1,7 +1,8 @@
 import {ordersConstants} from 'constants/orders.constants';
 
 const initialState = {
-  items: []
+  items: [],
+  itemsByUser: []
 };
 
 export function ordersReducer(state = initialState, action) {
@@ -10,6 +11,11 @@ export function ordersReducer(state = initialState, action) {
       return {
         ...state,
         items: action.orders
+      };
+    case ordersConstants.GETALLBYUSER_SUCCESS:
+      return {
+        ...state,
+        itemsByUser: action.orders
       };
     default:
       return state

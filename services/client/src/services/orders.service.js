@@ -5,6 +5,7 @@ import {authHeader} from "helpers";
 export const ordersService = {
   add,
   getAll,
+  getAllByUser,
   updateStatus
 };
 
@@ -35,4 +36,13 @@ function getAll() {
   };
 
   return fetch(apiConstants.URL + '/orders/', requestOptions).then(handleResponse);
+}
+
+function getAllByUser(id) {
+  const requestOptions = {
+    method: 'GET',
+    headers: {...authHeader()}
+  };
+
+  return fetch(apiConstants.URL + '/users/' + id + '/orders', requestOptions).then(handleResponse);
 }

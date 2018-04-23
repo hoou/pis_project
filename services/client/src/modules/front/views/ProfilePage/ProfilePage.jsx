@@ -5,10 +5,13 @@ import {Redirect} from "react-router-dom";
 import _ from 'lodash';
 import UserForm from "modules/front/forms/UserForm";
 import {usersActions} from "actions/users.actions";
+import UserOrdersTable from "./UserOrdersTable";
+import {ordersActions} from "../../../../actions/orders.actions";
 
 const styles = {
   paper: {
-    padding: 50
+    padding: 50,
+    marginBottom: 50
   }
 };
 
@@ -38,8 +41,16 @@ class ProfilePage extends React.Component {
     dispatch(usersActions.update(user["id"], formattedValues))
   };
 
+  componentDidUpdate() {
+    const {dispatch, user} = this.props;
+
+    if (user) {
+      dispatch(ordersActions.getAllByUser(user["id"]))
+    }
+  }
+
   render() {
-    const {classes, loggedIn, checkedLoggedIn, user} = this.props;
+    const {classes, loggedIn, checkedLoggedIn, user, orders} = this.props;
 
     const formattedUser = _.mapKeys(user, (value, key) => _.camelCase(key));
 
@@ -50,6 +61,9 @@ class ProfilePage extends React.Component {
             <Grid item xs={12} sm={6}>
               <Paper className={classes.paper}>
                 <UserForm onSubmit={this.submit} data={formattedUser}/>
+              </Paper>
+              <Paper className={classes.paper}>
+                <UserOrdersTable orders={orders}/>
               </Paper>
             </Grid>
           </Grid>
@@ -64,6 +78,7 @@ class ProfilePage extends React.Component {
 const mapStateToProps = state => ({
   loggedIn: state.auth.loggedIn,
   checkedLoggedIn: state.auth.checkedLoggedIn,
-  user: state.auth.user
+  user: state.auth.user,
+  orders: state.orders.itemsByUser
 });
 export default connect(mapStateToProps)(withStyles(styles)(ProfilePage));

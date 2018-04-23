@@ -9,6 +9,7 @@ import {dialogsActions} from "./dialogs.actions";
 export const ordersActions = {
   add,
   getAll,
+  getAllByUser,
   updateStatus
 };
 
@@ -89,5 +90,28 @@ function getAll() {
 
   function failure() {
     return {type: ordersConstants.GETALL_FAILURE}
+  }
+}
+
+function getAllByUser(id) {
+  return dispatch => {
+    ordersService.getAllByUser(id)
+      .then(
+        orders => {
+          dispatch(success(orders))
+        },
+        error => {
+          dispatch(alertActions.error(error));
+          dispatch(failure())
+        }
+      );
+  };
+
+  function success(orders) {
+    return {type: ordersConstants.GETALLBYUSER_SUCCESS, orders: orders}
+  }
+
+  function failure() {
+    return {type: ordersConstants.GETALLBYUSER_FAILURE}
   }
 }
