@@ -12,7 +12,7 @@ export const ordersService = {
 function add(items, address) {
   const requestOptions = {
     method: 'POST',
-    headers: {'Content-Type': 'application/json'},
+    headers: {...authHeader(), 'Content-Type': 'application/json'},
     body: JSON.stringify({items: items, delivery_address: address})
   };
 
