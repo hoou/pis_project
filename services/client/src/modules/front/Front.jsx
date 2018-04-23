@@ -23,6 +23,7 @@ import HomePage from "./views/HomePage/HomePage";
 import AlertDialog from "./components/Dialog/AlertDialog/AlertDialog";
 import logo from "modules/front/assets/img/logo/whiteSide.png"
 import {connect} from "react-redux";
+import {categoriesActions} from "actions/categories.actions";
 
 const drawerWidth = 240;
 
@@ -120,6 +121,7 @@ class Front extends React.Component {
 
     dispatch(shoppingCartActions.loadFromLocalStorage());
     dispatch(productsActions.getAll());
+    dispatch(categoriesActions.getAll());
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -176,7 +178,7 @@ class Front extends React.Component {
   };
 
   render() {
-    const {classes, theme, products, cartItems, alert} = this.props;
+    const {classes, theme, products, categories, cartItems, alert} = this.props;
 
     return (
       <div className={classes.root}>
@@ -236,7 +238,7 @@ class Front extends React.Component {
           <div>
             <Switch>
               <Route exact path='/home' render={() => <HomePage products={products}/>}/>
-              <Route exact path='/shop' component={ShopPage}/>
+              <Route exact path='/shop' render={() => <ShopPage products={products} categories={categories}/>}/>
               {userRoutes.map((prop, key) => {
                 return <Route path={prop.path} component={prop.component} key={key}/>;
               })}
@@ -268,5 +270,6 @@ const mapStateToProps = state => ({
   cartItems: state.shoppingCart.items,
   products: state.products.items,
   alert: state.alert,
+  categories: state.categories.items
 });
 export default connect(mapStateToProps)(withStyles(styles, {withTheme: true})(Front));
