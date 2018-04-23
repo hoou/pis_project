@@ -32,7 +32,7 @@ function submit(values, dispatch) {
 }
 
 class AddressForm extends React.Component {
-  componentDidUpdate(prevProps, prevState, snapshot) {
+  componentWillMount() {
     const {address, change} = this.props;
 
     if (address) {
@@ -153,8 +153,8 @@ class AddressForm extends React.Component {
           </Grid>
           <Grid item xs={12} sm={6}>
             <Field select required name="country" label="Country" component={this.renderTextField}>
-              <MenuItem value="Slovakia">Slovakia</MenuItem>
-              <MenuItem value="Czech republic">Czech republic</MenuItem>
+              <MenuItem value={1}>Slovakia</MenuItem>
+              <MenuItem value={0}>Czech republic</MenuItem>
             </Field>
           </Grid>
         </Grid>

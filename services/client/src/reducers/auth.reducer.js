@@ -4,7 +4,8 @@ const initialState = {
   checkedLoggedIn: false,
   loggedIn: false,
   user: null,
-  tokens: null
+  tokens: null,
+  gotStatus: false
 };
 
 export function authReducer(state = initialState, action) {
@@ -12,7 +13,6 @@ export function authReducer(state = initialState, action) {
     case authConstants.CHECK_LOGGED_IN_SUCCESS:
       return {
         ...state,
-        user: action.data,
         loggedIn: true,
         checkedLoggedIn: true
       };
@@ -26,7 +26,13 @@ export function authReducer(state = initialState, action) {
     case authConstants.STATUS_SUCCESS:
       return {
         ...state,
-        user: action.data
+        user: action.data,
+        gotStatus: true
+      };
+    case authConstants.STATUS_FAILURE:
+      return {
+        ...state,
+        gotStatus: true
       };
     case authConstants.LOGIN_SUCCESS:
       return {
@@ -35,11 +41,7 @@ export function authReducer(state = initialState, action) {
         tokens: action.tokens,
       };
     case authConstants.LOGOUT:
-      return {
-        ...state,
-        loggedIn: false,
-        tokens: null
-      };
+      return initialState;
     default:
       return state
   }

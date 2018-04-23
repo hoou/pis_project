@@ -6,6 +6,7 @@ const initialState = {
   activeStep: 0,
   address: null,
   shippingAndPayment: null,
+  loadedFromCache: false
 };
 
 export function checkoutReducer(state = initialState, action) {
@@ -23,7 +24,8 @@ export function checkoutReducer(state = initialState, action) {
 
     case checkoutConstants.RESET:
       return {
-        ...initialState
+        ...initialState,
+        loadedFromCache: true
       };
     case checkoutConstants.SUBMIT_ADDRESS:
       return {
@@ -39,7 +41,8 @@ export function checkoutReducer(state = initialState, action) {
       return {
         ...state,
         address: action.address,
-        shippingAndPayment: action.shippingAndPayment
+        shippingAndPayment: action.shippingAndPayment,
+        loadedFromCache: true
       };
     default:
       return state

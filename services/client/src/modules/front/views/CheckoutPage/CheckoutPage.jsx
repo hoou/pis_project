@@ -5,18 +5,20 @@ import _ from "lodash"
 import {Redirect} from "react-router-dom";
 
 const CheckoutPage = (props) => {
-  const {products, cartItems} = props;
+  const {products, cartItems, cartItemsLoadedFromCache} = props;
   return (
-    _.size(cartItems) > 0 ?
-      <Grid container justify="center">
-        <Grid item xs={12} md={8} lg={6}>
-          <Typography variant="display1">Checkout</Typography>
-          <HorizontalLinearStepper products={products} cartItems={cartItems}/>
+    cartItemsLoadedFromCache ? (
+      _.size(cartItems) > 0 ?
+        <Grid container justify="center">
+          <Grid item xs={12} md={8} lg={6}>
+            <Typography variant="display1">Checkout</Typography>
+            <HorizontalLinearStepper products={products} cartItems={cartItems}/>
+          </Grid>
         </Grid>
-      </Grid>
-      :
-      <Redirect to="/home"/>
-  )
+        :
+        <Redirect to="/home"/>
+    ) : null
+  );
 };
 
 

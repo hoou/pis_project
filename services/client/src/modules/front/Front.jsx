@@ -143,7 +143,7 @@ class Front extends React.Component {
       // clear alert on location change
       dispatch(authActions.checkLoggedIn(false));
     });
-
+    dispatch(authActions.status());
     dispatch(authActions.checkLoggedIn(false));
     dispatch(shoppingCartActions.loadFromLocalStorage());
     dispatch(productsActions.getAll());
@@ -220,7 +220,7 @@ class Front extends React.Component {
   };
 
   render() {
-    const {classes, loggedIn, theme, products, categories, cartItems, alert, user} = this.props;
+    const {classes, loggedIn, theme, products, categories, cartItems, alert, user, cartItemsLoadedFromCache} = this.props;
     const {menuOpen} = this.state;
 
     return (
@@ -360,7 +360,18 @@ class Front extends React.Component {
                 path='/shopping-cart'
                 render={() => <ShoppingCartPage products={products} items={cartItems}/>}
               />
-              <Route exact path='/checkout' render={() => <CheckoutPage products={products} cartItems={cartItems}/>}/>
+              <Route
+                exact
+                path='/checkout'
+                render={
+                  () =>
+                    <CheckoutPage
+                      products={products}
+                      cartItems={cartItems}
+                      cartItemsLoadedFromCache={cartItemsLoadedFromCache}
+                    />
+                }
+              />
               <Route
                 exact
                 path='/product/:id'
@@ -385,6 +396,7 @@ const mapStateToProps = state => ({
   alert: state.alert,
   categories: state.categories.items,
   loggedIn: state.auth.loggedIn,
-  user: state.auth.user
+  user: state.auth.user,
+  cartItemsLoadedFromCache: state.shoppingCart.loadedFromCache
 });
 export default connect(mapStateToProps)(withStyles(styles, {withTheme: true})(Front));

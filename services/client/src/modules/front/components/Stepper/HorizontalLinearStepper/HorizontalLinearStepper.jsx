@@ -12,6 +12,7 @@ import {ordersActions} from "actions/orders.actions";
 import {submit} from "redux-form"
 import ShippingAndPaymentForm from "modules/front/forms/ShippingAndPaymentForm";
 import Summary from "modules/front/views/CheckoutPage/Summary";
+import {history} from "helpers"
 
 const styles = theme => ({
   root: {
@@ -34,7 +35,7 @@ const styles = theme => ({
     padding: 30,
     minHeight: 400,
     marginBottom: 30
-  }
+  },
 });
 
 function getSteps() {
@@ -77,15 +78,20 @@ class HorizontalLinearStepper extends React.Component {
   handleReset = () => {
     const {dispatch} = this.props;
 
-    dispatch(checkoutActions.reset())
+    dispatch(checkoutActions.reset());
+    window.location.reload();
   };
 
   getStepContent = step => {
-    const {products, address, cartItems, shippingAndPayment} = this.props;
+    const {products, address, cartItems, shippingAndPayment, user, addressLoadedFromCache, gotStatus} = this.props;
+
+    const formattedUser = _.mapKeys(user, (value, key) => _.camelCase(key));
 
     switch (step) {
       case 0:
-        return <AddressForm address={address}/>;
+        return (
+          (addressLoadedFromCache && gotStatus) && <AddressForm address={address ? address : formattedUser}/>
+        );
       case 1:
         return <ShippingAndPaymentForm/>;
       case 2:
@@ -135,6 +141,9 @@ class HorizontalLinearStepper extends React.Component {
               <Paper className={classes.stepContent}>
                 {this.getStepContent(activeStep)}
               </Paper>
+              <Button onClick={this.handleReset} variant="raised">
+                Reset
+              </Button>
               <div className={classes.buttons}>
                 <Button
                   disabled={activeStep === 0}
@@ -164,5 +173,8 @@ const mapStateToProps = state => ({
   activeStep: state.checkout.activeStep,
   address: state.checkout.address,
   shippingAndPayment: state.checkout.shippingAndPayment,
+  user: state.auth.user,
+  addressLoadedFromCache: state.checkout.loadedFromCache,
+  gotStatus: state.auth.gotStatus
 });
 export default connect(mapStateToProps)(withStyles(styles)(HorizontalLinearStepper));

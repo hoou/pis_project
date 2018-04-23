@@ -25,14 +25,14 @@ function checkLoggedIn(asAdmin = true) {
             if (asAdmin) {
               const role = data["role_name"];
               if (role === "admin" || role === "worker") {
-                dispatch(success(data))
+                dispatch(success())
               } else {
                 history.push('/admin/login');
                 dispatch(alertActions.error("This is only for admin and workers!"));
                 dispatch(failure());
               }
             } else {
-              dispatch(success(data))
+              dispatch(success())
             }
           },
           error => {
@@ -44,8 +44,8 @@ function checkLoggedIn(asAdmin = true) {
         )
   };
 
-  function success(data) {
-    return {type: authConstants.CHECK_LOGGED_IN_SUCCESS, data}
+  function success() {
+    return {type: authConstants.CHECK_LOGGED_IN_SUCCESS}
   }
 
   function failure() {
@@ -66,7 +66,6 @@ function status() {
             dispatch(success(data));
           },
           error => {
-            dispatch(alertActions.error(error));
             dispatch(failure());
           }
         )

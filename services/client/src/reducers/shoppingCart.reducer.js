@@ -2,7 +2,8 @@ import _ from "lodash"
 import {shoppingCartConstants} from 'constants/shoppingCart.constants';
 
 const initialState = {
-  items: []
+  items: [],
+  loadedFromCache: false
 };
 
 export function shoppingCartReducer(state = initialState, action) {
@@ -29,7 +30,8 @@ export function shoppingCartReducer(state = initialState, action) {
     case shoppingCartConstants.LOAD_FROM_LOCAL_STORAGE:
       return {
         ...state,
-        items: action.items
+        items: action.items,
+        loadedFromCache: true
       };
     case shoppingCartConstants.CHECK_ITEMS:
       return {
@@ -37,10 +39,7 @@ export function shoppingCartReducer(state = initialState, action) {
         items: action.items
       };
     case shoppingCartConstants.RESET:
-      return {
-        ...state,
-        items: []
-      };
+      return initialState;
     default:
       return state
   }
