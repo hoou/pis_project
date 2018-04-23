@@ -17,26 +17,26 @@ const styles = () => ({
     marginBottom: 15
   },
   slide: {
-    height: 600,
+    height: 500,
     color: '#fff',
     overflow: "hidden",
     position: "relative"
   },
   slide1: {
-    backgroundColor: '#FEA900',
+    // backgroundColor: '#FEA900',
   },
   slide2: {
-    backgroundColor: '#B3DC4A',
+    // backgroundColor: '#B3DC4A',
   },
   slide3: {
-    backgroundColor: '#6AC0FF',
+    // backgroundColor: '#6AC0FF',
   },
   slideImg: {
     position: "absolute",
     top: "50%",
     width: "100%",
     height: "auto",
-    marginTop: -550
+    marginTop: -250
   }
 });
 
