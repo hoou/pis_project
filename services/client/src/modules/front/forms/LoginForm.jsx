@@ -1,7 +1,6 @@
 import React from 'react'
 import {Field, reduxForm} from 'redux-form'
 import {Button, TextField, withStyles} from "material-ui";
-import RegularButton from "modules/admin/components/CustomButtons/Button"
 
 const styles = theme => ({
   button: {
