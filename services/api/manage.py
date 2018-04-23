@@ -31,17 +31,27 @@ def recreate_db():
 @cli.command()
 def seed_db():
     from project.business import users
-    user = users.add(User(email='tibor@mikita.eu', password='admin123'))
+    admin = users.add(User(email='tibor@mikita.eu', password='admin123'))
+    admin.active = True
+    admin.role = UserRole.ADMIN
+
+    user = users.add(User(email='peter@hnat.eu', password='user123'))
     user.active = True
-    user.role = UserRole.ADMIN
+    user.role = UserRole.CUSTOMER
+
+    worker = users.add(User(email='samuel@jaklovsky.eu', password='worker123'))
+    worker.active = True
+    worker.role = UserRole.WORKER
 
     from project.business import categories
-    category1 = categories.add(Category('Traktory'))
-    category2 = categories.add(Category('Vlečky'))
-    category3 = categories.add(Category('Kultivátory'))
+    category_tractors = categories.add(Category('Tractors'))
+    category_trailers = categories.add(Category('Trailers'))
 
-    categories.add_product(category1, Product(name='Super product', price=19.99))
-    categories.add_product(category1, Product(name='Very bad product', price=2.99))
+    categories.add_product(category_tractors, Product(name='Zetor', price=180000))
+    categories.add_product(category_tractors, Product(name='New Holland', price=130000))
+    categories.add_product(category_tractors, Product(name='John Deere', price=150000))
+    categories.add_product(category_trailers, Product(name='Marshall 14T', price=7000))
+    categories.add_product(category_trailers, Product(name='Bailey 16T', price=8000))
 
 
 @cli.command()
