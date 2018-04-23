@@ -24,6 +24,9 @@ const styles = theme => ({
 
 const HomePage = (props) => {
   const {classes, products} = props;
+
+  const filteredProducts = _.take(_.orderBy(products, 'id', 'desc'), 6);
+
   return (
     <div>
       <Carousel className={classes.carousel}/>
@@ -32,7 +35,7 @@ const HomePage = (props) => {
         Featured items
       </Typography>
       <Grid container className={classes.root} spacing={16}>
-        {_.map(products, product => (
+        {_.map(filteredProducts, product => (
           <Grid item xs={12} sm={6} md={4} lg={2} key={product['id']}>
             <ProductCard product={product}/>
           </Grid>
