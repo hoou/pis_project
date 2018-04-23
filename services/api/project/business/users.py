@@ -31,11 +31,9 @@ def get_by_email(email):
 
 
 def update(user, attributes: set, data):
-    session.begin_nested()
-
     sorted_attributes = sorted(attributes)
     for attribute in sorted_attributes:
-        if data.get(attribute) is not None and hasattr(user, attribute):
+        if attribute in data and hasattr(user, attribute):
             try:
                 setattr(user, attribute, data[attribute])
             except (TypeError, ValueError) as e:

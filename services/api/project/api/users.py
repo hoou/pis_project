@@ -9,6 +9,7 @@ from project.api.errors import NotFound, BadRequest, InvalidPayload
 from project.api.middleware.auth import active_required_if_logged_in
 from project.business import users
 from project.models.serializers import user as user_serial
+from project.models.user import Country
 
 ns = api.namespace('users')
 
@@ -51,8 +52,15 @@ class UserItem(Resource):
 
         attributes = {'first_name', 'last_name', 'phone', 'street', 'zip_code', 'city', 'country', 'date_of_birth'}
 
-        if not any(data.get(attribute) for attribute in attributes):
+        if not any(attribute in data for attribute in attributes):
             raise InvalidPayload
+
+        country = data.get('country')
+        if country is not None:
+            try:
+                data['country'] = Country(country)
+            except ValueError as e:
+                raise BadRequest(str(e))
 
         try:
             users.update(user_to_edit, attributes, data)

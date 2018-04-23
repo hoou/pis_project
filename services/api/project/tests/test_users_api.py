@@ -208,6 +208,7 @@ def test_update_user_profile(client: FlaskClient):
     assert user.street == 'Kosicka'
     assert user.zip_code == '06601'
     assert user.phone == '+421111222333'
+    assert user.country == Country.SK
 
     r = client.patch(
         f'/api/users/{user.id}',
@@ -215,7 +216,8 @@ def test_update_user_profile(client: FlaskClient):
             'city': 'Medzilaborce',
             'street': 'Bratislavska',
             'zip_code': '99999',
-            'phone': '+420999999999'
+            'phone': '+420999999999',
+            'country': 0
         }),
         content_type='application/json',
         headers={'Authorization': f'Bearer {access_token}'}
@@ -230,6 +232,110 @@ def test_update_user_profile(client: FlaskClient):
     assert user.street == 'Bratislavska'
     assert user.zip_code == '99999'
     assert user.phone == '+420999999999'
+    assert user.country == Country.CZ
+
+
+def test_update_user_profile_remove_something(client: FlaskClient):
+    user = users.add(
+        User(
+            email='tibor@mikita.eu',
+            password='blah',
+            first_name='Tibor',
+            last_name='Mikita',
+            phone='+421111222333',
+            street='Kosicka',
+            zip_code='06601',
+            city='Humenne',
+            country=Country.SK,
+            date_of_birth=datetime.date(1994, 5, 25)
+        )
+    )
+    user.active = True
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    assert user.street == 'Kosicka'
+
+    r = client.patch(
+        f'/api/users/{user.id}',
+        data=json.dumps({
+            'street': None,
+        }),
+        content_type='application/json',
+        headers={'Authorization': f'Bearer {access_token}'}
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_200_OK
+    assert payload['message'] == 'Profile successfully modified.'
+
+    assert user.street is None
+
+
+def test_update_user_profile_invalid_country_code(client: FlaskClient):
+    user = users.add(
+        User(
+            email='tibor@mikita.eu',
+            password='blah',
+            first_name='Tibor',
+            last_name='Mikita',
+            phone='+421111222333',
+            street='Kosicka',
+            zip_code='06601',
+            city='Humenne',
+            country=Country.CZ,
+            date_of_birth=datetime.date(1994, 5, 25)
+        )
+    )
+    user.active = True
+
+    r = client.post(
+        '/api/auth/login',
+        data=json.dumps({
+            'email': 'tibor@mikita.eu',
+            'password': 'blah'
+        }),
+        content_type='application/json'
+    )
+
+    payload = r.json
+
+    access_token = payload['access_token']
+
+    assert user.city == 'Humenne'
+    assert user.street == 'Kosicka'
+    assert user.zip_code == '06601'
+    assert user.phone == '+421111222333'
+
+    r = client.patch(
+        f'/api/users/{user.id}',
+        data=json.dumps({
+            'city': 'Medzilaborce',
+            'street': 'Bratislavska',
+            'zip_code': '99999',
+            'phone': '+420999999999',
+            'country': 3
+        }),
+        content_type='application/json',
+        headers={'Authorization': f'Bearer {access_token}'}
+    )
+
+    payload = r.json
+
+    assert r.status_code == status.HTTP_400_BAD_REQUEST
+    assert 'is not a valid Country' in payload['message']
 
 
 def test_update_user_profile_not_logged_in(client: FlaskClient):
