@@ -15,7 +15,8 @@ export const productsActions = {
   restore,
   addImage,
   postRating,
-  getRatings
+  getRatings,
+  removeRating
 };
 
 function get(id) {
@@ -254,6 +255,31 @@ function postRating(id, values) {
 
   function failure() {
     return {type: productsConstants.POST_RATING_FAILURE}
+  }
+}
+
+function removeRating(id) {
+  return dispatch => {
+    productsService.removeRating(id)
+      .then(
+        data => {
+          dispatch(alertActions.success(data["message"]));
+          dispatch(getRatings(id));
+          dispatch(success());
+        },
+        error => {
+          dispatch(alertActions.error(error));
+          dispatch(failure());
+        }
+      )
+  };
+
+  function success() {
+    return {type: productsConstants.REMOVE_RATING_SUCCESS}
+  }
+
+  function failure() {
+    return {type: productsConstants.REMOVE_RATING_FAILURE}
   }
 }
 

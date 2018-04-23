@@ -1,6 +1,6 @@
 import React from "react";
 import CircularIndeterminate from "modules/front/components/Progress/CircularIndeterminate/CircularIndeterminate";
-import {Grid, Paper, Typography, withStyles} from "material-ui";
+import {Button, Grid, Paper, Typography, withStyles} from "material-ui";
 import ImageGridList from "modules/front/components/ImageGridList/ImageGridList";
 import AddShoppingCartButton from "modules/front/components/ShoppingCart/AddShoppingCartButton/AddShoppingCartButton";
 import RatingForm from "modules/front/forms/RatingForm";
@@ -26,12 +26,20 @@ class ProductDetailPage extends React.Component {
     dispatch(productsActions.postRating(product.id, values))
   };
 
+  handleDeleteRating = () => {
+    const {dispatch, product} = this.props;
+
+    dispatch(productsActions.removeRating(product.id))
+  };
+
   render() {
     const {product, classes, loggedIn, checkedLoggedIn, ratings, gotStatus, user} = this.props;
 
-    const didIRate = checkedLoggedIn && loggedIn && gotStatus
-      ? _.find(ratings, o => o["user"]["id"] === user["id"]) !== undefined
-      : false;
+    const myRating = checkedLoggedIn && loggedIn && gotStatus
+      ? _.find(ratings, o => o["user"]["id"] === user["id"])
+      : undefined;
+
+    const didIRate = myRating !== undefined;
 
     return (
       product ?
@@ -53,6 +61,16 @@ class ProductDetailPage extends React.Component {
                 <AddShoppingCartButton raised id={product.id}/>
               </div>
               {checkedLoggedIn && loggedIn && !didIRate && <RatingForm onSubmit={this.handleSubmitRating}/>}
+              {didIRate && (
+                <div>
+                  <div>
+                    My rating: {myRating["rating"]}
+                  </div>
+                  <div>
+                    <Button onClick={this.handleDeleteRating} variant="raised">Delete my rating</Button>
+                  </div>
+                </div>
+              )}
             </Paper>
           </Grid>
         </Grid>

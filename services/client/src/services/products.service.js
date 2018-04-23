@@ -13,7 +13,8 @@ export const productsService = {
   remove,
   restore,
   postRating,
-  getRatings
+  getRatings,
+  removeRating
 };
 
 function add(category_id, values) {
@@ -81,6 +82,15 @@ function postRating(id, values) {
     method: 'POST',
     headers: {...authHeader(), 'Content-Type': 'application/json'},
     body: JSON.stringify(values)
+  };
+
+  return fetch(apiConstants.URL + '/products/' + id + '/ratings', requestOptions).then(handleResponse);
+}
+
+function removeRating(id) {
+  const requestOptions = {
+    method: 'DELETE',
+    headers: {...authHeader()},
   };
 
   return fetch(apiConstants.URL + '/products/' + id + '/ratings', requestOptions).then(handleResponse);
