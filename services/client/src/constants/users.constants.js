@@ -1,0 +1,4 @@
+export const usersConstants = {
+  UPDATE_SUCCESS: 'USERS_UPDATE_SUCCESS',
+  UPDATE_FAILURE: 'USERS_UPDATE_FAILURE',
+};

@@ -1,18 +1,58 @@
 import React from "react";
-import {Paper} from "material-ui";
+import {Grid, Paper, withStyles} from "material-ui";
 import {connect} from "react-redux";
 import {Redirect} from "react-router-dom";
+import _ from 'lodash';
+import UserForm from "modules/front/forms/UserForm";
+import {usersActions} from "actions/users.actions";
+
+const styles = {
+  paper: {
+    padding: 50
+  }
+};
 
 class ProfilePage extends React.Component {
+  submit = values => {
+    const {dispatch, user} = this.props;
+
+    if (values["phone"]) {
+      values["phone"] = values["phone"].replace(/\s/g, "");
+    }
+
+    if (values["zip_code"]) {
+      values["zip_code"] = values["zip_code"].replace(/\s/g, "");
+    }
+
+    const attrs = ['firstName', 'lastName', 'phone', 'street', 'zipCode', 'city', 'country'];
+    _.forEach(attrs, attr => {
+      if (!_.has(values, attr)) {
+        values[attr] = null;
+      }
+    });
+
+    const formattedValues = _.mapKeys(values, (value, key) => _.snakeCase(key));
+
+    console.log(formattedValues);
+
+    dispatch(usersActions.update(user["id"], formattedValues))
+  };
+
   render() {
-    const {loggedIn, checkedLoggedIn} = this.props;
+    const {classes, loggedIn, checkedLoggedIn, user} = this.props;
+
+    const formattedUser = _.mapKeys(user, (value, key) => _.camelCase(key));
 
     return (
       checkedLoggedIn && (
         loggedIn ? (
-          <Paper>
-            "secret stuff"
-          </Paper>
+          <Grid container>
+            <Grid item xs={12} sm={6}>
+              <Paper className={classes.paper}>
+                <UserForm onSubmit={this.submit} data={formattedUser}/>
+              </Paper>
+            </Grid>
+          </Grid>
         ) : (
           <Redirect to="/login"/>
         )
@@ -23,6 +63,7 @@ class ProfilePage extends React.Component {
 
 const mapStateToProps = state => ({
   loggedIn: state.auth.loggedIn,
-  checkedLoggedIn: state.auth.checkedLoggedIn
+  checkedLoggedIn: state.auth.checkedLoggedIn,
+  user: state.auth.user
 });
-export default connect(mapStateToProps)(ProfilePage);
+export default connect(mapStateToProps)(withStyles(styles)(ProfilePage));

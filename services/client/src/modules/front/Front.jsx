@@ -39,6 +39,7 @@ import {categoriesActions} from "actions/categories.actions";
 import authActions from "actions/auth.actions";
 import LoginPage from "modules/front/views/LoginPage/LoginPage";
 import {alertActions} from "../../actions/alert.actions";
+import {history} from "../../helpers";
 
 const drawerWidth = 240;
 
@@ -137,6 +138,11 @@ class Front extends React.Component {
   constructor(props) {
     super(props);
     const {dispatch} = props;
+
+    history.listen((location, action) => {
+      // clear alert on location change
+      dispatch(authActions.checkLoggedIn(false));
+    });
 
     dispatch(authActions.checkLoggedIn(false));
     dispatch(shoppingCartActions.loadFromLocalStorage());
