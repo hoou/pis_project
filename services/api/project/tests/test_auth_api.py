@@ -32,7 +32,7 @@ def test_status(client):
     payload = r.json
 
     assert r.status_code == status.HTTP_200_OK
-    assert payload['role'] == 'worker'
+    assert payload['role_name'] == 'worker'
     assert payload['email'] == 'tibor@mikita.eu'
 
 

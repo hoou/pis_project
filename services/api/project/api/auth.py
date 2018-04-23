@@ -12,6 +12,7 @@ from project.api.middleware.auth import active_required_if_logged_in
 from project.business import users
 from project.business.users import DuplicateEmailError
 from project.models.user import User
+from project.models.serializers import user as user_serial
 
 ns = api.namespace('auth')
 
@@ -20,6 +21,7 @@ ns = api.namespace('auth')
 class UserStatus(Resource):
     @jwt_required
     @active_required_if_logged_in
+    @api.marshal_with(user_serial)
     def get(self):
         user_id = get_jwt_identity()
 
@@ -28,7 +30,7 @@ class UserStatus(Resource):
         if not user.active:
             raise UserNotActive
 
-        return {'email': user.email, 'role': user.role.name.lower()}
+        return user
 
 
 @ns.route('/register')
