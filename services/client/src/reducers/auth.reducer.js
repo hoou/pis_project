@@ -41,7 +41,10 @@ export function authReducer(state = initialState, action) {
         tokens: action.tokens,
       };
     case authConstants.LOGOUT:
-      return initialState;
+      return {
+        ...initialState,
+        checkedLoggedIn: true
+      };
     default:
       return state
   }
