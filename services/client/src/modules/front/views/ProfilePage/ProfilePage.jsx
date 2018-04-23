@@ -23,8 +23,8 @@ class ProfilePage extends React.Component {
       values["phone"] = values["phone"].replace(/\s/g, "");
     }
 
-    if (values["zip_code"]) {
-      values["zip_code"] = values["zip_code"].replace(/\s/g, "");
+    if (values["zipCode"]) {
+      values["zipCode"] = values["zipCode"].replace(/\s/g, "");
     }
 
     const attrs = ['firstName', 'lastName', 'phone', 'street', 'zipCode', 'city', 'country'];
