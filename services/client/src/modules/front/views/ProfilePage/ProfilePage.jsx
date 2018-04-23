@@ -6,7 +6,7 @@ import _ from 'lodash';
 import UserForm from "modules/front/forms/UserForm";
 import {usersActions} from "actions/users.actions";
 import UserOrdersTable from "./UserOrdersTable";
-import {ordersActions} from "../../../../actions/orders.actions";
+import {ordersActions} from "actions/orders.actions";
 
 const styles = {
   paper: {
