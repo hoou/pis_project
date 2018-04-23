@@ -100,7 +100,7 @@ class HorizontalLinearStepper extends React.Component {
       case 0:
         return (
           (addressLoadedFromCache && gotStatus)
-          && <AddressForm address={deliveryAddress ? deliveryAddress : formattedUser}/>
+          && <AddressForm address={deliveryAddress && !_.isEmpty(deliveryAddress) ? deliveryAddress : formattedUser}/>
         );
       case 1:
         return <ShippingAndPaymentForm/>;
