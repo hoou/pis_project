@@ -38,9 +38,10 @@ import {connect} from "react-redux";
 import {categoriesActions} from "actions/categories.actions";
 import authActions from "actions/auth.actions";
 import LoginPage from "modules/front/views/LoginPage/LoginPage";
-import {alertActions} from "../../actions/alert.actions";
-import {history} from "../../helpers";
+import {alertActions} from "actions/alert.actions";
+import {history} from "helpers";
 import RegisterPage from "./views/RegisterPage/RegisterPage";
+import ProfilePage from "./views/ProfilePage/ProfilePage";
 
 const drawerWidth = 240;
 
@@ -361,9 +362,11 @@ class Front extends React.Component {
               <Route exact path='/login' component={LoginPage}/>
               <Route exact path='/register' component={RegisterPage}/>
               <Route exact path='/shop' render={() => <ShopPage products={products} categories={categories}/>}/>
-              {userRoutes.map((prop, key) => {
-                return <Route path={prop.path} component={prop.component} key={key}/>;
-              })}
+              {/*{userRoutes.map((prop, key) => {*/}
+              {/*return <Route path={prop.path} component={prop.component} key={key}/>;*/}
+              {/*})}*/}
+              {}
+              <Route exact path='/profile' render={() => <ProfilePage user={user}/>}/>
               <Route
                 exact
                 path='/shopping-cart'
@@ -406,6 +409,7 @@ const mapStateToProps = state => ({
   categories: state.categories.items,
   loggedIn: state.auth.loggedIn,
   user: state.auth.user,
-  cartItemsLoadedFromCache: state.shoppingCart.loadedFromCache
+  cartItemsLoadedFromCache: state.shoppingCart.loadedFromCache,
+  gotStatus: state.auth.user
 });
 export default connect(mapStateToProps)(withStyles(styles, {withTheme: true})(Front));

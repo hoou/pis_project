@@ -42,16 +42,8 @@ class ProfilePage extends React.Component {
     dispatch(usersActions.update(user["id"], formattedValues))
   };
 
-  componentDidUpdate() {
-    const {dispatch, user} = this.props;
-
-    if (user) {
-      dispatch(ordersActions.getAllByUser(user["id"]))
-    }
-  }
-
   render() {
-    const {classes, loggedIn, checkedLoggedIn, user, orders} = this.props;
+    const {classes, gotStatus, loggedIn, checkedLoggedIn, user} = this.props;
 
     const formattedUser = _.mapKeys(user, (value, key) => _.camelCase(key));
 
@@ -64,7 +56,7 @@ class ProfilePage extends React.Component {
                 <UserForm onSubmit={this.submit} data={formattedUser}/>
               </Paper>
               <Paper className={classes.paper}>
-                <UserOrdersTable orders={orders}/>
+                {gotStatus && <UserOrdersTable user={user}/>}
               </Paper>
             </Grid>
           </Grid>
@@ -79,7 +71,6 @@ class ProfilePage extends React.Component {
 const mapStateToProps = state => ({
   loggedIn: state.auth.loggedIn,
   checkedLoggedIn: state.auth.checkedLoggedIn,
-  user: state.auth.user,
-  orders: state.orders.itemsByUser
+  gotStatus: state.auth.gotStatus
 });
 export default connect(mapStateToProps)(withStyles(styles)(ProfilePage));
