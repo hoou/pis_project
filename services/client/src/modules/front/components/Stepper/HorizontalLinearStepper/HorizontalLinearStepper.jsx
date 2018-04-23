@@ -38,6 +38,11 @@ const styles = theme => ({
   },
 });
 
+function createDeliveryAddress(userInfo) {
+  const addressAttrs = ['firstName', 'lastName', 'phone', 'street', 'zipCode', 'city', 'country'];
+  return _.pickBy(userInfo, (value, key) => _.includes(addressAttrs, key));
+}
+
 function getSteps() {
   return ['Address', 'Shipping and payment', 'Summary'];
 }
@@ -51,6 +56,7 @@ class HorizontalLinearStepper extends React.Component {
   handleNext = () => {
     const {dispatch, activeStep, cartItems, address} = this.props;
     const countedCartItems = _.countBy(cartItems);
+    let deliveryAddress = createDeliveryAddress(address);
 
     if (activeStep === 0) {
       dispatch(submit("AddressForm"))
@@ -61,7 +67,8 @@ class HorizontalLinearStepper extends React.Component {
         _.keys(countedCartItems),
         key => ({"product_id": _.toInteger(key), "count": countedCartItems[key]})
       );
-      const deliveryAddress = _.mapKeys(address, (value, key) => _.snakeCase(key));
+
+      deliveryAddress = _.mapKeys(deliveryAddress, (value, key) => _.snakeCase(key));
       deliveryAddress["phone"] = deliveryAddress["phone"].replace(/\s/g, "");
       deliveryAddress["zip_code"] = deliveryAddress["zip_code"].replace(/\s/g, "");
 
@@ -85,12 +92,15 @@ class HorizontalLinearStepper extends React.Component {
   getStepContent = step => {
     const {products, address, cartItems, shippingAndPayment, user, addressLoadedFromCache, gotStatus} = this.props;
 
+    const deliveryAddress = createDeliveryAddress(address);
+
     const formattedUser = _.mapKeys(user, (value, key) => _.camelCase(key));
 
     switch (step) {
       case 0:
         return (
-          (addressLoadedFromCache && gotStatus) && <AddressForm address={address ? address : formattedUser}/>
+          (addressLoadedFromCache && gotStatus)
+          && <AddressForm address={deliveryAddress ? deliveryAddress : formattedUser}/>
         );
       case 1:
         return <ShippingAndPaymentForm/>;
@@ -99,7 +109,7 @@ class HorizontalLinearStepper extends React.Component {
           <Summary
             products={products}
             cartItems={cartItems}
-            address={address}
+            address={deliveryAddress}
             shipping={shippingAndPayment["shipping"]}
             payment={shippingAndPayment["payment"]}
           />
