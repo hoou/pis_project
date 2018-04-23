@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=iso-8859-2"/>
+  <title>Projekt PIS</title>
+  <style type="text/css">
+    table {
+      border-collapse: collapse;
+    }
+
+    td, th {
+      border: 1px solid black;
+      padding: 0.3em 0.5em;
+      text-align: left;
+    }
+
+    dt {
+      font-weight: bold;
+      margin-top: 0.5em;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Zkontrolujte prosím nastavení kódování v hlavičce dokumentu 
+     podle použitého editoru -->
+
+<!-- Nahraďte prosím názvem tématu -->
+<h1>Internetový obchod s poľnohospodárskou technikou</h1>
+
+<!-- Editujte jména a maily autorů a jejich činnost -->
+<dl>
+  <dt>Autoři</dt>
+  <dd>Tibor Mikita
+    <a href="mailto:xmikit01@stud.fit.vutbr.cz">xmikit01@stud.fit.vutbr.cz</a> -
+    Backend v Pythone (flask rest api) + pomoc s Reactom, integrácia s dockerom
+  </dd>
+  <dd>Peter Hnat
+    <a href="mailto:xhnatp00@stud.fit.vutbr.cz">xhnatp00@stud.fit.vutbr.cz</a> -
+    Hlavný vývojar frontendu v Reacte
+  </dd>
+  <dd>Samuel Jaklovský
+    <a href="mailto:xjaklo02@stud.fit.vutbr.cz">xjaklo02@stud.fit.vutbr.cz</a> -
+    Databáza, Material UI komponenty v Reacte + pomoc s Reactom
+  </dd>
+</dl>
+
+<!-- uživatelské účty -->
+<h2>Uživatelé systému pro testování</h2>
+<p>Uveďte prosím existující zástupce <strong>všech rolí uživatelů</strong>.</p>
+<table>
+  <tr>
+    <th>Login</th>
+    <th>Heslo</th>
+    <th>Role</th>
+  </tr>
+  <tr>
+    <td>tibor@mikita.eu</td>
+    <td>admin123</td>
+    <td>admin</td>
+  </tr>
+  <tr>
+    <td>samuel@jaklovsky.eu</td>
+    <td>worker123</td>
+    <td>worker</td>
+  </tr>
+  <tr>
+    <td>peter@hnat.eu</td>
+    <td>customer123</td>
+    <td>customer</td>
+  </tr>
+</table>
+
+<h2>Postup instalace</h2>
+<ol>
+  <li>nainštalovať nástroje docker a docker-compose (najlepšie pod Linuxom)</li>
+  <li>vypnúť služby bežiace na porte 80 (nginx, apache, atď...)</li>
+  <li>export REACT_APP_API_SERVICE_URL=http://localhost/api</li>
+  <li>spustiť pomocou príkazu ./docker-compose -f docker-compose-dev.yml up --build -d</li>
+  <li>adresy
+  <ul>
+    <li>localhost - front module eshopu</li>
+    <li>localhost/admin - admin module eshopu(rozhranie pre administráciu)</li>
+    <li>localhost/api - dokumentácia REST API</li>
+  </ul>
+  </li>
+</ol>
+
+<!-- vyžadované knihovny třetích stran i s verzemi, které byly použity pro testování -->
+<h2>Vyžadované knihovny</h2>
+<p>všetky použité knižnice a balíčky je možné nájsť v súboroch:</p>
+<ul>
+  <li>./services/api/requirements.txt</li>
+  <li>./services/client/package.json</li>
+</ul>
+
+</body>
+</html>
