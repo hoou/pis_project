@@ -11,7 +11,9 @@ export const productsService = {
   getAllDeleted,
   update,
   remove,
-  restore
+  restore,
+  postRating,
+  getRatings
 };
 
 function add(category_id, values) {
@@ -65,7 +67,6 @@ function getAllDeleted() {
 }
 
 function update(id, values) {
-  console.log(values);
   const requestOptions = {
     method: 'PATCH',
     headers: {...authHeader(), 'Content-Type': 'application/json'},
@@ -73,6 +74,24 @@ function update(id, values) {
   };
 
   return fetch(apiConstants.URL + '/products/' + id, requestOptions).then(handleResponse);
+}
+
+function postRating(id, values) {
+  const requestOptions = {
+    method: 'POST',
+    headers: {...authHeader(), 'Content-Type': 'application/json'},
+    body: JSON.stringify(values)
+  };
+
+  return fetch(apiConstants.URL + '/products/' + id + '/ratings', requestOptions).then(handleResponse);
+}
+
+function getRatings(id) {
+  const requestOptions = {
+    method: 'GET',
+  };
+
+  return fetch(apiConstants.URL + '/products/' + id + '/ratings', requestOptions).then(handleResponse);
 }
 
 function remove(id) {

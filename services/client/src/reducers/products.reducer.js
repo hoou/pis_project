@@ -3,7 +3,9 @@ import {productsConstants} from 'constants/products.constants';
 const initialState = {
   items: [],
   deleted_items: [],
-  detail: null
+  detail: null,
+  ratingsByProduct: [],
+  gotItems: false,
 };
 
 export function productsReducer(state = initialState, action) {
@@ -17,6 +19,11 @@ export function productsReducer(state = initialState, action) {
       return {
         ...state,
         items: action.products
+      };
+    case productsConstants.GET_RATINGS_SUCCESS:
+      return {
+        ...state,
+        ratingsByProduct: action.data,
       };
     case productsConstants.GETALL_DELETED_SUCCESS:
       return {
