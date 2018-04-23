@@ -1,5 +1,6 @@
 import React from 'react';
 import _ from "lodash"
+import {Manager, Target, Popper} from "react-popper";
 import {withStyles} from 'material-ui/styles';
 import classNames from 'classnames';
 import Drawer from 'material-ui/Drawer';
@@ -8,9 +9,20 @@ import Toolbar from 'material-ui/Toolbar';
 import List from 'material-ui/List';
 import Divider from 'material-ui/Divider';
 import IconButton from 'material-ui/IconButton';
-import {Menu, ChevronLeft, ChevronRight, ShoppingCart} from '@material-ui/icons';
+import {Menu, ChevronLeft, ChevronRight, ShoppingCart, Person, Email} from '@material-ui/icons';
 import {Link, NavLink, Redirect, Route, Switch} from "react-router-dom";
-import {Badge, ListItem, ListItemIcon, ListItemText} from "material-ui";
+import {
+  Avatar,
+  Badge, Button,
+  ClickAwayListener, Grow,
+  Hidden,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  MenuItem,
+  MenuList,
+  Paper
+} from "material-ui";
 import mainRoutes from "./routes/mainRoutes"
 import userRoutes from "./routes/userRoutes"
 import ProductDetailPage from "./views/ProductDetailPage/ProductDetailPage";
@@ -24,6 +36,9 @@ import AlertDialog from "./components/Dialog/AlertDialog/AlertDialog";
 import logo from "modules/front/assets/img/logo/whiteSide.png"
 import {connect} from "react-redux";
 import {categoriesActions} from "actions/categories.actions";
+import authActions from "actions/auth.actions";
+import LoginPage from "modules/front/views/LoginPage/LoginPage";
+import {alertActions} from "../../actions/alert.actions";
 
 const drawerWidth = 240;
 
@@ -101,24 +116,29 @@ const styles = theme => ({
     flex: 1,
     display: "flex",
   },
-  shoppingCartIconButton: {
+  appBarIconButton: {
     marginRight: 20,
     color: '#fff'
   },
   logo: {
     height: 64
+  },
+  loginBtn: {
+    color: "#fff"
   }
 });
 
 class Front extends React.Component {
   state = {
-    open: false
+    open: false,
+    menuOpen: false
   };
 
   constructor(props) {
     super(props);
     const {dispatch} = props;
 
+    dispatch(authActions.checkLoggedIn(false));
     dispatch(shoppingCartActions.loadFromLocalStorage());
     dispatch(productsActions.getAll());
     dispatch(categoriesActions.getAll());
@@ -169,6 +189,14 @@ class Front extends React.Component {
     </div>
   );
 
+  handleLogout = () => {
+    const {dispatch} = this.props;
+
+    dispatch(authActions.logout());
+    dispatch(alertActions.success("You were logged out"));
+    this.setState({menuOpen: false});
+  };
+
   handleDrawerOpen = () => {
     this.setState({open: true});
   };
@@ -177,8 +205,17 @@ class Front extends React.Component {
     this.setState({open: false});
   };
 
+  handleCloseMenu = () => {
+    this.setState({menuOpen: false});
+  };
+
+  handleClickUserButton = () => {
+    this.setState({menuOpen: !this.state.menuOpen});
+  };
+
   render() {
-    const {classes, theme, products, categories, cartItems, alert} = this.props;
+    const {classes, loggedIn, theme, products, categories, cartItems, alert, user} = this.props;
+    const {menuOpen} = this.state;
 
     return (
       <div className={classes.root}>
@@ -198,10 +235,75 @@ class Front extends React.Component {
             <div className={classes.flex}>
               <img className={classes.logo} src={logo}/>
             </div>
+            {loggedIn ? (
+              <Manager style={{display: "inline-block"}}>
+                <Target>
+                  <IconButton
+                    color="inherit"
+                    aria-label="Person"
+                    aria-owns={menuOpen ? "menu-list" : null}
+                    aria-haspopup="true"
+                    onClick={this.handleClickUserButton}
+                    className={classes.buttonLink}
+                  >
+                    <Person className={classes.links}/>
+                    <Hidden mdUp>
+                      <p onClick={this.handleClickUserButton} className={classes.linkText}>
+                        Profile
+                      </p>
+                    </Hidden>
+                  </IconButton>
+                </Target>
+                <Popper
+                  placement="bottom-start"
+                  eventsEnabled={menuOpen}
+                  className={
+                    classNames({[classes.popperClose]: !menuOpen}) +
+                    " " +
+                    classes.pooperResponsive
+                  }
+                >
+                  <ClickAwayListener onClickAway={this.handleCloseMenu}>
+                    <Grow
+                      in={menuOpen}
+                      id="menu-list"
+                      style={{transformOrigin: "0 0 0"}}
+                    >
+                      <Paper className={classes.dropdown}>
+                        <div>
+                          <List>
+                            <ListItem>
+                              <Avatar>
+                                <Email/>
+                              </Avatar>
+                              <ListItemText>{user && user.email}</ListItemText>
+                            </ListItem>
+                          </List>
+                          <MenuList role="menu">
+                            <MenuItem
+                              onClick={this.handleLogout}
+                              className={classes.dropdownItem}
+                            >
+                              Logout
+                            </MenuItem>
+                          </MenuList>
+                        </div>
+                      </Paper>
+                    </Grow>
+                  </ClickAwayListener>
+                </Popper>
+              </Manager>
+            ) : (
+              <Link to="/login">
+                <Button className={classes.loginBtn}>
+                  Log in
+                </Button>
+              </Link>
+            )}
             <Link to='/shopping-cart'>
               <IconButton
                 color='inherit'
-                className={classes.shoppingCartIconButton}
+                className={classes.appBarIconButton}
               >
                 {
                   cartItems && cartItems.length > 0 ?
@@ -230,14 +332,19 @@ class Front extends React.Component {
           <Divider/>
           <List onClick={this.handleDrawerClose}>
             {this.mainRoutesListItems}
-            <Divider/>
-            {this.userRoutesListItems}
+            {loggedIn && (
+              <div>
+                <Divider/>
+                {this.userRoutesListItems}
+              </div>
+            )}
           </List>
         </Drawer>
         <main className={classes.content}>
           <div>
             <Switch>
               <Route exact path='/home' render={() => <HomePage products={products}/>}/>
+              <Route exact path='/login' component={LoginPage}/>
               <Route exact path='/shop' render={() => <ShopPage products={products} categories={categories}/>}/>
               {userRoutes.map((prop, key) => {
                 return <Route path={prop.path} component={prop.component} key={key}/>;
@@ -270,6 +377,8 @@ const mapStateToProps = state => ({
   cartItems: state.shoppingCart.items,
   products: state.products.items,
   alert: state.alert,
-  categories: state.categories.items
+  categories: state.categories.items,
+  loggedIn: state.auth.loggedIn,
+  user: state.auth.user
 });
 export default connect(mapStateToProps)(withStyles(styles, {withTheme: true})(Front));

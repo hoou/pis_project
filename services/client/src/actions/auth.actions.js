@@ -4,7 +4,7 @@ import {history} from 'helpers';
 import {alertActions} from "actions/alert.actions";
 
 const authActions = {
-  checkAdmin,
+  checkLoggedIn,
   status,
   login,
   logout
@@ -12,7 +12,7 @@ const authActions = {
 
 export default authActions;
 
-function checkAdmin() {
+function checkLoggedIn(asAdmin = true) {
   return dispatch => {
     const accessToken = localStorage.getItem("access_token");
 
@@ -22,17 +22,26 @@ function checkAdmin() {
       authService.status()
         .then(
           data => {
-            const role = data["role_name"];
-            if (role === "admin" || role === "worker") {
-              dispatch(success())
+            dispatch(authActions.status());
+            if (asAdmin) {
+              const role = data["role_name"];
+              if (role === "admin" || role === "worker") {
+                dispatch(success())
+              } else {
+                history.push('/admin/login');
+                dispatch(alertActions.error("This is only for admin and workers!"));
+                dispatch(failure());
+              }
             } else {
-              history.push('/admin/login');
-              dispatch(alertActions.error("This is only for admin and workers!"));
-              dispatch(failure());
+              dispatch(success())
             }
           },
           error => {
-            history.push('/admin/login');
+            if (asAdmin) {
+              history.push('/admin/login');
+            } else {
+              history.push('/login');
+            }
             dispatch(alertActions.error(error));
             dispatch(failure())
           }
@@ -40,11 +49,11 @@ function checkAdmin() {
   };
 
   function success() {
-    return {type: authConstants.CHECK_ADMIN_SUCCESS}
+    return {type: authConstants.CHECK_LOGGED_IN_SUCCESS}
   }
 
   function failure() {
-    return {type: authConstants.CHECK_ADMIN_FAILURE}
+    return {type: authConstants.CHECK_LOGGED_IN_FAILURE}
   }
 }
 
@@ -76,15 +85,21 @@ function status() {
   }
 }
 
-function login(email, password) {
+function login(email, password, asAdmin = true) {
   return dispatch => {
     authService.login(email, password)
       .then(
         tokens => {
           dispatch(alertActions.clear());
-          history.push('/admin');
           dispatch(success(tokens));
-          dispatch(checkAdmin());
+
+          if (asAdmin) {
+            history.push('/admin');
+            dispatch(checkLoggedIn());
+          } else {
+            dispatch(alertActions.success("You are logged in"));
+            history.push('/home');
+          }
         },
         error => {
           dispatch(alertActions.error(error));

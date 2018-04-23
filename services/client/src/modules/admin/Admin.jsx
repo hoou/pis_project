@@ -17,7 +17,7 @@ class Admin extends React.Component {
 
     const {dispatch} = props;
 
-    dispatch(authActions.checkAdmin());
+    dispatch(authActions.checkLoggedIn());
 
     this.handleLogout = this.handleLogout.bind(this);
 
@@ -32,7 +32,7 @@ class Admin extends React.Component {
   }
 
   render() {
-    return this.props.checkedAdmin ? (
+    return this.props.checkedLoggedIn ? (
       <Switch>
         <Route path="/admin/login" component={LoginPage}/>
         <PrivateRoute
@@ -50,7 +50,7 @@ function mapStateToProps(state) {
   const {auth} = state;
   return {
     loggedIn: auth.loggedIn,
-    checkedAdmin: auth.checkedAdmin
+    checkedLoggedIn: auth.checkedLoggedIn
   };
 }
 
