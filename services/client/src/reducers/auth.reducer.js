@@ -1,29 +1,31 @@
 import {authConstants} from 'constants/auth.constants';
 
 const initialState = {
-  checkedStatus: false,
+  checkedAdmin: false,
   loggedIn: false,
-  role: null,
-  email: null,
+  user: null,
   tokens: null
 };
 
 export function authReducer(state = initialState, action) {
   switch (action.type) {
+    case authConstants.CHECK_ADMIN_SUCCESS:
+      return {
+        ...state,
+        loggedIn: true,
+        checkedAdmin: true
+      };
+    case authConstants.CHECK_ADMIN_FAILURE:
+      return {
+        ...state,
+        loggedIn: false,
+        tokens: null,
+        checkedAdmin: true
+      };
     case authConstants.STATUS_SUCCESS:
       return {
         ...state,
-        checkedStatus: true,
-        loggedIn: true,
-        role: action.role,
-        email: action.email
-      };
-    case authConstants.STATUS_FAILURE:
-      return {
-        ...state,
-        checkedStatus: true,
-        loggedIn: false,
-        tokens: null
+        user: action.data
       };
     case authConstants.LOGIN_SUCCESS:
       return {

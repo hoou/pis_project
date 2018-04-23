@@ -16,6 +16,7 @@ import image from "modules/admin/assets/img/sidebar-3.jpg";
 import logo from "modules/admin/assets/img/reactlogo.png";
 import {connect} from "react-redux";
 import SnackbarContent from "modules/admin/components/Snackbar/SnackbarContent";
+import authActions from "actions/auth.actions";
 
 const switchRoutes = (
   <Switch>
@@ -36,6 +37,12 @@ class AdminLayout extends React.Component {
     this.setState({mobileOpen: !this.state.mobileOpen});
   };
 
+  componentWillMount() {
+    const {dispatch} = this.props;
+
+    dispatch(authActions.status());
+  }
+
   componentDidMount() {
     if (navigator.platform.indexOf('Win') > -1) {
       // eslint-disable-next-line
@@ -48,7 +55,7 @@ class AdminLayout extends React.Component {
   }
 
   render() {
-    const {classes, alert, userEmail, ...rest} = this.props;
+    const {classes, alert, user, ...rest} = this.props;
     return (
       <div className={classes.wrapper}>
         <Sidebar
@@ -63,7 +70,7 @@ class AdminLayout extends React.Component {
         />
         <div className={classes.mainPanel} ref="mainPanel">
           <Header
-            userEmail={userEmail}
+            user={user}
             routes={appRoutes}
             handleDrawerToggle={this.handleDrawerToggle}
             handleLogout={this.props.handleLogout}
@@ -93,7 +100,7 @@ function mapStateToProps(state) {
   const {alert} = state;
   return {
     alert,
-    userEmail: state.auth.email
+    user: state.auth.user
   };
 }
 

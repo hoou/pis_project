@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { NavLink } from "react-router-dom";
+import {NavLink} from "react-router-dom";
 import cx from "classnames";
 import {
   withStyles,
@@ -12,16 +12,16 @@ import {
   ListItemText
 } from "material-ui";
 
-import { HeaderLinks } from "modules/admin/components";
+import {HeaderLinks} from "modules/admin/components";
 
 import sidebarStyle from "modules/admin/assets/jss/material-dashboard-react/sidebarStyle.jsx";
 
-const Sidebar = ({ ...props }) => {
+const Sidebar = ({...props}) => {
   // verifies if routeName is the one active (in browser input)
   function activeRoute(routeName) {
     return props.location.pathname.indexOf(routeName) > -1 ? true : false;
   }
-  const { classes, color, logo, image, logoText, routes } = props;
+  const {classes, color, logo, image, logoText, routes} = props;
   var links = (
     <List className={classes.list}>
       {routes.map((prop, key) => {
@@ -41,7 +41,7 @@ const Sidebar = ({ ...props }) => {
           >
             <ListItem button className={classes.itemLink + listItemClasses}>
               <ListItemIcon className={classes.itemIcon + whiteFontClasses}>
-                <prop.icon />
+                <prop.icon/>
               </ListItemIcon>
               <ListItemText
                 primary={prop.sidebarName}
@@ -58,7 +58,7 @@ const Sidebar = ({ ...props }) => {
     <div className={classes.logo}>
       <a href="https://www.creative-tim.com" className={classes.logoLink}>
         <div className={classes.logoImage}>
-          <img src={logo} alt="logo" className={classes.img} />
+          <img src={logo} alt="logo" className={classes.img}/>
         </div>
         {logoText}
       </a>
@@ -81,13 +81,13 @@ const Sidebar = ({ ...props }) => {
         >
           {brand}
           <div className={classes.sidebarWrapper}>
-            <HeaderLinks />
+            <HeaderLinks/>
             {links}
           </div>
           {image !== undefined ? (
             <div
               className={classes.background}
-              style={{ backgroundImage: "url(" + image + ")" }}
+              style={{backgroundImage: "url(" + image + ")"}}
             />
           ) : null}
         </Drawer>
@@ -106,7 +106,7 @@ const Sidebar = ({ ...props }) => {
           {image !== undefined ? (
             <div
               className={classes.background}
-              style={{ backgroundImage: "url(" + image + ")" }}
+              style={{backgroundImage: "url(" + image + ")"}}
             />
           ) : null}
         </Drawer>
@@ -120,3 +120,5 @@ Sidebar.propTypes = {
 };
 
 export default withStyles(sidebarStyle)(Sidebar);
+
+// export default withStyles(sidebarStyle)(withRouter(props => <Sidebar {...props}/>));

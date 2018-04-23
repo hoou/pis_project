@@ -27,7 +27,7 @@ function Header({...props}) {
     return name;
   }
 
-  const {classes, color, userEmail} = props;
+  const {classes, color, user} = props;
   const appBarClasses = cx({
     [" " + classes[color]]: color
   });
@@ -41,7 +41,7 @@ function Header({...props}) {
           </Button>
         </div>
         <Hidden smDown implementation="css">
-          <HeaderLinks userEmail={userEmail} handleLogout={props.handleLogout}/>
+          <HeaderLinks user={user} handleLogout={props.handleLogout}/>
         </Hidden>
         <Hidden mdUp>
           <IconButton
@@ -64,3 +64,5 @@ Header.propTypes = {
 };
 
 export default withStyles(headerStyle)(Header);
+
+// export default withStyles(headerStyle)(withRouter(props => <Header {...props}/>));

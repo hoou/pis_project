@@ -41,7 +41,6 @@ function login(email, password) {
 }
 
 function logout() {
-  console.log("service logout - davam prec tokeny");
   localStorage.removeItem('access_token');
   localStorage.removeItem('refresh_token');
 }

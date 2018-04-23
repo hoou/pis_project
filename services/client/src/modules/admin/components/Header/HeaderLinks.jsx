@@ -33,7 +33,7 @@ class HeaderLinks extends React.Component {
   };
 
   render() {
-    const {classes, userEmail} = this.props;
+    const {classes, user} = this.props;
     const {open} = this.state;
     return (
       <div>
@@ -76,7 +76,7 @@ class HeaderLinks extends React.Component {
                       <Avatar>
                         <Email/>
                       </Avatar>
-                      <ListItemText>{userEmail}</ListItemText>
+                      <ListItemText>{user && user.email}</ListItemText>
                     </ListItem>
                   </List>
                   <MenuList role="menu">
