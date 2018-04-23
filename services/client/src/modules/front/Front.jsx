@@ -21,7 +21,7 @@ import {productsActions} from "actions/products.actions";
 import ShopPage from "./views/ShopPage/ShopPage";
 import HomePage from "./views/HomePage/HomePage";
 import AlertDialog from "./components/Dialog/AlertDialog/AlertDialog";
-import logo from "modules/front/assets/img/logo.png"
+import logo from "modules/front/assets/img/logo/whiteSide.png"
 import {connect} from "react-redux";
 
 const drawerWidth = 240;
