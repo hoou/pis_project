@@ -1,16 +1,16 @@
 import React from "react";
-import {Card, CardMedia, Grid, withStyles} from "material-ui";
+import {Grid, withStyles} from "material-ui";
 import Image from "material-ui-image"
 
-import johndeere from "modules/front/assets/img/brands/johndeere_logo.png"
-import newholland from "modules/front/assets/img/brands/newholland_logo.png"
-import valtra from "modules/front/assets/img/brands/valtra_logo.png"
-import zetor from "modules/front/assets/img/brands/zetor_logo.svg"
+import johndeere from "modules/front/assets/img/brands/johndeere_logo.jpg"
+import newholland from "modules/front/assets/img/brands/newholland_logo.jpg"
+import valtra from "modules/front/assets/img/brands/valtra_logo.jpg"
+import zetor from "modules/front/assets/img/brands/zetor_logo.jpg"
 
 const styles = {
   root: {
     marginBottom: 50,
-    marginTop: 50
+    // marginTop: 50
   }
 };
 
